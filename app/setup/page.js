@@ -9,6 +9,10 @@ function slugify(value) {
   return String(value || "wareb").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 async function buildUniqueStoreSlug(tx, storeName) {
   const baseSlug = slugify(storeName) || "wareb";
   let slug = baseSlug;
@@ -37,6 +41,10 @@ async function createSetup(formData) {
 
   if (!name || !email || !password || !storeName) {
     setupErrorRedirect("Semua field wajib diisi.");
+  }
+
+  if (!isValidEmail(email)) {
+    setupErrorRedirect("Format email tidak valid.");
   }
 
   if (password.length < 8) {
