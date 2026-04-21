@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import Image from "next/image";
+
 export default function PromoCarousel({ banners = [] }) {
   const [index, setIndex] = useState(0);
 
@@ -26,9 +28,11 @@ export default function PromoCarousel({ banners = [] }) {
 
   return (
     <section className="panel" style={{ overflow: "hidden", position: "relative" }}>
-      <img
+      <Image
         src={active.imageUrl}
         alt={active.title}
+        width={1200}
+        height={240}
         style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }}
       />
       <div style={{ position: "absolute", inset: "auto 0 0 0", padding: "1rem", color: "#fff", background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.72))" }}>

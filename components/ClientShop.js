@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 
+import Image from "next/image";
+
 export default function ClientShop({ store, menus, banners, tableNumber }) {
   const [cart, setCart] = useState([]);
   const [query, setQuery] = useState("");
@@ -70,7 +72,7 @@ export default function ClientShop({ store, menus, banners, tableNumber }) {
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 260, damping: 24 }}
               >
-                <img src={menu.imageUrl || "https://placehold.co/600x400/f8fafc/334155?text=Wareb+Menu"} alt={menu.name} className="menu-image" />
+                <Image src={menu.imageUrl || "https://placehold.co/600x400/f8fafc/334155.png?text=Wareb+Menu"} alt={menu.name} className="menu-image" width={600} height={400} />
                 <div style={{ padding: "0.9rem" }}>
                   <h3 style={{ margin: 0 }}>{menu.name}</h3>
                   <p className="muted" style={{ minHeight: 40 }}>{menu.description || "Menu warteg modern pilihan."}</p>

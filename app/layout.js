@@ -37,12 +37,16 @@ export const metadata = {
   }
 };
 
+import AuthProvider from "@/components/AuthProvider";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="id" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <PwaBootstrap />
-        {children}
+        <AuthProvider>
+          <PwaBootstrap />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

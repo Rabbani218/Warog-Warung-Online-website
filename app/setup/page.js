@@ -15,7 +15,7 @@ function LoadingSpinner() {
 }
 
 function SetupClient() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status, update } = useSession() || {};
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorMessage = searchParams?.get("error") || "";
