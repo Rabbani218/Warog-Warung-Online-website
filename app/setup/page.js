@@ -1,156 +1,77 @@
-import { hash } from "bcryptjs";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { findStore } from "@/lib/store";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { Suspense, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createSetup } from "./actions";
 
-function slugify(value) {
-  return String(value || "wareb").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function LoadingSpinner() {
+  return (
+    <div style={{ display: 'grid', placeItems: 'center', height: '100vh', width: '100%' }}>
+      <div style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #f97316', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 }
 
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
+function SetupClient() {
+  const { data: session, status, update } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams?.get("error") || "";
 
-async function buildUniqueStoreSlug(tx, storeName) {
-  const baseSlug = slugify(storeName) || "wareb";
-  let slug = baseSlug;
-  let counter = 2;
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/admin");
+    } else if (status === "authenticated" && session?.user?.storeId) {
+      router.push("/admin/dashboard");
+    }
+  }, [status, session, router]);
 
-  // Keep slug unique even when setup is retried with the same store name.
-  while (await tx.store.findUnique({ where: { slug } })) {
-    slug = `${baseSlug}-${counter}`;
-    counter += 1;
+  if (status === "loading" || status === "unauthenticated") {
+    return <LoadingSpinner />;
   }
-
-  return slug;
-}
-
-function setupErrorRedirect(message) {
-  redirect(`/setup?error=${encodeURIComponent(message)}`);
-}
-
-async function createSetup(formData) {
-  "use server";
-
-  const name = String(formData.get("name") || "").trim();
-  const email = String(formData.get("email") || "").trim().toLowerCase();
-  const password = String(formData.get("password") || "").trim();
-  const storeName = String(formData.get("storeName") || "").trim();
-
-  if (!name || !email || !password || !storeName) {
-    setupErrorRedirect("Semua field wajib diisi.");
-  }
-
-  if (!isValidEmail(email)) {
-    setupErrorRedirect("Format email tidak valid.");
-  }
-
-  if (password.length < 8) {
-    setupErrorRedirect("Password minimal 8 karakter.");
-  }
-
-  const existingStore = await findStore();
-  if (existingStore) {
-    redirect("/admin");
-  }
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    redirect(`/admin?message=${encodeURIComponent("Email sudah terdaftar. Silakan login.")}&email=${encodeURIComponent(email)}`);
-  }
-
-  const passwordHash = await hash(password, 10);
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name,
-          email,
-          passwordHash,
-          role: "ADMIN"
-        }
-      });
-
-      const slug = await buildUniqueStoreSlug(tx, storeName);
-
-      await tx.store.create({
-        data: {
-          ownerId: user.id,
-          name: storeName,
-          slug,
-          heroTitle: `${storeName} - Pesan cepat, bayar mudah`,
-          heroSubtitle: "Selamat datang di kasir digital F&B Anda."
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Setup transaction failed:", error);
-    setupErrorRedirect("Setup gagal diproses. Coba lagi beberapa saat.");
-  }
-
-  redirect(`/admin?message=${encodeURIComponent("Setup berhasil. Silakan login.")}&email=${encodeURIComponent(email)}`);
-}
-
-export default async function SetupPage({ searchParams }) {
-  const store = await findStore();
-  if (store) {
-    redirect("/");
-  }
-
-  const errorMessage = String(searchParams?.error || "").trim();
 
   return (
-    <main className="container" style={{ padding: "2rem 0", minHeight: "100vh", display: "grid", alignItems: "center" }}>
       <section className="panel hero-shell" style={{ maxWidth: 680, margin: "0 auto", padding: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <p className="badge">Wareb V2 Onboarding</p>
-            <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}>Buat Toko dan Akun Admin</h1>
+            <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}>Buat Toko Anda</h1>
             <p className="muted" style={{ margin: "0.4rem 0 0" }}>Satu kali setup, langsung siap jualan online dan kelola POS.</p>
-          </div>
-          <div className="muted" style={{ textAlign: "right", fontSize: "0.95rem" }}>
-            <p style={{ margin: 0 }}>Platform POS + E-Commerce F&B</p>
-            <p style={{ margin: "0.3rem 0 0" }}>Wizard setup profesional untuk pemilik warung.</p>
           </div>
         </div>
 
         {errorMessage && (
-          <p style={{ margin: "0 0 1rem", color: "#b91c1c" }}>
+          <p style={{ margin: "0 0 1rem", color: "#b91c1c", backgroundColor: "#fee2e2", padding: "0.75rem", borderRadius: "8px" }}>
             {errorMessage}
           </p>
         )}
 
-        <form action={createSetup} className="grid" style={{ gap: "1rem" }}>
-          <label className="field">
-            <span>Nama Pemilik / Admin</span>
-            <input name="name" className="input" placeholder="Ibu Siti" required />
-          </label>
-
-          <label className="field">
-            <span>Email Admin</span>
-            <input name="email" type="email" className="input" placeholder="admin@warteg.com" required />
-          </label>
-
-          <label className="field">
-            <span>Password</span>
-            <input name="password" type="password" className="input" placeholder="••••••••" minLength={8} required />
-            <small className="muted">Gunakan minimal 8 karakter agar akun lebih aman.</small>
-          </label>
-
+        <form action={async (formData) => {
+            await createSetup(formData);
+            await update();
+        }} className="grid" style={{ gap: "1.5rem" }}>
           <label className="field">
             <span>Nama Toko</span>
             <input name="storeName" className="input" placeholder="Warteg Bahari" required />
+            <small className="muted" style={{ marginTop: "0.25rem", display: "block" }}>Nama ini akan muncul di nota dan etalase digital Anda.</small>
           </label>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-            <p style={{ margin: 0, color: "#475569" }}>Setelah selesai, Anda akan diarahkan ke halaman login admin.</p>
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
             <button type="submit" className="btn" style={{ minWidth: 190 }}>Mulai Setup Sekarang</button>
           </div>
         </form>
       </section>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <main className="container" style={{ padding: "2rem 0", minHeight: "100vh", display: "grid", alignItems: "center" }}>
+      <Suspense fallback={<LoadingSpinner />}>
+        <SetupClient />
+      </Suspense>
     </main>
   );
 }

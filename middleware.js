@@ -2,19 +2,62 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const { pathname } = request.nextUrl;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+  // Kecualikan static files, next internal, API, dan halaman publik
+  if (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/api/") ||
+    pathname.includes(".") ||
+    pathname === "/"
+  ) {
+    return NextResponse.next();
   }
 
-  if (token.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", request.url));
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+
+  // /admin adalah halaman login
+  if (pathname === "/admin") {
+    if (token && token.role === "ADMIN") {
+      if (token.storeId) {
+         return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      } else {
+         return NextResponse.redirect(new URL("/setup", request.url));
+      }
+    }
+    return NextResponse.next();
+  }
+
+  // Izinkan akses /setup jika sudah login (meskipun belum punya store)
+  if (pathname.startsWith("/setup")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+    // Jika sudah punya store, cegah ke setup
+    if (token.storeId) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Proteksi area admin
+  if (pathname.startsWith("/admin/")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+    
+    if (token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    if (!token.storeId) {
+      return NextResponse.redirect(new URL("/setup", request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/dashboard/:path*", "/admin/products/:path*", "/admin/settings/:path*", "/admin/kds/:path*"]
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
