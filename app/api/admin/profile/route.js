@@ -12,7 +12,7 @@ export async function PATCH(req) {
   }
 
   try {
-    const { name, email, avatar, bio, description, address, employees } = await req.json();
+    const { name, email, avatar, bio, description, address, whatsappNumber, operationalHours, employees } = await req.json();
     const store = await getDefaultStore();
 
     if (!store) {
@@ -45,6 +45,8 @@ export async function PATCH(req) {
           bio: String(bio || "").trim() || null,
           description: String(description || "").trim() || null,
           address: String(address || "").trim() || null,
+          whatsappNumber: String(whatsappNumber || "").trim() || null,
+          operationalHours: String(operationalHours || "").trim() || null,
           employees: {
             deleteMany: {},
             create: employeeItems
@@ -65,6 +67,8 @@ export async function PATCH(req) {
         bio: updatedStore.bio,
         description: updatedStore.description,
         address: updatedStore.address,
+        whatsappNumber: updatedStore.whatsappNumber,
+        operationalHours: updatedStore.operationalHours,
         employees: updatedStore.employees
       }
     });

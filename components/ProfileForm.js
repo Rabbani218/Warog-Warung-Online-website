@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { Upload, Camera, Save, Loader2, CheckCircle2, User as UserIcon, Plus, Trash2, Store } from "lucide-react";
 
 export default function ProfileForm({ initialData }) {
@@ -15,6 +16,8 @@ export default function ProfileForm({ initialData }) {
     bio: initialData?.bio || "",
     description: initialData?.description || "",
     address: initialData?.address || "",
+    whatsappNumber: initialData?.whatsappNumber || "",
+    operationalHours: initialData?.operationalHours || "",
     employees: Array.isArray(initialData?.employees) && initialData.employees.length
       ? initialData.employees.map((item) => ({
           id: item.id || `new-${Math.random().toString(16).slice(2)}`,
@@ -106,7 +109,7 @@ export default function ProfileForm({ initialData }) {
           <div className="relative group">
             <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-gray-100 bg-slate-50">
               {form.avatar ? (
-                <img src={form.avatar} alt="Profile" className="w-full h-full object-cover" />
+                <Image src={form.avatar} alt="Profile" fill className="object-cover" unoptimized />
               ) : (
                 <UserIcon size={48} className="text-gray-400" />
               )}
@@ -207,6 +210,26 @@ export default function ProfileForm({ initialData }) {
                 placeholder="Jl. Contoh No. 123, Jakarta"
               />
             </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-1.5">
+                <span className="text-sm text-slate-500">Nomor WhatsApp CS</span>
+                <input
+                  className="input"
+                  value={form.whatsappNumber}
+                  onChange={(e) => setForm((prev) => ({ ...prev, whatsappNumber: e.target.value }))}
+                  placeholder="Contoh: 08123456789"
+                />
+              </label>
+              <label className="grid gap-1.5">
+                <span className="text-sm text-slate-500">Jam Operasional</span>
+                <input
+                  className="input"
+                  value={form.operationalHours}
+                  onChange={(e) => setForm((prev) => ({ ...prev, operationalHours: e.target.value }))}
+                  placeholder="Contoh: 08:00 - 22:00"
+                />
+              </label>
+            </div>
           </div>
         </div>
 

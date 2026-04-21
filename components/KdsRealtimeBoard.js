@@ -131,7 +131,11 @@ export default function KdsRealtimeBoard({ initialQueue }) {
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.18 }}
         className={`glass-card ${isDelayed ? "kds-delay" : ""}`}
-        style={{ padding: "1rem", marginBottom: "1rem" }}
+        style={{ padding: "1rem", marginBottom: "1rem", cursor: "grab" }}
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData("ticketId", ticket.id);
+        }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.5rem" }}>
           <strong style={{ fontSize: "1.1rem" }}>{ticket.order.orderCode}</strong>
@@ -210,7 +214,15 @@ export default function KdsRealtimeBoard({ initialQueue }) {
         className="grid"
         style={{ gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1.5rem" }}
       >
-        <div className="glass-card" style={{ padding: "1rem", minHeight: "500px" }}>
+        <div 
+          className="glass-card" 
+          style={{ padding: "1rem", minHeight: "500px" }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            const id = e.dataTransfer.getData("ticketId");
+            if (id) updateTicket(id, "NEW");
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", paddingBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.2)", color: "#f59e0b" }}>
             <Clock3 size={18} />
             <h3 style={{ margin: 0, fontWeight: "bold", fontSize: "0.875rem", textTransform: "uppercase" }}>
@@ -220,7 +232,15 @@ export default function KdsRealtimeBoard({ initialQueue }) {
           <AnimatePresence>{columns.NEW.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)}</AnimatePresence>
         </div>
 
-        <div className="glass-card" style={{ padding: "1rem", minHeight: "500px" }}>
+        <div 
+          className="glass-card" 
+          style={{ padding: "1rem", minHeight: "500px" }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            const id = e.dataTransfer.getData("ticketId");
+            if (id) updateTicket(id, "COOKING");
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", paddingBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.2)", color: "#f97316" }}>
             <ChefHat size={18} />
             <h3 style={{ margin: 0, fontWeight: "bold", fontSize: "0.875rem", textTransform: "uppercase" }}>
@@ -230,7 +250,15 @@ export default function KdsRealtimeBoard({ initialQueue }) {
           <AnimatePresence>{columns.COOKING.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)}</AnimatePresence>
         </div>
 
-        <div className="glass-card" style={{ padding: "1rem", minHeight: "500px" }}>
+        <div 
+          className="glass-card" 
+          style={{ padding: "1rem", minHeight: "500px" }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            const id = e.dataTransfer.getData("ticketId");
+            if (id) updateTicket(id, "READY");
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", paddingBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.2)", color: "#10b981" }}>
             <CheckCircle2 size={18} />
             <h3 style={{ margin: 0, fontWeight: "bold", fontSize: "0.875rem", textTransform: "uppercase" }}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Search, Plus, Trash2 } from "lucide-react";
 
 const initialForm = {
@@ -120,7 +121,7 @@ export default function ProductCrud() {
               >
                 <div className="h-40 w-full bg-black/40 relative">
                   {product.imageUrl ? (
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
+                    <Image src={product.imageUrl} alt={product.name} fill className="object-cover opacity-80 hover:opacity-100 transition-opacity" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-500">No Image</div>
                   )}

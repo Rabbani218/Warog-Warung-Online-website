@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Plus, Trash2, Link as LinkIcon } from "lucide-react";
 
 const defaultBanner = {
@@ -72,7 +73,7 @@ export default function BannerCrud() {
               className="glass-panel overflow-hidden flex flex-col"
             >
               <div className="h-48 w-full bg-black/40 relative">
-                <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
+                <Image src={banner.imageUrl} alt={banner.title} fill className="object-cover opacity-80 hover:opacity-100 transition-opacity" />
                 <button 
                   className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full backdrop-blur-md shadow-lg"
                   onClick={() => deleteBanner(banner.id)}

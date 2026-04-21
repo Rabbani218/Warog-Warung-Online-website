@@ -2,15 +2,21 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
+import ClientAuthModal from "@/components/ClientAuthModal";
+import ReviewSection from "@/components/ReviewSection";
+import FloatingCSButton from "@/components/FloatingCSButton";
 
 import Image from "next/image";
 
-export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees }) {
+export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees, reviews = [] }) {
   const [cart, setCart] = useState([]);
   const [query, setQuery] = useState("");
   const [addedItem, setAddedItem] = useState(null);
+  const { status } = useSession();
+  const [showAuth, setShowAuth] = useState(false);
 
   const filtered = useMemo(() => {
     const keyword = query.toLowerCase().trim();
@@ -19,6 +25,11 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
   }, [menus, query]);
 
   function addToCart(menu) {
+    if (status === "unauthenticated") {
+      setShowAuth(true);
+      return;
+    }
+
     setCart((prev) => {
       const existing = prev.find((item) => item.menuId === menu.id);
       if (existing) {
@@ -53,6 +64,9 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
         <p className="muted" style={{ margin: 0, maxWidth: 650 }}>
           {store.heroSubtitle || store.description || "Belanja menu favoritmu dengan checkout instan."}
         </p>
+        {store.operationalHours && (
+          <p className="text-sm font-semibold text-emerald-600 mt-2">🕒 Jam Operasional: {store.operationalHours}</p>
+        )}
         <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.8rem", flexWrap: "wrap" }}>
           {tableNumber ? <p style={{ margin: 0, color: "#334155" }}>Meja aktif: <strong>{tableNumber}</strong></p> : <p style={{ margin: 0 }} className="muted">Pesan untuk makan di tempat atau takeaway.</p>}
           <span className="badge">{menus.length} Menu Siap Dipesan</span>
@@ -113,6 +127,7 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
                       {addedItem === menu.id ? "Ditambahkan" : "Tambah"}
                     </motion.button>
                   </div>
+                  <ReviewSection menu={menu} reviews={reviews} onRequireAuth={() => setShowAuth(true)} />
                 </div>
               </motion.article>
             ))}
@@ -136,6 +151,9 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
           </div>
         </section>
       ) : null}
+
+      <FloatingCSButton whatsappNumber={store.whatsappNumber} onRequireAuth={() => setShowAuth(true)} />
+      <ClientAuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
     </main>
   );
 }

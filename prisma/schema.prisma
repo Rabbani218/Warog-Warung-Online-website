@@ -33,6 +33,7 @@ model User {
   orders        Order[]
   accounts      Account[]
   sessions      Session[]
+  reviews       Review[]
 }
 
 model Store {
@@ -58,6 +59,8 @@ model Store {
   salesHistories      SalesHistory[]
   employees           Employee[]
   paymentSettings     PaymentSettings?
+  whatsappNumber      String?
+  operationalHours    String?
 
   @@index([ownerId])
 }
@@ -115,6 +118,7 @@ model Menu {
   store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
   recipes       Recipe[]
   orderDetails  OrderDetail[]
+  reviews       Review[]
 
   @@unique([storeId, slug])
   @@index([storeId, isActive, createdAt])
@@ -257,4 +261,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  menuId    String
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menu      Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@index([menuId, createdAt])
+  @@index([userId])
 }

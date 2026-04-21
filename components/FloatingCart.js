@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { enqueueCheckout, flushCheckoutQueue, getQueueItems } from "@/lib/offline-queue";
 
 export default function FloatingCart({ cart, setCart, paymentSettings }) {
@@ -154,8 +155,8 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
         ) : null}
 
         {paymentMethod === "QRIS" && paymentInfo.QRIS ? (
-          <div style={{ marginTop: "0.5rem", border: "1px solid #e2e8f0", borderRadius: 10, padding: "0.4rem", background: "#fff" }}>
-            <img src={paymentInfo.QRIS} alt="QRIS pembayaran" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto", borderRadius: 8 }} />
+          <div style={{ marginTop: "0.5rem", border: "1px solid #e2e8f0", borderRadius: 10, padding: "0.4rem", background: "#fff", display: "flex", justifyItems: "center" }}>
+            <Image src={paymentInfo.QRIS} alt="QRIS pembayaran" width={220} height={220} style={{ margin: "0 auto", borderRadius: 8 }} unoptimized={paymentInfo.QRIS.startsWith('data:')} />
           </div>
         ) : null}
 
