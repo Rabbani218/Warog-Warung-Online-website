@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KDS - POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body class="bg-amber-50">
+    <main class="page space-y-6">
+      <header class="page-header panel">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-amber-700">Wareb Kitchen</p>
+          <h1 class="chalk-title text-3xl">Kitchen Display System</h1>
+        </div>
+        <a class="pill" href="/">Kembali</a>
+      </header>
+
+      <section class="panel">
+        <h2>Queue Pesanan</h2>
+        <div id="kdsQueue"></div>
+      </section>
+    </main>
+    <script src="/assets/state.js"></script>
+    <script src="/assets/kds.js"></script>
+  </body>
+</html>

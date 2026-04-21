@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client - POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body class="bg-amber-50">
+    <main class="page space-y-6">
+      <header class="page-header panel">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-amber-700">Wareb Client</p>
+          <h1 class="chalk-title text-3xl">Self-Service Order</h1>
+        </div>
+        <a class="pill" href="/">Kembali</a>
+      </header>
+
+      <section class="panel">
+        <h2>Katalog Menu</h2>
+        <div id="menuList" class="menu-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Checkout</h2>
+        <form id="checkoutForm" class="form-grid">
+          <label>Nomor Meja <input name="table_number" required maxlength="20" /></label>
+          <label>Nama Pelanggan <input name="customer_name" maxlength="120" /></label>
+          <label>Pajak (%) <input name="tax_percent" type="number" min="0" max="100" step="0.01" value="10" /></label>
+          <label>Diskon (Rp) <input name="discount_amount" type="number" min="0" step="0.01" value="0" /></label>
+          <button type="submit">Checkout</button>
+        </form>
+        <pre id="clientOutput" class="output"></pre>
+      </section>
+    </main>
+    <script src="/assets/state.js"></script>
+    <script src="/assets/client.js"></script>
+  </body>
+</html>

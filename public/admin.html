@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body class="bg-amber-50">
+    <main class="page space-y-6">
+      <header class="page-header panel">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-amber-700">Wareb Admin</p>
+          <h1 class="chalk-title text-3xl">Dashboard Kasir & Inventory</h1>
+        </div>
+        <a class="pill" href="/">Kembali</a>
+      </header>
+
+      <section class="panel">
+        <h2>Ringkasan Pendapatan</h2>
+        <div id="dashboardStats" class="card-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Transaksi Masuk</h2>
+        <div id="adminOrders"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Inventory Bahan & Alert</h2>
+        <div id="inventoryTable"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Resep BOM</h2>
+        <div id="recipeTable"></div>
+      </section>
+    </main>
+    <script src="/assets/state.js"></script>
+    <script src="/assets/admin.js"></script>
+  </body>
+</html>

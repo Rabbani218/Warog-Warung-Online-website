@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS Web Interfaces</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body class="bg-amber-50">
+    <main class="landing space-y-6">
+      <section class="hero-panel rounded-3xl p-6 md:p-10 text-white shadow-2xl">
+        <div class="max-w-3xl space-y-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-amber-100/80">Wareb V1</p>
+          <h1 class="chalk-title text-4xl md:text-6xl">Warung Website Interaktif</h1>
+          <p class="max-w-2xl text-sm md:text-base text-amber-50/90">
+            POS berbasis web dengan BOM, pemotongan stok otomatis saat pembayaran, receipt split untuk pelanggan dan KOT dapur, serta RBAC untuk admin, kasir, dan kitchen.
+          </p>
+        </div>
+      </section>
+
+      <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="chalk-title">Akses Cepat</h2>
+              <p>Masuk dan pilih peran operasional.</p>
+            </div>
+          </div>
+          <div class="card-grid">
+            <a class="card hover-lift" href="/client.html">
+              <h3>Client</h3>
+              <p>Self-service order dan checkout dengan receipt split.</p>
+            </a>
+            <a class="card hover-lift" href="/admin.html">
+              <h3>Admin / Cashier</h3>
+              <p>Validasi pembayaran, grafik pendapatan, dan inventory alert.</p>
+            </a>
+            <a class="card hover-lift" href="/kds.html">
+              <h3>Kitchen Display</h3>
+              <p>Pantau antrean real-time untuk juru masak dan barista.</p>
+            </a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="chalk-title">Login Role</h2>
+              <p>Gunakan akun seed demo untuk akses RBAC.</p>
+            </div>
+            <span id="sessionBadge" class="badge">Belum login</span>
+          </div>
+          <form id="loginForm" class="form-grid">
+            <label>Email<input name="email" type="email" value="admin@wareb.local" required /></label>
+            <label>Password<input name="password" type="password" value="admin12345" required /></label>
+            <button type="submit">Masuk</button>
+          </form>
+          <p id="loginOutput" class="output mt-4">Siap login.</p>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs text-stone-600">
+            <span class="pill">admin@wareb.local / admin12345</span>
+            <span class="pill">cashier@wareb.local / cashier12345</span>
+            <span class="pill">kitchen@wareb.local / kitchen12345</span>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="/assets/state.js"></script>
+    <script src="/assets/auth.js"></script>
+  </body>
+</html>

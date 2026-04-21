@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  stores        Store[]   @relation("StoreOwner")
+  orders        Order[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Store {
+  id                  String            @id @default(cuid())
+  ownerId             String
+  name                String
+  slug                String            @unique
+  description         String?
+  logoUrl             String?
+  heroTitle           String?
+  heroSubtitle        String?
+  bankAccountNumber   String?
+  paymentGatewayKey   String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  owner               User              @relation("StoreOwner", fields: [ownerId], references: [id])
+  menus               Menu[]
+  ingredients         Ingredient[]
+  banners             Banner[]
+  orders              Order[]
+  salesHistories      SalesHistory[]
+
+  @@index([ownerId])
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  storeId     String
+  title       String
+  imageUrl    String
+  targetUrl   String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, isActive, sortOrder])
+}
+
+model Menu {
+  id            String        @id @default(cuid())
+  storeId       String
+  name          String
+  slug          String
+  description   String?
+  imageUrl      String?
+  price         Decimal       @db.Decimal(12, 2)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  recipes       Recipe[]
+  orderDetails  OrderDetail[]
+
+  @@unique([storeId, slug])
+  @@index([storeId, isActive, createdAt])
+}
+
+model Ingredient {
+  id            String    @id @default(cuid())
+  storeId       String
+  name          String
+  unit          String
+  stockQty      Decimal   @db.Decimal(12, 3)
+  minimumStock  Decimal   @default(0) @db.Decimal(12, 3)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  store         Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  recipes       Recipe[]
+
+  @@index([storeId, updatedAt])
+  @@index([storeId, name])
+}
+
+model Recipe {
+  id            String      @id @default(cuid())
+  menuId        String
+  ingredientId  String
+  qtyNeeded     Decimal     @db.Decimal(12, 3)
+  menu          Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([menuId, ingredientId])
+  @@index([ingredientId])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  storeId        String
+  userId         String?
+  orderCode      String        @unique
+  tableNumber    String?
+  status         OrderStatus   @default(PENDING)
+  paymentMethod  String?
+  subTotal       Decimal       @db.Decimal(12, 2)
+  taxAmount      Decimal       @db.Decimal(12, 2)
+  grandTotal     Decimal       @db.Decimal(12, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  store          Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id])
+  details        OrderDetail[]
+  invoice        Invoice?
+  koticket       KOTicket?
+
+  @@index([storeId, status, createdAt])
+  @@index([storeId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model OrderDetail {
+  id          String    @id @default(cuid())
+  orderId     String
+  menuId      String
+  quantity    Int
+  unitPrice   Decimal   @db.Decimal(12, 2)
+  note        String?
+  lineTotal   Decimal   @db.Decimal(12, 2)
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menu        Menu      @relation(fields: [menuId], references: [id])
+
+  @@index([orderId])
+  @@index([menuId])
+}
+
+model Invoice {
+  id            String    @id @default(cuid())
+  orderId        String    @unique
+  invoiceNumber  String    @unique
+  invoiceUrl     String?
+  issuedAt       DateTime  @default(now())
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model KOTicket {
+  id           String   @id @default(cuid())
+  orderId       String   @unique
+  status        String   @default("NEW")
+  payload       Json
+  createdAt     DateTime @default(now())
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+}
+
+model SalesHistory {
+  id          String   @id @default(cuid())
+  storeId     String
+  soldAt      DateTime
+  menuName    String
+  quantity    Int
+  revenue     Decimal  @db.Decimal(12, 2)
+  source      String   @default("IMPORT")
+  createdAt   DateTime @default(now())
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, soldAt])
+  @@index([menuName, soldAt])
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  sessionToken  String   @unique
+  userId        String
+  expires       DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
