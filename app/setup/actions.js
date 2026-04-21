@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { hasDatabaseUrl } from "@/lib/runtimeEnv";
 
 function slugify(value) {
   return String(value || "wareb").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -27,6 +28,10 @@ export async function createSetup(formData) {
   
   if (!session?.user?.id) {
     redirect(`/setup?error=${encodeURIComponent("Sesi tidak valid, harap login kembali.")}`);
+  }
+
+  if (!hasDatabaseUrl()) {
+    redirect(`/setup?error=${encodeURIComponent("Setup tidak bisa dijalankan karena DATABASE_URL belum tersedia di environment deployment.")}`);
   }
 
   const storeName = String(formData.get("storeName") || "").trim();

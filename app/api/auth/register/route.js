@@ -1,5 +1,6 @@
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { databaseUnavailableResponse, hasDatabaseUrl } from "@/lib/runtimeEnv";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,10 @@ async function createUniqueStore(tx, ownerId, storeName) {
 
 export async function POST(request) {
   try {
+    if (!hasDatabaseUrl()) {
+      return databaseUnavailableResponse("Registrasi admin");
+    }
+
     const body = await request.json();
     const name = String(body?.name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();
