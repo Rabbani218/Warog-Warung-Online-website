@@ -4,16 +4,16 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl;
+    @apply bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-xl;
   }
   .glass-btn {
-    @apply relative overflow-hidden bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-4 rounded-xl border border-white/10 transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(255,45,32,0.5)];
+    @apply relative overflow-hidden bg-white/50 hover:bg-white/70 text-slate-800 font-medium py-2 px-4 rounded-xl border border-white/50 transition-all duration-300 shadow-sm hover:shadow-md;
   }
   .glass-btn-primary {
-    @apply relative overflow-hidden bg-determination-red/80 hover:bg-determination-red text-white font-medium py-2 px-4 rounded-xl border border-determination-red/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,32,0.3)] hover:shadow-[0_0_25px_rgba(255,45,32,0.6)];
+    @apply relative overflow-hidden bg-determination-red/90 hover:bg-determination-red text-white font-medium py-2 px-4 rounded-xl border border-determination-red/50 transition-all duration-300 shadow-lg hover:shadow-xl;
   }
   .glass-input {
-    @apply w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-determination-red/60 focus:ring-1 focus:ring-determination-red/60 transition-all;
+    @apply w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-2 text-slate-800 placeholder-gray-400 focus:outline-none focus:border-determination-red/60 focus:ring-1 focus:ring-determination-red/60 transition-all;
   }
   .retro-title {
     @apply font-retro tracking-wider;
@@ -93,7 +93,8 @@ a {
   cursor: pointer;
   font-weight: 700;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-    box-shadow: 0 12px 24px rgba(255, 107, 107, 0.24);
+  box-shadow: 0 12px 24px rgba(255, 107, 107, 0.24);
+  will-change: transform, box-shadow;
 }
 
 .btn:hover {
@@ -177,10 +178,10 @@ textarea:focus {
 }
 
 .glass-card {
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.85), rgba(255, 250, 248, 0.7));
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 248, 0.8));
   border: 1px solid rgba(255, 107, 107, 0.15);
   backdrop-filter: blur(12px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 .retro-heading {

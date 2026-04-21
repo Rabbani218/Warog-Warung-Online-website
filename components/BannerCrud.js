@@ -49,9 +49,9 @@ export default function BannerCrud() {
 
   return (
     <section className="glass-panel p-6">
-      <h3 className="retro-title text-xl text-white mb-6">Banner & Ads</h3>
+      <h3 className="retro-title text-xl text-slate-900 mb-6">Banner & Ads</h3>
       
-      <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 bg-black/20 p-4 rounded-xl border border-white/5" onSubmit={createBanner}>
+      <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 bg-black/5 p-4 rounded-xl border border-slate-200" onSubmit={createBanner}>
         <input className="glass-input lg:col-span-1" placeholder="Judul banner" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         <input className="glass-input lg:col-span-1" placeholder="Image URL" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} required />
         <input className="glass-input lg:col-span-1" placeholder="Target URL (opsional)" value={form.targetUrl} onChange={(e) => setForm({ ...form, targetUrl: e.target.value })} />
@@ -82,15 +82,15 @@ export default function BannerCrud() {
                 </button>
               </div>
               <div className="p-4">
-                <h4 className="text-white font-bold text-lg mb-1">{banner.title}</h4>
+                <h4 className="text-slate-900 font-bold text-lg mb-1">{banner.title}</h4>
                 {banner.targetUrl && (
-                  <p className="text-determination-yellow text-xs flex items-center gap-1">
+                  <p className="text-determination-orange text-xs flex items-center gap-1">
                     <LinkIcon size={12} /> <span className="truncate">{banner.targetUrl}</span>
                   </p>
                 )}
-                <div className="mt-3 flex justify-between items-center text-xs text-gray-400">
+                <div className="mt-3 flex justify-between items-center text-xs text-slate-500">
                   <span>Urutan: {banner.sortOrder}</span>
-                  <span className={`px-2 py-0.5 rounded-full ${banner.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-gray-400'}`}>
+                  <span className={`px-2 py-0.5 rounded-full ${banner.isActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
                     {banner.isActive ? 'Aktif' : 'Nonaktif'}
                   </span>
                 </div>
@@ -98,7 +98,7 @@ export default function BannerCrud() {
             </motion.article>
           ))}
         </AnimatePresence>
-        {banners.length === 0 && <p className="text-gray-400 col-span-full text-center py-4">Tidak ada banner.</p>}
+        {banners.length === 0 && <p className="text-slate-500 col-span-full text-center py-4">Tidak ada banner.</p>}
       </div>
     </section>
   );

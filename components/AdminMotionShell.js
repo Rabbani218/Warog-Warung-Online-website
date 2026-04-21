@@ -7,8 +7,8 @@ export default function AdminMotionShell({ children }) {
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-determination-black text-gray-100 font-sans">
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-amber-50" />
+    <div className="relative min-h-screen overflow-hidden bg-white text-slate-900 font-sans">
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-orange-50" />
       {/* Animated Mesh Gradients */}
       <motion.div
         className="absolute w-[60vw] h-[60vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30"
