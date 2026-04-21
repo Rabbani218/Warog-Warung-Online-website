@@ -14,28 +14,24 @@ function isValidEmail(value) {
 async function createUniqueStore(tx, ownerId, storeName) {
   const baseSlug = slugify(storeName) || "wareb";
 
-  for (let index = 0; index < 20; index += 1) {
-    const suffix = index === 0 ? "" : `-${index + 1}`;
-    const slug = `${baseSlug}${suffix}`;
+  const existingBase = await tx.store.findUnique({ where: { slug: baseSlug } });
+  let finalSlug = baseSlug;
 
-    const existing = await tx.store.findUnique({ where: { slug } });
-    if (existing) {
-      continue;
-    }
-
-    return tx.store.create({
-      data: {
-        ownerId,
-        name: storeName,
-        slug,
-        description: "Platform warteg interaktif dengan rasa lokal dan UX modern.",
-        heroTitle: "Promo Hemat Harian",
-        heroSubtitle: "Klik menu favoritmu, langsung kirim ke dapur."
-      }
-    });
+  if (existingBase) {
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    finalSlug = `${baseSlug}-${randomSuffix}`;
   }
 
-  throw new Error("Tidak bisa membuat slug toko yang unik.");
+  return tx.store.create({
+    data: {
+      ownerId,
+      name: storeName,
+      slug: finalSlug,
+      description: "Platform warteg interaktif dengan rasa lokal dan UX modern.",
+      heroTitle: "Promo Hemat Harian",
+      heroSubtitle: "Klik menu favoritmu, langsung kirim ke dapur."
+    }
+  });
 }
 
 export async function POST(request) {
@@ -81,6 +77,9 @@ export async function POST(request) {
       }
 
       return createdUser;
+    }, {
+      maxWait: 10000,
+      timeout: 15000
     });
 
     return Response.json({
