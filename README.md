@@ -117,8 +117,10 @@ Tambahkan di Vercel Project Settings:
 - `NEXTAUTH_SECRET`
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
+- `CORS_ORIGIN` (opsional, isi dengan domain produksi dan localhost bila perlu)
 
 > Pastikan `NEXTAUTH_URL` sama dengan domain produksi Vercel Anda agar Google OAuth callback bekerja.
+> Jika memakai backend legacy di `src/app.js`, isi `CORS_ORIGIN` dengan domain produksi agar request lintas-origin tidak diblokir.
 
 ### Build Settings
 

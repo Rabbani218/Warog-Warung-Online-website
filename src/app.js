@@ -14,9 +14,36 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
-  .split(",")
-  .map((origin) => origin.trim());
+
+function normalizeOrigin(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    return new URL(trimmed).origin;
+  } catch (_error) {
+    return null;
+  }
+}
+
+function getAllowedOrigins() {
+  const configuredOrigins = String(process.env.CORS_ORIGIN || "")
+    .split(",")
+    .map((origin) => normalizeOrigin(origin))
+    .filter(Boolean);
+
+  const derivedOrigins = [
+    normalizeOrigin(process.env.NEXTAUTH_URL),
+    normalizeOrigin(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ""),
+    normalizeOrigin("http://localhost:3000")
+  ].filter(Boolean);
+
+  return [...new Set([...configuredOrigins, ...derivedOrigins])];
+}
+
+const allowedOrigins = getAllowedOrigins();
 
 app.use(
   cors({
