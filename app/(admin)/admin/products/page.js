@@ -15,19 +15,19 @@ export default async function ProductsPage() {
   }
 
   return (
-    <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="w-full max-w-7xl mx-auto">
-        <header style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
+    <main className="w-full min-h-screen">
+      <div className="w-full space-y-8">
+        <header className="mb-8">
+          <div className="mb-4">
             <span className="badge">Product & Ads</span>
-            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
+            <h1 className="retro-heading mt-2 text-3xl font-bold">
               Kelola Produk & Banner
             </h1>
           </div>
           <AdminTopNav currentPath="/admin/products" />
         </header>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+        <div className="flex flex-col gap-12">
           <ProductCrud />
           <BannerCrud />
         </div>

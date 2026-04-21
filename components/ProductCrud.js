@@ -82,7 +82,8 @@ export default function ProductCrud() {
   }, [products, search]);
 
   return (
-    <section className="glass-panel p-6">
+    <div className="w-full max-w-6xl mx-auto space-y-8">
+      <section className="glass-panel p-6 md:p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h3 className="retro-title text-xl text-slate-900">Product Catalog</h3>
         <div className="relative w-full md:w-64">
@@ -111,7 +112,7 @@ export default function ProductCrud() {
       {loading ? (
         <p className="text-slate-500 animate-pulse">Memuat daftar produk...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <AnimatePresence>
             {filteredProducts.map((product) => (
               <motion.article 
@@ -122,11 +123,16 @@ export default function ProductCrud() {
                 key={product.id} 
                 className="glass-panel card-fix shadow-rose-50/50"
               >
-                <div className="h-40 w-full relative overflow-hidden">
+                <div className="aspect-square w-full relative overflow-hidden bg-slate-100">
                   {product.imageUrl ? (
-                    <Image src={product.imageUrl} alt={product.name} fill className="img-fix opacity-90 hover:opacity-100" />
+                    <Image 
+                      src={product.imageUrl} 
+                      alt={product.name} 
+                      fill 
+                      className="object-cover transition-transform hover:scale-105 duration-500" 
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">No Image</div>
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
                   )}
                   <button 
                     className="absolute top-2 right-2 z-20 p-2 bg-rose-500/80 hover:bg-rose-500 text-white rounded-full backdrop-blur-md transition-all shadow-lg"
@@ -149,6 +155,7 @@ export default function ProductCrud() {
           {filteredProducts.length === 0 && <p className="text-slate-500 col-span-full text-center py-8">Tidak ada produk ditemukan.</p>}
         </div>
       )}
-    </section>
+      </section>
+    </div>
   );
 }

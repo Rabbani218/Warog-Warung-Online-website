@@ -23,25 +23,27 @@ export default async function SettingsPage() {
     : null;
 
   return (
-    <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="w-full max-w-7xl mx-auto">
-        <header style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
+    <main className="w-full min-h-screen">
+      <div className="w-full space-y-8">
+        <header className="mb-8">
+          <div className="mb-4">
             <span className="badge">Payment & Settings</span>
-            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
+            <h1 className="retro-heading mt-2 text-3xl font-bold">
               Pengaturan Sistem
             </h1>
           </div>
           <AdminTopNav currentPath="/admin/settings" />
         </header>
 
-        <PaymentSettingsForm
-          initialSettings={{
-            ewalletNumber: payment?.ewalletNumber || "",
-            bankAccount: payment?.bankAccount || "",
-            qrisImageUrl: payment?.qrisImageUrl || ""
-          }}
-        />
+        <div className="w-full max-w-6xl mx-auto">
+          <PaymentSettingsForm
+            initialSettings={{
+              ewalletNumber: payment?.ewalletNumber || "",
+              bankAccount: payment?.bankAccount || "",
+              qrisImageUrl: payment?.qrisImageUrl || ""
+            }}
+          />
+        </div>
       </div>
     </main>
   );

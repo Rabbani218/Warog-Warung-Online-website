@@ -219,8 +219,8 @@ export default async function AdminDashboardPage() {
   }));
 
   return (
-    <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="w-full max-w-7xl mx-auto">
+    <main className="w-full min-h-screen">
+      <div className="w-full space-y-8">
         <header style={{ marginBottom: "2rem" }}>
           <div style={{ marginBottom: "1rem" }}>
             <span className="badge">Admin Portal</span>
@@ -231,14 +231,7 @@ export default async function AdminDashboardPage() {
           <AdminTopNav currentPath="/admin/dashboard" />
         </header>
 
-        <section
-          className="grid"
-          style={{
-            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-            marginBottom: "2rem",
-            gap: "1rem"
-          }}
-        >
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           <article className="glass-card" style={{ padding: "1rem" }}>
             <p style={{ marginTop: 0, color: "#9ca3af" }}>Order Hari Ini</p>
             <h2 style={{ marginBottom: 0 }}>{todayOrders}</h2>
@@ -276,14 +269,15 @@ export default async function AdminDashboardPage() {
 
         <div style={{ marginTop: "2rem" }} />
 
-        <ExcelUploader />
-        <div style={{ height: 12 }} />
-        <QrDownloadCard />
+        <div className="w-full space-y-6">
+          <ExcelUploader />
+          <QrDownloadCard />
+        </div>
 
-        <section className="glass-card" style={{ padding: "1rem", marginTop: "2rem" }}>
-          <h3 style={{ marginTop: 0 }}>Kitchen Order Ticket Queue</h3>
-          {kotQueue.length === 0 && <p>Belum ada KOT baru.</p>}
-          <div className="grid">
+        <section className="glass-card p-6">
+          <h3 className="text-xl font-bold mb-4">Kitchen Order Ticket Queue</h3>
+          {kotQueue.length === 0 && <p className="text-slate-500">Belum ada KOT baru.</p>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {kotQueue.map((ticket) => (
               <article key={ticket.id} className="glass-card" style={{ padding: "0.75rem" }}>
                 <strong>{ticket.order.orderCode}</strong>
@@ -296,12 +290,12 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        <section className="glass-card" style={{ padding: "1rem", marginTop: "2rem" }}>
-          <h3 style={{ marginTop: 0 }}>Inventory Forecast</h3>
-          <p style={{ color: "#9ca3af" }}>
+        <section className="glass-card p-6">
+          <h3 className="text-xl font-bold mb-2">Inventory Forecast</h3>
+          <p className="text-slate-500 mb-6">
             Prediksi burn rate harian bahan baku berdasarkan tren order 7 hari terakhir.
           </p>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {inventoryForecast.map((item) => (
               <article key={item.ingredientId} className="glass-card" style={{ padding: "0.8rem" }}>
                 <strong>{item.ingredientName}</strong>
@@ -325,11 +319,11 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        <section className="glass-card" style={{ padding: "1rem", marginTop: "2rem" }}>
-          <h3 style={{ marginTop: 0 }}>Top Menu Bulan Ini</h3>
-          {topMenuSales.length === 0 && <p style={{ marginBottom: 0 }}>Belum ada penjualan menu bulan ini.</p>}
+        <section className="glass-card p-6">
+          <h3 className="text-xl font-bold mb-6">Top Menu Bulan Ini</h3>
+          {topMenuSales.length === 0 && <p className="text-slate-500">Belum ada penjualan menu bulan ini.</p>}
           {topMenuSales.length > 0 && (
-            <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {topMenuSales.map((item) => (
                 <article key={item.menuId} className="glass-card" style={{ padding: "0.8rem" }}>
                   <strong>{menuNameMap[item.menuId] || "Menu Tidak Ditemukan"}</strong>
@@ -345,11 +339,11 @@ export default async function AdminDashboardPage() {
           )}
         </section>
 
-        <section className="glass-card" style={{ padding: "1rem", marginTop: "2rem" }}>
-          <h3 style={{ marginTop: 0 }}>Recent Orders</h3>
-          {recentOrders.length === 0 && <p style={{ marginBottom: 0 }}>Belum ada order masuk.</p>}
+        <section className="glass-card p-6">
+          <h3 className="text-xl font-bold mb-6">Recent Orders</h3>
+          {recentOrders.length === 0 && <p className="text-slate-500">Belum ada order masuk.</p>}
           {recentOrders.length > 0 && (
-            <div style={{ overflowX: "auto" }}>
+            <div className="overflow-x-auto">
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>

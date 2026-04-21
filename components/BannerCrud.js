@@ -67,7 +67,8 @@ export default function BannerCrud() {
   }
 
   return (
-    <section className="glass-panel p-6">
+    <div className="w-full max-w-6xl mx-auto space-y-8">
+      <section className="glass-panel p-6 md:p-8">
       <h3 className="retro-title text-xl text-slate-900 mb-6">Banner & Ads</h3>
       
       <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 bg-black/5 p-4 rounded-xl border border-slate-200" onSubmit={createBanner}>
@@ -80,7 +81,7 @@ export default function BannerCrud() {
         </button>
       </form>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <AnimatePresence>
           {banners.map((banner) => (
             <motion.article 
@@ -119,6 +120,7 @@ export default function BannerCrud() {
         </AnimatePresence>
         {banners.length === 0 && <p className="text-slate-500 col-span-full text-center py-4">Tidak ada banner.</p>}
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
