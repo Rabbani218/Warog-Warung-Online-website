@@ -21,7 +21,14 @@ export async function PATCH(request, { params }) {
 
   const updated = await prisma.kOTicket.update({
     where: { id: params.id },
-    data: { status },
+    data: {
+      status,
+      order: {
+        update: {
+          status: status === "DONE" ? "COMPLETED" : status === "PROCESSING" ? "PROCESSING" : "PENDING"
+        }
+      }
+    },
     include: { order: true }
   });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import PdfReceiptButton from "@/components/PdfReceiptButton";
 
 async function fetchQueue() {
   const response = await fetch("/api/admin/kot", { cache: "no-store" });
@@ -103,9 +104,10 @@ export default function KdsRealtimeBoard({ initialQueue }) {
             <p style={{ margin: "0.2rem 0", color: "#6b7280" }}>Meja: {ticket.order.tableNumber || "-"}</p>
             <span className="badge">{ticket.status}</span>
 
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.7rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.7rem", flexWrap: "wrap" }}>
               <button className="btn" onClick={() => updateTicket(ticket.id, "PROCESSING")}>PROCESSING</button>
               <button className="btn" onClick={() => updateTicket(ticket.id, "DONE")}>DONE</button>
+              <PdfReceiptButton order={ticket.order} />
             </div>
           </article>
         ))}

@@ -129,7 +129,7 @@ export async function POST(request) {
           storeId: store.id,
           orderCode,
           tableNumber: body.tableNumber || null,
-          status: "PAID",
+          status: "PENDING",
           paymentMethod: body.paymentMethod || "CASH",
           subTotal,
           taxAmount,

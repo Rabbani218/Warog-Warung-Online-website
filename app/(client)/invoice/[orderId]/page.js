@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "auto";
+export const revalidate = 60;
 
 export default async function InvoicePage({ params }) {
   const order = await prisma.order.findUnique({
@@ -12,7 +13,8 @@ export default async function InvoicePage({ params }) {
           menu: true
         }
       },
-      invoice: true
+      invoice: true,
+      koticket: true
     }
   });
 
@@ -20,13 +22,17 @@ export default async function InvoicePage({ params }) {
     notFound();
   }
 
+  const trackLabel = order.status === "COMPLETED" ? "Selesai" : order.status === "PROCESSING" ? "Dimasak" : "Pending";
+  const kotStatus = order.koticket?.status || "NEW";
+
   return (
     <main className="container" style={{ padding: "2rem 0" }}>
       <section className="panel" style={{ padding: "1rem", maxWidth: 700, margin: "0 auto" }}>
         <h1 style={{ marginTop: 0, fontFamily: '"Segoe Print", cursive' }}>Invoice Digital</h1>
         <p>Invoice: <strong>{order.invoice?.invoiceNumber}</strong></p>
         <p>Order: <strong>{order.orderCode}</strong></p>
-        <p>Status: <span className="badge">{order.status}</span></p>
+        <p>Status Pesanan: <span className="badge">{trackLabel}</span></p>
+        <p>Status Dapur: <span className="badge">{kotStatus}</span></p>
 
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>

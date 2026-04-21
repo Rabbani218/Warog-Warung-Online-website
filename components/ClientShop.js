@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
@@ -7,6 +8,7 @@ import FloatingCart from "@/components/FloatingCart";
 export default function ClientShop({ store, menus, banners, tableNumber }) {
   const [cart, setCart] = useState([]);
   const [query, setQuery] = useState("");
+  const [addedItem, setAddedItem] = useState(null);
 
   const filtered = useMemo(() => {
     const keyword = query.toLowerCase().trim();
@@ -18,10 +20,16 @@ export default function ClientShop({ store, menus, banners, tableNumber }) {
     setCart((prev) => {
       const existing = prev.find((item) => item.menuId === menu.id);
       if (existing) {
+        setAddedItem(menu.id);
+        setTimeout(() => setAddedItem(null), 600);
+
         return prev.map((item) =>
           item.menuId === menu.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
+
+      setAddedItem(menu.id);
+      setTimeout(() => setAddedItem(null), 600);
 
       return [...prev, { menuId: menu.id, name: menu.name, price: Number(menu.price), quantity: 1, note: "" }];
     });
@@ -53,17 +61,30 @@ export default function ClientShop({ store, menus, banners, tableNumber }) {
           </div>
           <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
             {filtered.map((menu) => (
-              <article key={menu.id} className="panel" style={{ overflow: "hidden" }}>
+              <motion.article
+                key={menu.id}
+                className="panel"
+                style={{ overflow: "hidden" }}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 260, damping: 24 }}
+              >
                 <img src={menu.imageUrl || "https://placehold.co/600x400/f8fafc/334155?text=Wareb+Menu"} alt={menu.name} style={{ width: "100%", height: 160, objectFit: "cover" }} />
                 <div style={{ padding: "0.9rem" }}>
                   <h3 style={{ margin: 0 }}>{menu.name}</h3>
                   <p style={{ color: "#6b7280", minHeight: 40 }}>{menu.description || "Menu warteg modern pilihan."}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
                     <strong>Rp {Number(menu.price).toLocaleString("id-ID")}</strong>
-                    <button className="btn" onClick={() => addToCart(menu)}>Tambah</button>
+                    <motion.button
+                      className="btn"
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => addToCart(menu)}
+                      style={{ minWidth: 100 }}
+                    >
+                      {addedItem === menu.id ? "Ditambahkan" : "Tambah"}
+                    </motion.button>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         </div>

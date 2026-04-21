@@ -9,37 +9,57 @@ export default function AdminLoginPage() {
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "owner@wareb.local", password: "wareb12345" });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(event) {
     event.preventDefault();
+    setLoading(true);
     setMessage("");
 
-    if (mode === "register") {
-      const registerRes = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: "ADMIN" })
+    try {
+      if (mode === "register") {
+        const registerRes = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: "ADMIN" })
+        });
+
+        if (!registerRes.ok) {
+          const err = await registerRes.json();
+          setMessage(err?.message || "Registrasi gagal.");
+          return;
+        }
+      }
+
+      const result = await signIn("credentials", {
+        email: form.email,
+        password: form.password,
+        redirect: false
       });
 
-      if (!registerRes.ok) {
-        const err = await registerRes.json();
-        setMessage(err.message || "Registrasi gagal.");
+      if (!result || result.error) {
+        setMessage("Login gagal. Cek kredensial Anda.");
         return;
       }
+
+      router.push("/admin/dashboard");
+    } catch (error) {
+      setMessage(error?.message || "Terjadi kesalahan saat autentikasi.");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    const result = await signIn("credentials", {
-      email: form.email,
-      password: form.password,
-      redirect: false
-    });
+  async function signInWithGoogle() {
+    setLoading(true);
+    setMessage("");
 
-    if (result?.error) {
-      setMessage("Login gagal. Cek kredensial Anda.");
-      return;
+    try {
+      await signIn("google", { callbackUrl: "/admin/dashboard" });
+    } catch (error) {
+      setMessage("Login Google gagal. Coba lagi nanti.");
+      setLoading(false);
     }
-
-    router.push("/admin/dashboard");
   }
 
   return (
@@ -48,9 +68,12 @@ export default function AdminLoginPage() {
         <h1 style={{ marginTop: 0, fontFamily: '"Segoe Print", cursive' }}>Admin Portal Wareb</h1>
         <p style={{ color: "#6b7280" }}>Login atau registrasi akun pemilik untuk mengelola toko.</p>
 
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
           <button className="btn" type="button" onClick={() => setMode("login")}>Login</button>
           <button className="btn" type="button" onClick={() => setMode("register")}>Register</button>
+          <button className="btn" type="button" onClick={signInWithGoogle} disabled={loading} style={{ background: "#4285F4" }}>
+            {loading ? "Memuat..." : "Login dengan Google"}
+          </button>
         </div>
 
         <form className="grid" onSubmit={onSubmit}>

@@ -22,7 +22,16 @@ export default async function KdsPage() {
       status: { in: ["NEW", "PROCESSING"] }
     },
     include: {
-      order: true
+      order: {
+        include: {
+          details: {
+            include: {
+              menu: true
+            }
+          },
+          invoice: true
+        }
+      }
     },
     orderBy: {
       createdAt: "asc"
