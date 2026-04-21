@@ -14,7 +14,12 @@
     "prisma:push": "prisma db push",
     "seed": "node prisma/seed.js"
   },
-  "keywords": ["nextjs", "pos", "ecommerce", "wareb"],
+  "keywords": [
+    "nextjs",
+    "pos",
+    "ecommerce",
+    "wareb"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -31,6 +36,7 @@
   "devDependencies": {
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.35",
-    "prisma": "^5.17.0"
+    "prisma": "^5.17.0",
+    "vercel": "^51.8.0"
   }
 }
