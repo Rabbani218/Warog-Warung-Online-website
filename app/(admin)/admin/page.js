@@ -139,7 +139,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="container" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1rem 0" }}>
+    <main className="w-full max-w-7xl mx-auto" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1rem 0" }}>
       <section className="panel hero-shell" style={{ width: "min(620px,100%)", padding: "1.35rem" }}>
         <span className="badge">Admin Workspace</span>
         <h1 style={{ margin: "0.55rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.15rem)" }}>Kelola Operasional Warung</h1>

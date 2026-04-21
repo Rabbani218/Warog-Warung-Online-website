@@ -1,155 +1,156 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, Wallet, Landmark, QrCode, Banknote } from "lucide-react";
+import { memo, useRef, useState, useTransition } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { CheckCircle2, Landmark, Loader2, QrCode, Upload, Wallet } from "lucide-react";
+import { savePaymentSettingsAction } from "@/app/(admin)/admin/settings/actions";
 
-export default function PaymentSettingsForm() {
-  const [bankAccountNumber, setBankAccountNumber] = useState("");
-  const [paymentGatewayKey, setPaymentGatewayKey] = useState("");
+const PaymentMethodCard = memo(function PaymentMethodCard({ icon: Icon, title, subtitle }) {
+  return (
+    <motion.div
+      layout
+      className="rounded-2xl border border-gray-100 bg-white/90 p-4 shadow-sm"
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="flex items-center gap-3">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-500">
+          <Icon size={18} />
+        </span>
+        <div>
+          <p className="font-semibold text-slate-800">{title}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+export default function PaymentSettingsForm({ initialSettings }) {
+  const [ewalletNumber, setEwalletNumber] = useState(initialSettings?.ewalletNumber || "");
+  const [bankAccount, setBankAccount] = useState(initialSettings?.bankAccount || "");
+  const [qrisImageUrl, setQrisImageUrl] = useState(initialSettings?.qrisImageUrl || "");
   const [status, setStatus] = useState("");
-  const [activeMethods, setActiveMethods] = useState({
-    qris: true,
-    bank: true,
-    ewallet: false,
-    cash: true
-  });
+  const fileInputRef = useRef(null);
+  const [isPending, startTransition] = useTransition();
 
-  async function load() {
-    const response = await fetch("/api/admin/payment-settings", { cache: "no-store" });
-    const data = await response.json();
-    if (response.ok) {
-      setBankAccountNumber(data.bankAccountNumber || "");
-      setPaymentGatewayKey(data.paymentGatewayKey || "");
+  async function onQrisFileChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
     }
-  }
 
-  useEffect(() => { load(); }, []);
+    if (file.size > 3 * 1024 * 1024) {
+      setStatus("Ukuran file QRIS maksimal 3MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setQrisImageUrl(String(reader.result || ""));
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function save(event) {
     event.preventDefault();
-    setStatus("Menyimpan...");
+    setStatus("Menyimpan data pembayaran...");
 
-    const response = await fetch("/api/admin/payment-settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bankAccountNumber, paymentGatewayKey })
+    startTransition(async () => {
+      try {
+        const result = await savePaymentSettingsAction({
+          ewalletNumber,
+          bankAccount,
+          qrisImageUrl
+        });
+
+        setEwalletNumber(result.ewalletNumber || "");
+        setBankAccount(result.bankAccount || "");
+        setQrisImageUrl(result.qrisImageUrl || "");
+        setStatus("Pengaturan pembayaran berhasil disimpan.");
+      } catch (error) {
+        setStatus("Gagal menyimpan pengaturan pembayaran.");
+      }
     });
-
-    if (response.ok) {
-      setStatus("Pengaturan tersimpan.");
-      setTimeout(() => setStatus(""), 3000);
-    } else {
-      setStatus("Gagal menyimpan.");
-    }
   }
 
-  const toggleMethod = (method) => {
-    setActiveMethods(prev => ({ ...prev, [method]: !prev[method] }));
-  };
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <section className="glass-panel p-6">
-        <h3 className="retro-title text-xl text-white mb-6">Payment Gateway APIs</h3>
+    <motion.div layout className="grid grid-cols-1 gap-6 lg:grid-cols-2" transition={{ duration: 0.25 }}>
+      <motion.section layout className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-xl backdrop-blur-md">
+        <h3 className="retro-title mb-6 text-xl text-slate-900">Pengaturan Pembayaran Nyata</h3>
         <form className="flex flex-col gap-5" onSubmit={save}>
-          <div>
-            <label className="text-sm text-gray-400 mb-2 block">Nomor Rekening Default</label>
-            <input 
-              className="glass-input" 
-              value={bankAccountNumber} 
-              onChange={(e) => setBankAccountNumber(e.target.value)} 
-              placeholder="Misal: BCA 1234567890"
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-slate-600">Nomor E-Wallet Tujuan</span>
+            <input
+              className="input"
+              value={ewalletNumber}
+              onChange={(e) => setEwalletNumber(e.target.value)}
+              placeholder="Contoh: 081234567890"
             />
-          </div>
-          <div>
-            <label className="text-sm text-gray-400 mb-2 block">API Key Gateway (Midtrans/Xendit)</label>
-            <input 
-              className="glass-input" 
-              value={paymentGatewayKey} 
-              onChange={(e) => setPaymentGatewayKey(e.target.value)} 
-              type="password"
-              placeholder="SB-Mid-server-xxx"
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-slate-600">Nomor Rekening Transfer</span>
+            <input
+              className="input"
+              value={bankAccount}
+              onChange={(e) => setBankAccount(e.target.value)}
+              placeholder="Contoh: BCA 1234567890 a.n Wareb"
             />
+          </label>
+
+          <div className="grid gap-3">
+            <span className="text-sm font-medium text-slate-600">Upload QRIS Lokal</span>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onQrisFileChange} />
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                className="btn btn-ghost inline-flex items-center gap-2"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload size={16} /> Upload Gambar QRIS
+              </button>
+              {qrisImageUrl ? (
+                <button type="button" className="btn btn-ghost" onClick={() => setQrisImageUrl("")}>
+                  Hapus QRIS
+                </button>
+              ) : null}
+            </div>
+
+            {qrisImageUrl ? (
+              <div className="relative h-44 w-44 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+                <Image src={qrisImageUrl} alt="QRIS lokal" fill sizes="176px" className="object-contain p-2" />
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">Belum ada gambar QRIS yang diunggah.</p>
+            )}
           </div>
-          <button className="glass-btn-primary self-start mt-2" type="submit">Simpan Kredensial</button>
+
+          <button className="btn inline-flex w-full items-center justify-center gap-2 sm:w-auto" type="submit" disabled={isPending}>
+            {isPending ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+            {isPending ? "Menyimpan..." : "Simpan Pengaturan"}
+          </button>
         </form>
+
         {status && (
-          <div className="mt-4 p-3 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30 flex items-center gap-2">
-            <Check size={16} /> {status}
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-emerald-700">
+            <CheckCircle2 size={16} /> {status}
           </div>
         )}
-      </section>
+      </motion.section>
 
-      <section className="glass-panel p-6">
-        <h3 className="retro-title text-xl text-white mb-6">Simulasi Metode Pembayaran</h3>
-        <p className="text-gray-400 text-sm mb-6">Aktifkan atau nonaktifkan metode pembayaran yang tersedia di POS/Web App.</p>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div 
-            onClick={() => toggleMethod('qris')}
-            className={`p-4 rounded-xl border cursor-pointer transition-all ${activeMethods.qris ? 'bg-determination-red/20 border-determination-red shadow-[0_0_15px_rgba(255,45,32,0.3)]' : 'bg-black/40 border-white/10 hover:border-white/30'}`}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${activeMethods.qris ? 'bg-determination-red text-white' : 'bg-white/10 text-gray-400'}`}><QrCode size={20} /></div>
-                <div>
-                  <h4 className="text-white font-bold">QRIS Dinamis</h4>
-                  <p className="text-xs text-gray-400">Otomatisasi</p>
-                </div>
-              </div>
-              <div className={`w-4 h-4 rounded-full ${activeMethods.qris ? 'bg-determination-red' : 'border border-gray-500'}`}></div>
-            </div>
-          </div>
-
-          <div 
-            onClick={() => toggleMethod('bank')}
-            className={`p-4 rounded-xl border cursor-pointer transition-all ${activeMethods.bank ? 'bg-determination-red/20 border-determination-red shadow-[0_0_15px_rgba(255,45,32,0.3)]' : 'bg-black/40 border-white/10 hover:border-white/30'}`}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${activeMethods.bank ? 'bg-determination-red text-white' : 'bg-white/10 text-gray-400'}`}><Landmark size={20} /></div>
-                <div>
-                  <h4 className="text-white font-bold">Transfer Bank</h4>
-                  <p className="text-xs text-gray-400">Manual / VA</p>
-                </div>
-              </div>
-              <div className={`w-4 h-4 rounded-full ${activeMethods.bank ? 'bg-determination-red' : 'border border-gray-500'}`}></div>
-            </div>
-          </div>
-
-          <div 
-            onClick={() => toggleMethod('ewallet')}
-            className={`p-4 rounded-xl border cursor-pointer transition-all ${activeMethods.ewallet ? 'bg-determination-red/20 border-determination-red shadow-[0_0_15px_rgba(255,45,32,0.3)]' : 'bg-black/40 border-white/10 hover:border-white/30'}`}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${activeMethods.ewallet ? 'bg-determination-red text-white' : 'bg-white/10 text-gray-400'}`}><Wallet size={20} /></div>
-                <div>
-                  <h4 className="text-white font-bold">E-Wallet</h4>
-                  <p className="text-xs text-gray-400">Gopay, OVO, Dana</p>
-                </div>
-              </div>
-              <div className={`w-4 h-4 rounded-full ${activeMethods.ewallet ? 'bg-determination-red' : 'border border-gray-500'}`}></div>
-            </div>
-          </div>
-
-          <div 
-            onClick={() => toggleMethod('cash')}
-            className={`p-4 rounded-xl border cursor-pointer transition-all ${activeMethods.cash ? 'bg-determination-red/20 border-determination-red shadow-[0_0_15px_rgba(255,45,32,0.3)]' : 'bg-black/40 border-white/10 hover:border-white/30'}`}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${activeMethods.cash ? 'bg-determination-red text-white' : 'bg-white/10 text-gray-400'}`}><Banknote size={20} /></div>
-                <div>
-                  <h4 className="text-white font-bold">Tunai / Cash</h4>
-                  <p className="text-xs text-gray-400">Bayar di Kasir</p>
-                </div>
-              </div>
-              <div className={`w-4 h-4 rounded-full ${activeMethods.cash ? 'bg-determination-red' : 'border border-gray-500'}`}></div>
-            </div>
-          </div>
+      <motion.section layout className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-xl backdrop-blur-md">
+        <h3 className="retro-title mb-3 text-xl text-slate-900">Kanal Pembayaran Tersedia</h3>
+        <p className="mb-6 text-sm text-slate-500">
+          Nilai yang Anda simpan di panel kiri akan langsung dipakai oleh portal pelanggan saat checkout.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <PaymentMethodCard icon={QrCode} title="QRIS Lokal" subtitle="Tampilkan gambar QR statis milik warung" />
+          <PaymentMethodCard icon={Landmark} title="Transfer Bank" subtitle="Nomor rekening khusus transfer pelanggan" />
+          <PaymentMethodCard icon={Wallet} title="E-Wallet" subtitle="Nomor tujuan untuk GoPay, OVO, DANA" />
         </div>
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }

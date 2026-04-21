@@ -40,7 +40,9 @@ model Store {
   ownerId             String
   name                String
   slug                String            @unique
+  bio                 String?           @db.Text
   description         String?
+  address             String?           @db.Text
   logoUrl             String?
   heroTitle           String?
   heroSubtitle        String?
@@ -54,8 +56,34 @@ model Store {
   banners             Banner[]
   orders              Order[]
   salesHistories      SalesHistory[]
+  employees           Employee[]
+  paymentSettings     PaymentSettings?
 
   @@index([ownerId])
+}
+
+model Employee {
+  id          String    @id @default(cuid())
+  storeId     String
+  name        String
+  role        String?
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, createdAt])
+}
+
+model PaymentSettings {
+  id            String    @id @default(cuid())
+  storeId        String    @unique
+  ewalletNumber  String?
+  bankAccount    String?
+  qrisImageUrl   String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  store          Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model Banner {

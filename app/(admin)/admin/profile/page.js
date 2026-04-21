@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getDefaultStore } from "@/lib/store";
 import AdminTopNav from "@/components/AdminTopNav";
 import ProfileForm from "@/components/ProfileForm";
 
@@ -19,9 +20,25 @@ export default async function ProfilePage() {
     select: { name: true, email: true, avatar: true }
   });
 
+  const store = await getDefaultStore();
+  const storeProfile = store
+    ? await prisma.store.findUnique({
+        where: { id: store.id },
+        select: {
+          bio: true,
+          description: true,
+          address: true,
+          employees: {
+            select: { id: true, name: true, role: true, phone: true },
+            orderBy: { createdAt: "asc" }
+          }
+        }
+      })
+    : null;
+
   return (
     <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="container">
+      <div className="w-full max-w-7xl mx-auto">
         <header style={{ marginBottom: "2rem" }}>
           <div style={{ marginBottom: "1rem" }}>
             <span className="badge">User Settings</span>
@@ -32,8 +49,16 @@ export default async function ProfilePage() {
           <AdminTopNav currentPath="/admin/profile" />
         </header>
 
-        <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <ProfileForm initialData={user} />
+        <div style={{ maxWidth: "880px", margin: "0 auto" }}>
+          <ProfileForm
+            initialData={{
+              ...user,
+              bio: storeProfile?.bio || "",
+              description: storeProfile?.description || "",
+              address: storeProfile?.address || "",
+              employees: storeProfile?.employees || []
+            }}
+          />
         </div>
       </div>
     </main>

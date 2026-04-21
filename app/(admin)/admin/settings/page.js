@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import AdminTopNav from "@/components/AdminTopNav";
 import PaymentSettingsForm from "@/components/PaymentSettingsForm";
+import { prisma } from "@/lib/prisma";
+import { getDefaultStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +15,16 @@ export default async function SettingsPage() {
     redirect("/admin");
   }
 
+  const store = await getDefaultStore();
+  const payment = store
+    ? await prisma.paymentSettings.findUnique({
+        where: { storeId: store.id }
+      })
+    : null;
+
   return (
     <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="container">
+      <div className="w-full max-w-7xl mx-auto">
         <header style={{ marginBottom: "2rem" }}>
           <div style={{ marginBottom: "1rem" }}>
             <span className="badge">Payment & Settings</span>
@@ -26,7 +35,13 @@ export default async function SettingsPage() {
           <AdminTopNav currentPath="/admin/settings" />
         </header>
 
-        <PaymentSettingsForm />
+        <PaymentSettingsForm
+          initialSettings={{
+            ewalletNumber: payment?.ewalletNumber || "",
+            bankAccount: payment?.bankAccount || "",
+            qrisImageUrl: payment?.qrisImageUrl || ""
+          }}
+        />
       </div>
     </main>
   );

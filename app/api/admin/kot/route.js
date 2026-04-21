@@ -17,10 +17,19 @@ export async function GET() {
   const queue = await prisma.kOTicket.findMany({
     where: {
       order: { storeId: store.id },
-      status: { in: ["NEW", "PROCESSING"] }
+      status: { in: ["NEW", "PROCESSING", "DONE", "COOKING", "READY"] }
     },
     include: {
-      order: true
+      order: {
+        include: {
+          details: {
+            include: {
+              menu: true
+            }
+          },
+          invoice: true
+        }
+      }
     },
     orderBy: {
       createdAt: "asc"

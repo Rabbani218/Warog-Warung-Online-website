@@ -20,7 +20,7 @@ export default async function KdsPage() {
   const queue = await prisma.kOTicket.findMany({
     where: {
       order: { storeId: store.id },
-      status: { in: ["NEW", "PROCESSING", "DONE"] }
+      status: { in: ["NEW", "PROCESSING", "DONE", "COOKING", "READY"] }
     },
     include: {
       order: {
@@ -41,7 +41,7 @@ export default async function KdsPage() {
 
   return (
     <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
-      <div className="container">
+      <div className="w-full max-w-7xl mx-auto">
         <header style={{ marginBottom: "2rem" }}>
           <div style={{ marginBottom: "1rem" }}>
             <span className="badge">KDS System</span>

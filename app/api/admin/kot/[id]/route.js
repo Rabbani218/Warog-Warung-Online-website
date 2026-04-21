@@ -13,7 +13,8 @@ export async function PATCH(request, { params }) {
   }
 
   const body = await request.json();
-  const status = String(body.status || "").toUpperCase();
+  const requested = String(body.status || "").toUpperCase();
+  const status = requested === "COOKING" ? "PROCESSING" : requested === "READY" ? "DONE" : requested;
 
   if (!["NEW", "PROCESSING", "DONE"].includes(status)) {
     return Response.json({ message: "Status KOT tidak valid." }, { status: 400 });

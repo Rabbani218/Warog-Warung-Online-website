@@ -19,7 +19,7 @@ export default async function ClientHomePage({ searchParams }) {
 
   const tableNumber = String(searchParams?.table || "").trim();
 
-  const [menus, banners] = await Promise.all([
+  const [menus, banners, paymentSettings, employees] = await Promise.all([
     prisma.menu.findMany({
       where: { storeId: store.id, isActive: true },
       orderBy: { createdAt: "desc" }
@@ -27,8 +27,24 @@ export default async function ClientHomePage({ searchParams }) {
     prisma.banner.findMany({
       where: { storeId: store.id, isActive: true },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }]
+    }),
+    prisma.paymentSettings.findUnique({
+      where: { storeId: store.id }
+    }),
+    prisma.employee.findMany({
+      where: { storeId: store.id },
+      orderBy: { createdAt: "asc" }
     })
   ]);
 
-  return <ClientShop store={store} menus={menus} banners={banners} tableNumber={tableNumber} />;
+  return (
+    <ClientShop
+      store={store}
+      menus={menus}
+      banners={banners}
+      tableNumber={tableNumber}
+      paymentSettings={paymentSettings}
+      employees={employees}
+    />
+  );
 }

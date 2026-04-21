@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { enqueueCheckout, flushCheckoutQueue, getQueueItems } from "@/lib/offline-queue";
 
-export default function FloatingCart({ cart, setCart }) {
+export default function FloatingCart({ cart, setCart, paymentSettings }) {
   const [tableNumber, setTableNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [invoice, setInvoice] = useState(null);
@@ -96,6 +96,12 @@ export default function FloatingCart({ cart, setCart }) {
     }
   }
 
+  const paymentInfo = {
+    QRIS: paymentSettings?.qrisImageUrl || "",
+    TRANSFER: paymentSettings?.bankAccount || "",
+    EWALLET: paymentSettings?.ewalletNumber || ""
+  };
+
   return (
     <aside
       className="panel"
@@ -132,7 +138,27 @@ export default function FloatingCart({ cart, setCart }) {
           <option value="CASH">CASH</option>
           <option value="QRIS">QRIS</option>
           <option value="TRANSFER">TRANSFER</option>
+          <option value="EWALLET">E-WALLET</option>
         </select>
+
+        {paymentMethod === "TRANSFER" && paymentInfo.TRANSFER ? (
+          <p style={{ margin: "0.5rem 0 0", fontSize: "0.85rem" }}>
+            Rekening Tujuan: <strong>{paymentInfo.TRANSFER}</strong>
+          </p>
+        ) : null}
+
+        {paymentMethod === "EWALLET" && paymentInfo.EWALLET ? (
+          <p style={{ margin: "0.5rem 0 0", fontSize: "0.85rem" }}>
+            Nomor E-Wallet: <strong>{paymentInfo.EWALLET}</strong>
+          </p>
+        ) : null}
+
+        {paymentMethod === "QRIS" && paymentInfo.QRIS ? (
+          <div style={{ marginTop: "0.5rem", border: "1px solid #e2e8f0", borderRadius: 10, padding: "0.4rem", background: "#fff" }}>
+            <img src={paymentInfo.QRIS} alt="QRIS pembayaran" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto", borderRadius: 8 }} />
+          </div>
+        ) : null}
+
         <button className="btn" style={{ marginTop: "0.75rem", width: "100%" }} onClick={checkout}>Checkout dan Kirim KOT</button>
       </div>
       {error && <p className="status-err">{error}</p>}

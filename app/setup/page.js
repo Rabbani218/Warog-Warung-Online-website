@@ -78,7 +78,7 @@ function SetupClient() {
 
 export default function SetupPage() {
   return (
-    <main className="container" style={{ padding: "2rem 0", minHeight: "100vh", display: "grid", alignItems: "center" }}>
+    <main className="w-full max-w-7xl mx-auto" style={{ padding: "2rem 0", minHeight: "100vh", display: "grid", alignItems: "center" }}>
       <Suspense fallback={<LoadingSpinner />}>
         <SetupClient />
       </Suspense>

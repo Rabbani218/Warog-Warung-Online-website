@@ -12,9 +12,14 @@ export async function GET() {
   }
 
   const store = await getDefaultStore();
+  const payment = await prisma.paymentSettings.findUnique({
+    where: { storeId: store.id }
+  });
+
   return Response.json({
-    bankAccountNumber: store.bankAccountNumber,
-    paymentGatewayKey: store.paymentGatewayKey
+    ewalletNumber: payment?.ewalletNumber || "",
+    bankAccount: payment?.bankAccount || "",
+    qrisImageUrl: payment?.qrisImageUrl || ""
   });
 }
 
@@ -27,16 +32,24 @@ export async function PUT(request) {
   const body = await request.json();
   const store = await getDefaultStore();
 
-  const updated = await prisma.store.update({
-    where: { id: store.id },
-    data: {
-      bankAccountNumber: body.bankAccountNumber || null,
-      paymentGatewayKey: body.paymentGatewayKey || null
+  const updated = await prisma.paymentSettings.upsert({
+    where: { storeId: store.id },
+    update: {
+      ewalletNumber: String(body.ewalletNumber || "").trim() || null,
+      bankAccount: String(body.bankAccount || "").trim() || null,
+      qrisImageUrl: String(body.qrisImageUrl || "").trim() || null
+    },
+    create: {
+      storeId: store.id,
+      ewalletNumber: String(body.ewalletNumber || "").trim() || null,
+      bankAccount: String(body.bankAccount || "").trim() || null,
+      qrisImageUrl: String(body.qrisImageUrl || "").trim() || null
     }
   });
 
   return Response.json({
-    bankAccountNumber: updated.bankAccountNumber,
-    paymentGatewayKey: updated.paymentGatewayKey
+    ewalletNumber: updated.ewalletNumber || "",
+    bankAccount: updated.bankAccount || "",
+    qrisImageUrl: updated.qrisImageUrl || ""
   });
 }
