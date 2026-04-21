@@ -8,3 +8,4 @@ npm-debug.log*
 .vercel
 
 desktop.ini
+.env*.local
