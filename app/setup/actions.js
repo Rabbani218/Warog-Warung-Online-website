@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { hasDatabaseUrl } from "@/lib/runtimeEnv";
+import { revalidatePath } from "next/cache";
 
 function slugify(value) {
   return String(value || "wareb").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -59,6 +60,9 @@ export async function createSetup(formData) {
         }
       });
     });
+
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/setup");
   } catch (error) {
     console.error("Setup transaction failed:", error);
     redirect(`/setup?error=${encodeURIComponent("Setup gagal diproses. Coba lagi.")}`);

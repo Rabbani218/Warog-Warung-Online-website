@@ -4,15 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "owner@wareb.local", password: "wareb12345" });
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleEnabled, setGoogleEnabled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const queryEmail = useMemo(() => String(searchParams?.get("email") || "").trim(), [searchParams]);
   const queryMessage = useMemo(() => String(searchParams?.get("message") || "").trim(), [searchParams]);
@@ -26,7 +31,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (queryMessage) {
-      setMessage(queryMessage);
+      toast.info(queryMessage);
     }
   }, [queryMessage]);
 
@@ -36,16 +41,16 @@ export default function AdminLoginPage() {
     }
 
     if (queryError === "google") {
-      setMessage("Login Google gagal. Periksa Authorized redirect URI pada Google Console.");
+      toast.error("Login Google gagal. Periksa Authorized redirect URI pada Google Console.");
       return;
     }
 
     if (queryError === "OAuthSignin" || queryError === "OAuthCallback") {
-      setMessage("OAuth callback gagal. Pastikan domain callback login Google sudah benar.");
+      toast.error("OAuth callback gagal. Pastikan domain callback login Google sudah benar.");
       return;
     }
 
-    setMessage(`Autentikasi gagal: ${queryError}`);
+    toast.error(`Autentikasi gagal: ${queryError}`);
   }, [queryError]);
 
   useEffect(() => {
@@ -73,7 +78,6 @@ export default function AdminLoginPage() {
   async function onSubmit(event) {
     event.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       if (mode === "register") {
@@ -85,11 +89,10 @@ export default function AdminLoginPage() {
 
         if (!registerRes.ok) {
           const err = await registerRes.json();
-          setMessage(err?.message || "Registrasi gagal.");
-          return;
+          throw new Error(err?.message || "Registrasi gagal.");
         }
 
-        setMessage("Registrasi berhasil. Sedang login...");
+        toast.success("Registrasi berhasil. Sedang login...");
       }
 
       const result = await signIn("credentials", {
@@ -99,13 +102,13 @@ export default function AdminLoginPage() {
       });
 
       if (!result || result.error) {
-        setMessage("Login gagal. Cek kredensial Anda.");
-        return;
+        throw new Error("Login gagal. Cek kredensial Anda.");
       }
 
+      toast.success("Login berhasil! Mengalihkan...");
       router.push("/admin/dashboard");
     } catch (error) {
-      setMessage(error?.message || "Terjadi kesalahan saat autentikasi.");
+      toast.error(error?.message || "Terjadi kesalahan saat autentikasi.");
     } finally {
       setLoading(false);
     }
@@ -113,12 +116,11 @@ export default function AdminLoginPage() {
 
   async function signInWithGoogle() {
     if (!googleEnabled) {
-      setMessage("Login Google belum aktif. Silakan gunakan email dan password.");
+      toast.warning("Login Google belum aktif. Silakan gunakan email dan password.");
       return;
     }
 
     setLoading(true);
-    setMessage("");
 
     try {
       const browserOrigin = window.location.origin;
@@ -133,10 +135,12 @@ export default function AdminLoginPage() {
 
       await signIn("google", { callbackUrl });
     } catch (error) {
-      setMessage("Login Google gagal. Coba lagi nanti.");
+      toast.error("Login Google gagal. Coba lagi nanti.");
       setLoading(false);
     }
   }
+
+  if (!isMounted) return null;
 
   return (
     <main className="w-full max-w-7xl mx-auto" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1rem 0" }}>
@@ -200,11 +204,10 @@ export default function AdminLoginPage() {
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} 
               required 
             />
-          <button className="btn" type="submit">{mode === "login" ? "Masuk ke Dashboard" : "Daftar & Masuk"}</button>
+          <button className="btn" type="submit" disabled={loading}>{loading ? "Memproses..." : (mode === "login" ? "Masuk ke Dashboard" : "Daftar & Masuk")}</button>
         </form>
 
-        {message && <p style={{ marginTop: "0.75rem" }} className={message.toLowerCase().includes("berhasil") ? "status-ok" : "status-err"}>{message}</p>}
-        <p className="muted" style={{ marginTop: "0.45rem", marginBottom: 0, fontSize: "0.88rem" }}>
+        <p className="muted" style={{ marginTop: "1rem", marginBottom: 0, fontSize: "0.88rem" }}>
           Jika login Google gagal, daftarkan callback berikut di Google Console:
           <br />
           https://wareb-next-platform.vercel.app/api/auth/callback/google

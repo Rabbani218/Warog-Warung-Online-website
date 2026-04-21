@@ -27,11 +27,12 @@ const PaymentMethodCard = memo(function PaymentMethodCard({ icon: Icon, title, s
   );
 });
 
+import { toast } from "sonner";
+
 export default function PaymentSettingsForm({ initialSettings }) {
   const [ewalletNumber, setEwalletNumber] = useState(initialSettings?.ewalletNumber || "");
   const [bankAccount, setBankAccount] = useState(initialSettings?.bankAccount || "");
   const [qrisImageUrl, setQrisImageUrl] = useState(initialSettings?.qrisImageUrl || "");
-  const [status, setStatus] = useState("");
   const fileInputRef = useRef(null);
   const [isPending, startTransition] = useTransition();
 
@@ -42,23 +43,23 @@ export default function PaymentSettingsForm({ initialSettings }) {
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      setStatus("Ukuran file QRIS maksimal 3MB.");
+      toast.error("Ukuran file QRIS maksimal 3MB.");
       return;
     }
 
     const reader = new FileReader();
     reader.onloadend = () => {
       setQrisImageUrl(String(reader.result || ""));
+      toast.success("QRIS berhasil diproses!");
     };
     reader.readAsDataURL(file);
   }
 
   async function save(event) {
     event.preventDefault();
-    setStatus("Menyimpan data pembayaran...");
 
     startTransition(async () => {
-      try {
+      toast.promise(async () => {
         const result = await savePaymentSettingsAction({
           ewalletNumber,
           bankAccount,
@@ -68,10 +69,11 @@ export default function PaymentSettingsForm({ initialSettings }) {
         setEwalletNumber(result.ewalletNumber || "");
         setBankAccount(result.bankAccount || "");
         setQrisImageUrl(result.qrisImageUrl || "");
-        setStatus("Pengaturan pembayaran berhasil disimpan.");
-      } catch (error) {
-        setStatus("Gagal menyimpan pengaturan pembayaran.");
-      }
+      }, {
+        loading: "Menyimpan pengaturan pembayaran...",
+        success: "Pengaturan pembayaran berhasil disimpan!",
+        error: "Gagal menyimpan pengaturan pembayaran."
+      });
     });
   }
 
@@ -133,11 +135,6 @@ export default function PaymentSettingsForm({ initialSettings }) {
           </button>
         </form>
 
-        {status && (
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-emerald-700">
-            <CheckCircle2 size={16} /> {status}
-          </div>
-        )}
       </motion.section>
 
       <motion.section layout className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-xl backdrop-blur-md">

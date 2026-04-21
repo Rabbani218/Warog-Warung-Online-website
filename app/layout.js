@@ -38,12 +38,14 @@ export const metadata = {
 };
 
 import Providers from "@/components/Providers";
+import { Toaster } from "sonner";
 
 export default function RootLayout({ children }) {
   return (
     <html lang="id" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Providers>
+          <Toaster position="top-center" richColors />
           <PwaBootstrap />
           {children}
         </Providers>

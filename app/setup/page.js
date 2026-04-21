@@ -14,6 +14,8 @@ function LoadingSpinner() {
   );
 }
 
+import { toast } from "sonner";
+
 function SetupClient() {
   const { data: session, status, update } = useSession() || { data: null, status: 'loading' };
   const router = useRouter();
@@ -27,6 +29,12 @@ function SetupClient() {
       router.push("/admin/dashboard");
     }
   }, [status, session, router]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+  }, [errorMessage]);
 
   if (status === "loading" || status === "unauthenticated") {
     return <LoadingSpinner />;
@@ -42,15 +50,15 @@ function SetupClient() {
           </div>
         </div>
 
-        {errorMessage && (
-          <p style={{ margin: "0 0 1rem", color: "#b91c1c", backgroundColor: "#fee2e2", padding: "0.75rem", borderRadius: "8px" }}>
-            {errorMessage}
-          </p>
-        )}
-
         <form action={async (formData) => {
-            await createSetup(formData);
-            await update();
+            toast.promise(async () => {
+                await createSetup(formData);
+                await update();
+            }, {
+                loading: "Sedang menyiapkan toko Anda...",
+                success: "Toko berhasil dibuat! Mengalihkan...",
+                error: (err) => err?.message || "Gagal menyiapkan toko."
+            });
         }} className="grid" style={{ gap: "1.5rem" }}>
           <label className="field">
             <span>Nama Toko</span>

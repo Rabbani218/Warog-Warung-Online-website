@@ -1,10 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 export default function AdminMotionShell({ children }) {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="min-h-screen bg-white" />;
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-slate-900 font-sans">

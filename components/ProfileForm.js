@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Upload, Camera, Save, Loader2, CheckCircle2, User as UserIcon, Plus, Trash2, Store } from "lucide-react";
 
+import { toast } from "sonner";
+
 export default function ProfileForm({ initialData }) {
   const { update } = useSession();
   const fileInputRef = useRef(null);
@@ -28,7 +30,6 @@ export default function ProfileForm({ initialData }) {
       : [{ id: "new-1", name: "", role: "", phone: "" }]
   });
   
-  const [status, setStatus] = useState({ type: "", message: "" });
   const [saving, setSaving] = useState(false);
 
   const handleFileChange = (e) => {
@@ -36,13 +37,14 @@ export default function ProfileForm({ initialData }) {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      setStatus({ type: "error", message: "Ukuran gambar maksimal 2MB" });
+      toast.error("Ukuran gambar maksimal 2MB");
       return;
     }
 
     const reader = new FileReader();
     reader.onloadend = () => {
       setForm(prev => ({ ...prev, avatar: reader.result }));
+      toast.success("Foto profil berhasil diproses!");
     };
     reader.readAsDataURL(file);
   };
@@ -50,7 +52,6 @@ export default function ProfileForm({ initialData }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setStatus({ type: "", message: "" });
 
     try {
       const res = await fetch("/api/admin/profile", {
@@ -62,13 +63,13 @@ export default function ProfileForm({ initialData }) {
       const data = await res.json();
 
       if (res.ok) {
-        setStatus({ type: "success", message: "Profil berhasil diperbarui!" });
+        toast.success("Profil berhasil diperbarui!");
         await update({ name: form.name, avatar: form.avatar });
       } else {
-        setStatus({ type: "error", message: data.message || "Gagal memperbarui profil." });
+        toast.error(data.message || "Gagal memperbarui profil.");
       }
     } catch (error) {
-      setStatus({ type: "error", message: "Terjadi kesalahan sistem." });
+      toast.error("Terjadi kesalahan sistem.");
     } finally {
       setSaving(false);
     }
@@ -274,12 +275,6 @@ export default function ProfileForm({ initialData }) {
           </div>
         </div>
 
-        {status.message && (
-          <div className={`flex items-center gap-2 rounded-lg p-3 text-sm ${status.type === 'success' ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-600' : 'border border-red-500/30 bg-red-500/20 text-red-500'}`}>
-            {status.type === 'success' ? <CheckCircle2 size={16} /> : null}
-            {status.message}
-          </div>
-        )}
 
         <button 
           type="submit" 

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
+import { revalidatePath } from "next/cache";
 
 function sanitize(value) {
   const normalized = String(value || "").trim();
@@ -55,6 +56,9 @@ export async function savePaymentSettingsAction(payload) {
       ...data
     }
   });
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
 
   return {
     ok: true,

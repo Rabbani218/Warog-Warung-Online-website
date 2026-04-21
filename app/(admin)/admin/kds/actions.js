@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { emitKotUpdate } from "@/lib/kot-events";
+import { revalidatePath } from "next/cache";
 
 function normalizeDisplayStatus(value) {
   const status = String(value || "").toUpperCase();
@@ -88,6 +89,9 @@ export async function updateKotStatusAction(ticketId, requestedStatus) {
     status: updated.status,
     createdAt: updated.createdAt
   });
+
+  revalidatePath("/admin/kds");
+  revalidatePath("/admin/dashboard");
 
   return {
     id: updated.id,

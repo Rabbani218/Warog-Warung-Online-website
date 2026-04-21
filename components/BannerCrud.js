@@ -13,15 +13,22 @@ const defaultBanner = {
   isActive: true
 };
 
+import { toast } from "sonner";
+
 export default function BannerCrud() {
   const [banners, setBanners] = useState([]);
   const [form, setForm] = useState(defaultBanner);
   const [saving, setSaving] = useState(false);
 
   async function load() {
-    const response = await fetch("/api/admin/banners", { cache: "no-store" });
-    const data = await response.json();
-    if (response.ok) setBanners(data);
+    try {
+      const response = await fetch("/api/admin/banners", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok) setBanners(data);
+      else toast.error("Gagal memuat banner.");
+    } catch (error) {
+      toast.error("Gagal terhubung ke server untuk memuat banner.");
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -29,22 +36,34 @@ export default function BannerCrud() {
   async function createBanner(event) {
     event.preventDefault();
     setSaving(true);
-    const response = await fetch("/api/admin/banners", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    const data = await response.json();
-    if (response.ok) {
+    
+    toast.promise(async () => {
+      const response = await fetch("/api/admin/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Gagal menambah banner.");
       setBanners((prev) => [...prev, data]);
       setForm(defaultBanner);
-    }
-    setSaving(false);
+    }, {
+      loading: "Menambah banner...",
+      success: "Banner berhasil ditambahkan!",
+      error: "Gagal menambah banner."
+    }).finally(() => setSaving(false));
   }
 
   async function deleteBanner(id) {
-    await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
-    setBanners((prev) => prev.filter((item) => item.id !== id));
+    toast.promise(async () => {
+      const response = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Gagal menghapus banner.");
+      setBanners((prev) => prev.filter((item) => item.id !== id));
+    }, {
+      loading: "Menghapus banner...",
+      success: "Banner berhasil dihapus!",
+      error: "Gagal menghapus banner."
+    });
   }
 
   return (
@@ -70,27 +89,27 @@ export default function BannerCrud() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               key={banner.id} 
-              className="glass-panel overflow-hidden flex flex-col"
+              className="glass-panel card-fix shadow-rose-50/50"
             >
-              <div className="h-48 w-full bg-black/40 relative">
-                <Image src={banner.imageUrl} alt={banner.title} fill className="object-cover opacity-80 hover:opacity-100 transition-opacity" />
+              <div className="h-48 w-full relative overflow-hidden">
+                <Image src={banner.imageUrl} alt={banner.title} fill className="img-fix opacity-90 hover:opacity-100" />
                 <button 
-                  className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full backdrop-blur-md shadow-lg"
+                  className="absolute top-2 right-2 z-20 p-2 bg-rose-500/80 hover:bg-rose-500 text-white rounded-full backdrop-blur-md shadow-lg transition-all"
                   onClick={() => deleteBanner(banner.id)}
                 >
                   <Trash2 size={16} />
                 </button>
               </div>
-              <div className="p-4">
+              <div className="p-4 bg-white/40">
                 <h4 className="text-slate-900 font-bold text-lg mb-1">{banner.title}</h4>
                 {banner.targetUrl && (
-                  <p className="text-determination-orange text-xs flex items-center gap-1">
+                  <p className="text-[#FF6B6B] text-xs flex items-center gap-1 font-semibold">
                     <LinkIcon size={12} /> <span className="truncate">{banner.targetUrl}</span>
                   </p>
                 )}
                 <div className="mt-3 flex justify-between items-center text-xs text-slate-500">
                   <span>Urutan: {banner.sortOrder}</span>
-                  <span className={`px-2 py-0.5 rounded-full ${banner.isActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
+                  <span className={`px-2 py-0.5 rounded-full font-bold ${banner.isActive ? 'bg-emerald-500/20 text-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
                     {banner.isActive ? 'Aktif' : 'Nonaktif'}
                   </span>
                 </div>
