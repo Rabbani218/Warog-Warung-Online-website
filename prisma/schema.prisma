@@ -25,6 +25,7 @@ model User {
   name          String
   email         String    @unique
   passwordHash  String
+  avatar        String?   @db.Text
   role          Role      @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -222,6 +223,7 @@ model Session {
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime

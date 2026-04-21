@@ -1,4 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass-panel {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl;
+  }
+  .glass-btn {
+    @apply relative overflow-hidden bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-4 rounded-xl border border-white/10 transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(255,45,32,0.5)];
+  }
+  .glass-btn-primary {
+    @apply relative overflow-hidden bg-determination-red/80 hover:bg-determination-red text-white font-medium py-2 px-4 rounded-xl border border-determination-red/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,32,0.3)] hover:shadow-[0_0_25px_rgba(255,45,32,0.6)];
+  }
+  .glass-input {
+    @apply w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-determination-red/60 focus:ring-1 focus:ring-determination-red/60 transition-all;
+  }
+  .retro-title {
+    @apply font-retro tracking-wider;
+  }
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
   --bg: #f5f1e7;
@@ -154,6 +176,88 @@ textarea:focus {
   overflow: hidden;
 }
 
+.glass-card {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.75), rgba(255, 250, 242, 0.55));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+}
+
+.retro-heading {
+  font-family: "Press Start 2P", cursive;
+  line-height: 1.35;
+}
+
+.admin-mesh-bg {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 61, 32, 0.26), transparent 26%),
+    radial-gradient(circle at 88% 12%, rgba(255, 133, 27, 0.22), transparent 28%),
+    radial-gradient(circle at 50% 82%, rgba(250, 204, 21, 0.2), transparent 32%),
+    linear-gradient(145deg, #120202 0%, #2a0505 30%, #42110f 58%, #111111 100%);
+  overflow: hidden;
+}
+
+.admin-noise {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 4px 4px;
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.admin-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(48px);
+  opacity: 0.25;
+  animation: orbFloat 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.admin-orb-one {
+  width: 280px;
+  height: 280px;
+  background: #ff2d20;
+  top: 12%;
+  left: -3%;
+}
+
+.admin-orb-two {
+  width: 320px;
+  height: 320px;
+  background: #ff9a1a;
+  top: 58%;
+  right: -5%;
+  animation-delay: -2s;
+}
+
+.admin-orb-three {
+  width: 260px;
+  height: 260px;
+  background: #facc15;
+  bottom: -8%;
+  left: 35%;
+  animation-delay: -4s;
+}
+
+.admin-shell {
+  color: #f8f3e8;
+}
+
+.admin-shell .panel {
+  background: linear-gradient(120deg, rgba(255, 250, 244, 0.82), rgba(255, 247, 236, 0.6));
+  border-color: rgba(255, 222, 188, 0.6);
+  box-shadow: 0 16px 42px rgba(10, 6, 6, 0.24);
+}
+
+.kds-delay {
+  animation: pulseWarn 1.1s ease-in-out infinite;
+}
+
 .hero-shell::before {
   content: "";
   position: absolute;
@@ -234,6 +338,28 @@ td {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes orbFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-18px) scale(1.04);
+  }
+}
+
+@keyframes pulseWarn {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.55);
   }
 }
 

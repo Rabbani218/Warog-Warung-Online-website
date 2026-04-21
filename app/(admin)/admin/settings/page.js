@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import AdminTopNav from "@/components/AdminTopNav";
 import PaymentSettingsForm from "@/components/PaymentSettingsForm";
 
 export const dynamic = "force-dynamic";
@@ -13,21 +14,20 @@ export default async function SettingsPage() {
   }
 
   return (
-    <main className="container" style={{ padding: "1rem 0 2rem" }}>
-      <header className="panel" style={{ padding: "1rem", marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <span className="badge">Payment Configuration</span>
-          <h1 style={{ margin: "0.35rem 0 0", fontFamily: '"Segoe Print", cursive' }}>Pengaturan Pembayaran</h1>
-        </div>
-        <nav style={{ display: "flex", gap: "0.5rem" }}>
-          <a className="btn" href="/admin/dashboard">Dashboard</a>
-          <a className="btn" href="/admin/products">Products & Ads</a>
-          <a className="btn" href="/admin/settings">Settings</a>
-          <a className="btn" href="/admin/kds">KDS</a>
-        </nav>
-      </header>
+    <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
+      <div className="container">
+        <header style={{ marginBottom: "2rem" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            <span className="badge">Payment & Settings</span>
+            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
+              Pengaturan Sistem
+            </h1>
+          </div>
+          <AdminTopNav currentPath="/admin/settings" />
+        </header>
 
-      <PaymentSettingsForm />
+        <PaymentSettingsForm />
+      </div>
     </main>
   );
 }

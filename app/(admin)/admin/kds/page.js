@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
+import AdminTopNav from "@/components/AdminTopNav";
 import KdsRealtimeBoard from "@/components/KdsRealtimeBoard";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export default async function KdsPage() {
   const queue = await prisma.kOTicket.findMany({
     where: {
       order: { storeId: store.id },
-      status: { in: ["NEW", "PROCESSING"] }
+      status: { in: ["NEW", "PROCESSING", "DONE"] }
     },
     include: {
       order: {
@@ -39,21 +40,20 @@ export default async function KdsPage() {
   });
 
   return (
-    <main className="container" style={{ padding: "1rem 0 2rem" }}>
-      <header className="panel" style={{ padding: "1rem", marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <span className="badge">KDS</span>
-          <h1 style={{ margin: "0.35rem 0 0", fontFamily: '"Segoe Print", cursive' }}>Kitchen Queue Live</h1>
-        </div>
-        <nav style={{ display: "flex", gap: "0.5rem" }}>
-          <a className="btn" href="/admin/dashboard">Dashboard</a>
-          <a className="btn" href="/admin/products">Products & Ads</a>
-          <a className="btn" href="/admin/settings">Settings</a>
-          <a className="btn" href="/admin/kds">KDS</a>
-        </nav>
-      </header>
+    <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
+      <div className="container">
+        <header style={{ marginBottom: "2rem" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            <span className="badge">KDS System</span>
+            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
+              Kitchen Queue Live
+            </h1>
+          </div>
+          <AdminTopNav currentPath="/admin/kds" />
+        </header>
 
-      <KdsRealtimeBoard initialQueue={queue} />
+        <KdsRealtimeBoard initialQueue={queue} />
+      </div>
     </main>
   );
 }
