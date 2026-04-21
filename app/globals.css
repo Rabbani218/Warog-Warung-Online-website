@@ -78,3 +78,22 @@ textarea {
   padding: 0.15rem 0.55rem;
   font-size: 0.75rem;
 }
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  color: #334155;
+}
+
+.spinner {
+  border: 8px solid rgba(248, 240, 227, 0.95);
+  border-top-color: var(--brand);
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

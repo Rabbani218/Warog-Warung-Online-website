@@ -1,6 +1,7 @@
-import { getDefaultStore } from "@/lib/store";
+import { findStore } from "@/lib/store";
 import { prisma } from "@/lib/prisma";
 import ClientShop from "@/components/ClientShop";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -9,23 +10,25 @@ export const metadata = {
   description: "Belanja menu warteg modern dengan checkout digital dan pesanan langsung ke dapur."
 };
 
-export default async function ClientHomePage() {
-  const store = await getDefaultStore();
+export default async function ClientHomePage({ searchParams }) {
+  const store = await findStore();
 
   if (!store) {
-    return (
-      <main className="container" style={{ padding: "2rem 0" }}>
-        <section className="panel" style={{ padding: "1rem" }}>
-          <h1>Store belum tersedia</h1>
-        </section>
-      </main>
-    );
+    redirect("/setup");
   }
 
+  const tableNumber = String(searchParams?.table || "").trim();
+
   const [menus, banners] = await Promise.all([
-    prisma.menu.findMany({ where: { storeId: store.id, isActive: true }, orderBy: { createdAt: "desc" } }),
-    prisma.banner.findMany({ where: { storeId: store.id, isActive: true }, orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] })
+    prisma.menu.findMany({
+      where: { storeId: store.id, isActive: true },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.banner.findMany({
+      where: { storeId: store.id, isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }]
+    })
   ]);
 
-  return <ClientShop store={store} menus={menus} banners={banners} />;
+  return <ClientShop store={store} menus={menus} banners={banners} tableNumber={tableNumber} />;
 }

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 
-export default function ClientShop({ store, menus, banners }) {
+export default function ClientShop({ store, menus, banners, tableNumber }) {
   const [cart, setCart] = useState([]);
   const [query, setQuery] = useState("");
 
@@ -30,9 +30,13 @@ export default function ClientShop({ store, menus, banners }) {
   return (
     <main className="container" style={{ padding: "1.1rem 0 2rem" }}>
       <header className="panel" style={{ padding: "1.2rem", marginBottom: "1rem" }}>
-        <span className="badge">Shopee-style Warteg Modern</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <span className="badge">Shopee-style Warteg Modern</span>
+          <a className="btn" href="/admin" style={{ whiteSpace: "nowrap" }}>Admin Login</a>
+        </div>
         <h1 style={{ margin: "0.6rem 0 0.3rem", fontFamily: '"Segoe Print", cursive' }}>{store.heroTitle || store.name}</h1>
         <p style={{ margin: 0, color: "#6b7280" }}>{store.heroSubtitle || store.description || "Belanja menu favoritmu dengan checkout instan."}</p>
+        {tableNumber ? <p style={{ marginTop: "0.8rem", color: "#374151" }}>Meja: <strong>{tableNumber}</strong></p> : null}
       </header>
 
       <PromoCarousel banners={banners} />
