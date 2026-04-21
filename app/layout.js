@@ -1,8 +1,22 @@
 import "./globals.css";
 import PwaBootstrap from "@/components/PwaBootstrap";
 
+function resolveMetadataBase() {
+  const envUrl = String(process.env.NEXTAUTH_URL || "").trim();
+
+  try {
+    if (envUrl) {
+      return new URL(envUrl);
+    }
+  } catch (error) {
+    console.warn("Invalid NEXTAUTH_URL detected, fallback to localhost:", envUrl);
+  }
+
+  return new URL("http://localhost:3000");
+}
+
 export const metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  metadataBase: resolveMetadataBase(),
   title: {
     default: "Wareb Platform",
     template: "%s | Wareb Platform"
