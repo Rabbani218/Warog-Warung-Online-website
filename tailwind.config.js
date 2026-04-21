@@ -13,11 +13,19 @@ module.exports = {
           orange: '#ff9a1a',
           yellow: '#facc15',
           black: '#111111'
+        },
+        wareb: {
+          crimson: '#FF6B6B',
+          rose: '#FF8787',
+          coral: '#FF5252'
         }
       },
       fontFamily: {
         retro: ['"Press Start 2P"', 'cursive'],
         sans: ['"Inter"', '"Plus Jakarta Sans"', 'sans-serif']
+      },
+      backdropBlur: {
+        xs: '2px'
       }
     },
   },

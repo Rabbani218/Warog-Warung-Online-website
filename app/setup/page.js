@@ -37,7 +37,7 @@ function SetupClient() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <p className="badge">Wareb V2 Onboarding</p>
-            <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}>Buat Toko Anda</h1>
+            <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)", color: "#FF6B6B" }}>Buat Toko Anda</h1>
             <p className="muted" style={{ margin: "0.4rem 0 0" }}>Satu kali setup, langsung siap jualan online dan kelola POS.</p>
           </div>
         </div>
@@ -54,7 +54,17 @@ function SetupClient() {
         }} className="grid" style={{ gap: "1.5rem" }}>
           <label className="field">
             <span>Nama Toko</span>
-            <input name="storeName" className="input" placeholder="Warteg Bahari" required />
+            <input 
+              name="storeName" 
+              className="input" 
+              placeholder="🏪 Warteg Bahari" 
+              required 
+              style={{
+                background: "rgba(255, 255, 255, 0.9)",
+                border: "1px solid rgba(255, 107, 107, 0.2)",
+                borderRadius: "12px"
+              }}
+            />
             <small className="muted" style={{ marginTop: "0.25rem", display: "block" }}>Nama ini akan muncul di nota dan etalase digital Anda.</small>
           </label>
 
