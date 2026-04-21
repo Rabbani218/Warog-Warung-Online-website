@@ -16,6 +16,7 @@ export default function AdminLoginPage() {
 
   const queryEmail = useMemo(() => String(searchParams?.get("email") || "").trim(), [searchParams]);
   const queryMessage = useMemo(() => String(searchParams?.get("message") || "").trim(), [searchParams]);
+  const queryError = useMemo(() => String(searchParams?.get("error") || "").trim(), [searchParams]);
 
   useEffect(() => {
     if (queryEmail) {
@@ -28,6 +29,24 @@ export default function AdminLoginPage() {
       setMessage(queryMessage);
     }
   }, [queryMessage]);
+
+  useEffect(() => {
+    if (!queryError) {
+      return;
+    }
+
+    if (queryError === "google") {
+      setMessage("Login Google gagal. Periksa Authorized redirect URI pada Google Console.");
+      return;
+    }
+
+    if (queryError === "OAuthSignin" || queryError === "OAuthCallback") {
+      setMessage("OAuth callback gagal. Pastikan domain callback login Google sudah benar.");
+      return;
+    }
+
+    setMessage(`Autentikasi gagal: ${queryError}`);
+  }, [queryError]);
 
   useEffect(() => {
     let mounted = true;
@@ -102,7 +121,17 @@ export default function AdminLoginPage() {
     setMessage("");
 
     try {
-      await signIn("google", { callbackUrl: "/admin/dashboard" });
+      const browserOrigin = window.location.origin;
+      const configuredOrigin = String(process.env.NEXT_PUBLIC_AUTH_ORIGIN || "").trim();
+      const authOrigin = configuredOrigin || browserOrigin;
+      const callbackUrl = `${authOrigin}/admin/dashboard`;
+
+      if (authOrigin !== browserOrigin) {
+        window.location.assign(`${authOrigin}/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        return;
+      }
+
+      await signIn("google", { callbackUrl });
     } catch (error) {
       setMessage("Login Google gagal. Coba lagi nanti.");
       setLoading(false);
@@ -140,6 +169,11 @@ export default function AdminLoginPage() {
         </form>
 
         {message && <p style={{ marginTop: "0.75rem" }} className={message.toLowerCase().includes("berhasil") ? "status-ok" : "status-err"}>{message}</p>}
+        <p className="muted" style={{ marginTop: "0.45rem", marginBottom: 0, fontSize: "0.88rem" }}>
+          Jika login Google gagal, daftarkan callback berikut di Google Console:
+          <br />
+          https://wareb-next-platform.vercel.app/api/auth/callback/google
+        </p>
       </section>
     </main>
   );
