@@ -106,18 +106,19 @@ export default function FloatingCart({ cart, setCart }) {
         height: "fit-content"
       }}
     >
-      <h3 style={{ marginTop: 0 }}>Floating Cart</h3>
-      {cart.length === 0 && <p>Keranjang masih kosong.</p>}
+      <h3 style={{ marginTop: 0, marginBottom: "0.2rem" }}>Keranjang Aktif</h3>
+      <p className="muted" style={{ marginTop: 0, marginBottom: "0.8rem" }}>Tambah menu, pilih metode bayar, lalu checkout.</p>
+      {cart.length === 0 && <p className="muted">Keranjang masih kosong.</p>}
       {cart.map((item) => (
         <div key={item.menuId} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "0.5rem", marginBottom: "0.75rem" }}>
           <div>
             <strong>{item.name}</strong>
-            <div style={{ color: "#6b7280", fontSize: "0.85rem" }}>Rp {Number(item.price).toLocaleString("id-ID")}</div>
+            <div className="muted" style={{ fontSize: "0.85rem" }}>Rp {Number(item.price).toLocaleString("id-ID")}</div>
           </div>
           <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
-            <button className="btn" onClick={() => updateQty(item.menuId, item.quantity - 1)}>-</button>
+            <button className="btn btn-ghost" onClick={() => updateQty(item.menuId, item.quantity - 1)} aria-label={`Kurangi ${item.name}`}>-</button>
             <span>{item.quantity}</span>
-            <button className="btn" onClick={() => updateQty(item.menuId, item.quantity + 1)}>+</button>
+            <button className="btn btn-ghost" onClick={() => updateQty(item.menuId, item.quantity + 1)} aria-label={`Tambah ${item.name}`}>+</button>
           </div>
         </div>
       ))}
@@ -132,10 +133,10 @@ export default function FloatingCart({ cart, setCart }) {
           <option value="QRIS">QRIS</option>
           <option value="TRANSFER">TRANSFER</option>
         </select>
-        <button className="btn" style={{ marginTop: "0.75rem", width: "100%" }} onClick={checkout}>Checkout & Kirim KOT</button>
+        <button className="btn" style={{ marginTop: "0.75rem", width: "100%" }} onClick={checkout}>Checkout dan Kirim KOT</button>
       </div>
-      {error && <p style={{ color: "#dc2626" }}>{error}</p>}
-      <p style={{ marginTop: "0.3rem", color: "#6b7280" }}>
+      {error && <p className="status-err">{error}</p>}
+      <p style={{ marginTop: "0.3rem" }} className="muted">
         Antrean offline: <strong>{offlineCount}</strong>
       </p>
       {invoice && (

@@ -103,16 +103,17 @@ export default async function SetupPage({ searchParams }) {
   const errorMessage = String(searchParams?.error || "").trim();
 
   return (
-    <main className="container" style={{ padding: "2rem 0", minHeight: "100vh" }}>
-      <section className="panel" style={{ maxWidth: 620, margin: "0 auto", padding: "2rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+    <main className="container" style={{ padding: "2rem 0", minHeight: "100vh", display: "grid", alignItems: "center" }}>
+      <section className="panel hero-shell" style={{ maxWidth: 680, margin: "0 auto", padding: "2rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <p className="badge">Wareb V2 Onboarding</p>
-            <h1 style={{ margin: "0.75rem 0 0", fontFamily: '"Segoe UI", sans-serif' }}>Buat Toko & Admin</h1>
+            <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}>Buat Toko dan Akun Admin</h1>
+            <p className="muted" style={{ margin: "0.4rem 0 0" }}>Satu kali setup, langsung siap jualan online dan kelola POS.</p>
           </div>
-          <div style={{ textAlign: "right", color: "#6b7280", fontSize: "0.95rem" }}>
-            <p>Platform POS + E-Commerce F&B</p>
-            <p>Setup wizard profesional untuk pemilik warkop.</p>
+          <div className="muted" style={{ textAlign: "right", fontSize: "0.95rem" }}>
+            <p style={{ margin: 0 }}>Platform POS + E-Commerce F&B</p>
+            <p style={{ margin: "0.3rem 0 0" }}>Wizard setup profesional untuk pemilik warung.</p>
           </div>
         </div>
 
@@ -136,6 +137,7 @@ export default async function SetupPage({ searchParams }) {
           <label className="field">
             <span>Password</span>
             <input name="password" type="password" className="input" placeholder="••••••••" minLength={8} required />
+            <small className="muted">Gunakan minimal 8 karakter agar akun lebih aman.</small>
           </label>
 
           <label className="field">
@@ -144,8 +146,8 @@ export default async function SetupPage({ searchParams }) {
           </label>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-            <p style={{ margin: 0, color: "#475569" }}>Setelah selesai, Anda akan diarahkan ke dashboard admin.</p>
-            <button type="submit" className="btn" style={{ minWidth: 170 }}>Mulai Setup</button>
+            <p style={{ margin: 0, color: "#475569" }}>Setelah selesai, Anda akan diarahkan ke halaman login admin.</p>
+            <button type="submit" className="btn" style={{ minWidth: 190 }}>Mulai Setup Sekarang</button>
           </div>
         </form>
       </section>

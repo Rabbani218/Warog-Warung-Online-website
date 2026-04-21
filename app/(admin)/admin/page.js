@@ -110,15 +110,16 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="container" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
-      <section className="panel" style={{ width: "min(560px,100%)", padding: "1.2rem" }}>
-        <h1 style={{ marginTop: 0, fontFamily: '"Segoe Print", cursive' }}>Admin Portal Wareb</h1>
-        <p style={{ color: "#6b7280" }}>Login atau registrasi akun pemilik untuk mengelola toko.</p>
+    <main className="container" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1rem 0" }}>
+      <section className="panel hero-shell" style={{ width: "min(620px,100%)", padding: "1.35rem" }}>
+        <span className="badge">Admin Workspace</span>
+        <h1 style={{ margin: "0.55rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.15rem)" }}>Kelola Operasional Warung</h1>
+        <p className="muted" style={{ marginTop: "0.45rem" }}>Masuk ke dashboard admin untuk atur menu, pantau order, dan kontrol KDS.</p>
 
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-          <button className="btn" type="button" onClick={() => setMode("login")}>Login</button>
-          <button className="btn" type="button" onClick={() => setMode("register")}>Register</button>
-          <button className="btn" type="button" onClick={signInWithGoogle} disabled={loading || !googleEnabled} style={{ background: "#4285F4" }}>
+        <div className="panel" style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", padding: "0.5rem", background: "#fff8ec" }}>
+          <button className={mode === "login" ? "btn" : "btn btn-ghost"} type="button" onClick={() => setMode("login")}>Login</button>
+          <button className={mode === "register" ? "btn" : "btn btn-ghost"} type="button" onClick={() => setMode("register")}>Register</button>
+          <button className="btn btn-secondary" type="button" onClick={signInWithGoogle} disabled={loading || !googleEnabled}>
             {loading ? "Memuat..." : "Login dengan Google"}
           </button>
         </div>
@@ -135,10 +136,10 @@ export default function AdminLoginPage() {
           )}
           <input className="input" type="email" placeholder="Email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} required />
           <input className="input" type="password" placeholder="Password" value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} required />
-          <button className="btn" type="submit">{mode === "login" ? "Masuk" : "Daftar & Masuk"}</button>
+          <button className="btn" type="submit">{mode === "login" ? "Masuk ke Dashboard" : "Daftar & Masuk"}</button>
         </form>
 
-        {message && <p style={{ marginTop: "0.75rem", color: "#b91c1c" }}>{message}</p>}
+        {message && <p style={{ marginTop: "0.75rem" }} className={message.toLowerCase().includes("berhasil") ? "status-ok" : "status-err"}>{message}</p>}
       </section>
     </main>
   );

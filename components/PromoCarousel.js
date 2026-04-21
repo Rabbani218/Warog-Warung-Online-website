@@ -16,8 +16,8 @@ export default function PromoCarousel({ banners = [] }) {
 
   if (!banners.length) {
     return (
-      <section className="panel" style={{ padding: "1rem", minHeight: 190 }}>
-        <strong>Belum ada banner promo aktif.</strong>
+      <section className="panel" style={{ padding: "1rem", minHeight: 190, display: "grid", placeItems: "center" }}>
+        <strong className="muted">Belum ada banner promo aktif.</strong>
       </section>
     );
   }
@@ -33,6 +33,29 @@ export default function PromoCarousel({ banners = [] }) {
       />
       <div style={{ position: "absolute", inset: "auto 0 0 0", padding: "1rem", color: "#fff", background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.72))" }}>
         <h2 style={{ margin: 0 }}>{active.title}</h2>
+        {active.targetUrl && (
+          <a href={active.targetUrl} style={{ display: "inline-block", marginTop: "0.45rem", fontWeight: 700, color: "#fff7d6" }}>
+            Lihat promo
+          </a>
+        )}
+      </div>
+      <div style={{ position: "absolute", right: 14, bottom: 14, display: "flex", gap: 6 }}>
+        {banners.map((banner, dotIndex) => (
+          <button
+            key={banner.id || dotIndex}
+            type="button"
+            onClick={() => setIndex(dotIndex)}
+            aria-label={`Pindah ke promo ${dotIndex + 1}`}
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 999,
+              border: "none",
+              cursor: "pointer",
+              background: dotIndex === index ? "#ffd29f" : "rgba(255,255,255,0.6)"
+            }}
+          />
+        ))}
       </div>
     </section>
   );
