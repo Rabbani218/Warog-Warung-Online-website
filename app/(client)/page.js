@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import ClientShop from "@/components/ClientShop";
 import { redirect } from "next/navigation";
 
-export const revalidate = 60;
-export const dynamic = "auto";
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Wareb | Warteg Modern Online",

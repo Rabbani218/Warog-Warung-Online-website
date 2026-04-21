@@ -115,6 +115,10 @@ Tambahkan di Vercel Project Settings:
 - `DATABASE_URL`
 - `NEXTAUTH_URL`
 - `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+> Pastikan `NEXTAUTH_URL` sama dengan domain produksi Vercel Anda agar Google OAuth callback bekerja.
 
 ### Build Settings
 

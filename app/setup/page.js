@@ -9,6 +9,24 @@ function slugify(value) {
   return String(value || "wareb").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
+async function buildUniqueStoreSlug(tx, storeName) {
+  const baseSlug = slugify(storeName) || "wareb";
+  let slug = baseSlug;
+  let counter = 2;
+
+  // Keep slug unique even when setup is retried with the same store name.
+  while (await tx.store.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter}`;
+    counter += 1;
+  }
+
+  return slug;
+}
+
+function setupErrorRedirect(message) {
+  redirect(`/setup?error=${encodeURIComponent(message)}`);
+}
+
 async function createSetup(formData) {
   "use server";
 
@@ -18,43 +36,63 @@ async function createSetup(formData) {
   const storeName = String(formData.get("storeName") || "").trim();
 
   if (!name || !email || !password || !storeName) {
-    throw new Error("Semua field wajib diisi.");
+    setupErrorRedirect("Semua field wajib diisi.");
+  }
+
+  if (password.length < 8) {
+    setupErrorRedirect("Password minimal 8 karakter.");
+  }
+
+  const existingStore = await findStore();
+  if (existingStore) {
+    redirect("/admin");
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    throw new Error("Email sudah terdaftar. Silakan gunakan email lain.");
+    redirect(`/admin?message=${encodeURIComponent("Email sudah terdaftar. Silakan login.")}&email=${encodeURIComponent(email)}`);
   }
 
   const passwordHash = await hash(password, 10);
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      role: "ADMIN"
-    }
-  });
+  try {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          role: "ADMIN"
+        }
+      });
 
-  await prisma.store.create({
-    data: {
-      ownerId: user.id,
-      name: storeName,
-      slug: slugify(storeName),
-      heroTitle: `${storeName} - Pesan cepat, bayar mudah`,
-      heroSubtitle: "Selamat datang di kasir digital F&B Anda."
-    }
-  });
+      const slug = await buildUniqueStoreSlug(tx, storeName);
 
-  redirect("/admin");
+      await tx.store.create({
+        data: {
+          ownerId: user.id,
+          name: storeName,
+          slug,
+          heroTitle: `${storeName} - Pesan cepat, bayar mudah`,
+          heroSubtitle: "Selamat datang di kasir digital F&B Anda."
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Setup transaction failed:", error);
+    setupErrorRedirect("Setup gagal diproses. Coba lagi beberapa saat.");
+  }
+
+  redirect(`/admin?message=${encodeURIComponent("Setup berhasil. Silakan login.")}&email=${encodeURIComponent(email)}`);
 }
 
-export default async function SetupPage() {
+export default async function SetupPage({ searchParams }) {
   const store = await findStore();
   if (store) {
     redirect("/");
   }
+
+  const errorMessage = String(searchParams?.error || "").trim();
 
   return (
     <main className="container" style={{ padding: "2rem 0", minHeight: "100vh" }}>
@@ -69,6 +107,12 @@ export default async function SetupPage() {
             <p>Setup wizard profesional untuk pemilik warkop.</p>
           </div>
         </div>
+
+        {errorMessage && (
+          <p style={{ margin: "0 0 1rem", color: "#b91c1c" }}>
+            {errorMessage}
+          </p>
+        )}
 
         <form action={createSetup} className="grid" style={{ gap: "1rem" }}>
           <label className="field">

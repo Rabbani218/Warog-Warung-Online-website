@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "auto";
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function InvoicePage({ params }) {
   const order = await prisma.order.findUnique({

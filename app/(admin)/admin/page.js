@@ -1,15 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useMemo, useState } from "react";
+import { getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "owner@wareb.local", password: "wareb12345" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+
+  const queryEmail = useMemo(() => String(searchParams?.get("email") || "").trim(), [searchParams]);
+  const queryMessage = useMemo(() => String(searchParams?.get("message") || "").trim(), [searchParams]);
+
+  useEffect(() => {
+    if (queryEmail) {
+      setForm((prev) => ({ ...prev, email: queryEmail }));
+    }
+  }, [queryEmail]);
+
+  useEffect(() => {
+    if (queryMessage) {
+      setMessage(queryMessage);
+    }
+  }, [queryMessage]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProviders() {
+      const providers = await getProviders();
+      if (!mounted) {
+        return;
+      }
+      setGoogleEnabled(Boolean(providers?.google));
+    }
+
+    loadProviders().catch(() => {
+      if (mounted) {
+        setGoogleEnabled(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function onSubmit(event) {
     event.preventDefault();
@@ -29,6 +69,8 @@ export default function AdminLoginPage() {
           setMessage(err?.message || "Registrasi gagal.");
           return;
         }
+
+        setMessage("Registrasi berhasil. Sedang login...");
       }
 
       const result = await signIn("credentials", {
@@ -51,6 +93,11 @@ export default function AdminLoginPage() {
   }
 
   async function signInWithGoogle() {
+    if (!googleEnabled) {
+      setMessage("Login Google belum aktif. Silakan gunakan email dan password.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
@@ -71,7 +118,7 @@ export default function AdminLoginPage() {
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
           <button className="btn" type="button" onClick={() => setMode("login")}>Login</button>
           <button className="btn" type="button" onClick={() => setMode("register")}>Register</button>
-          <button className="btn" type="button" onClick={signInWithGoogle} disabled={loading} style={{ background: "#4285F4" }}>
+          <button className="btn" type="button" onClick={signInWithGoogle} disabled={loading || !googleEnabled} style={{ background: "#4285F4" }}>
             {loading ? "Memuat..." : "Login dengan Google"}
           </button>
         </div>
