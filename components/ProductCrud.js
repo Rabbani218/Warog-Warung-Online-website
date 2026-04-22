@@ -52,53 +52,43 @@ export default function ProductCrud() {
   }, [products, search]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8">
-      <section className="glass-panel p-6 md:p-8">
-        <div className="flex flex-col items-center text-center gap-4 mb-12">
-          <span className="badge">Katalog Menu</span>
-          <h3 className="retro-title text-3xl text-slate-900">Product Catalog</h3>
-          <p className="text-slate-500 max-w-lg">Kelola ketersediaan menu, harga, dan informasi katalog warung Anda secara real-time.</p>
+    <div className="w-full space-y-8">
+      <section className="bg-white/60 backdrop-blur-xl border border-white/40 p-8 md:p-12 rounded-[3rem] shadow-xl shadow-slate-200/30">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+          <div className="text-center md:text-left">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-500 uppercase tracking-widest mb-3 border border-rose-100">
+              Katalog Menu
+            </span>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight">Product Management</h3>
+            <p className="text-slate-500 font-medium mt-1">Kelola ketersediaan menu dan harga warung Anda.</p>
+          </div>
+          
+          <Link 
+            href="/admin/products/create"
+            className="px-8 py-4 bg-[#FF6B6B] text-white rounded-2xl font-black text-sm flex items-center gap-2 shadow-xl shadow-rose-200 hover:bg-[#ff5252] transition-all hover:scale-105 active:scale-95"
+          >
+            <Plus size={20} /> TAMBAH MENU BARU
+          </Link>
         </div>
 
-        {/* Quick Search & Filter */}
-        <div className="flex justify-center mb-10">
-          <div className="relative w-full max-w-xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input 
-              type="text" 
-              placeholder="Cari menu berdasarkan nama..." 
-              className="glass-input pl-12 py-4 text-lg shadow-inner"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        {/* Quick Search */}
+        <div className="relative mb-12 group">
+          <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-400 group-focus-within:text-rose-500 transition-colors">
+            <Search size={22} />
           </div>
-        </div>
-
-        {/* Quick Add Form Section */}
-        <div className="mb-12 p-1 bg-slate-50 rounded-[2rem] border border-slate-200/60 shadow-inner">
-          <div className="glass-panel p-6 flex flex-col md:flex-row items-center gap-4">
-             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-                <input placeholder="Nama Menu" className="glass-input bg-white" />
-                <input placeholder="Slug" className="glass-input bg-white" />
-                <input placeholder="Harga" type="number" className="glass-input bg-white" />
-                <input placeholder="Image URL" className="glass-input bg-white" />
-             </div>
-             <Link 
-              href="/admin/products/create"
-              className="glass-btn-primary w-full md:w-auto px-8 py-3 rounded-2xl flex items-center justify-center gap-2"
-            >
-              <Plus size={20} /> Tambah Menu
-            </Link>
-          </div>
-          <p className="text-[10px] text-center py-2 text-slate-400 font-medium italic">
-            Tip: Klik &apos;Tambah Menu&apos; untuk membuka formulir detail lengkap (Kategori, Waktu Masak, Deskripsi).
-          </p>
+          <input 
+            type="text" 
+            placeholder="Cari menu berdasarkan nama..." 
+            className="w-full bg-white/50 border border-slate-100 rounded-[2rem] py-5 pl-16 pr-8 text-lg font-medium focus:ring-4 focus:ring-rose-50 focus:border-rose-200 outline-none transition-all shadow-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="animate-spin text-rose-400" size={40} />
-            <p className="text-slate-400 font-medium">Menyinkronkan katalog...</p>
+            <div className="w-12 h-12 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin" />
+            <p className="text-slate-400 font-black text-xs uppercase tracking-widest">Sinkronisasi Katalog...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -106,93 +96,88 @@ export default function ProductCrud() {
               {filteredProducts.map((product) => (
                 <motion.article 
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                   key={product.id} 
-                  className={`glass-panel card-fix shadow-rose-50/50 group relative ${!product.isAvailable ? 'opacity-75 grayscale-[0.5]' : ''}`}
+                  className={`group bg-white/70 backdrop-blur-sm border border-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-rose-100/50 transition-all duration-500 flex flex-col ${!product.isAvailable ? 'opacity-70' : ''}`}
                 >
-                  <div className="aspect-square w-full relative overflow-hidden bg-slate-100">
+                  <div className="aspect-[4/3] w-full relative overflow-hidden bg-slate-50">
                     <SafeImage 
                       src={product.imageUrl} 
                       alt={product.name} 
-                      fill 
+                      width={500}
+                      height={500}
                       type="menu"
-                      className="object-cover transition-transform group-hover:scale-110 duration-700" 
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
                     />
                     
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border ${
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md ${
                         product.isAvailable 
-                          ? 'bg-emerald-500/80 text-white border-emerald-400' 
-                          : 'bg-slate-500/80 text-white border-slate-400'
+                          ? 'bg-emerald-500/80 text-white border-emerald-300' 
+                          : 'bg-slate-500/80 text-white border-slate-300'
                       }`}>
-                        {product.isAvailable ? 'Tersedia' : 'Habis'}
+                        {product.isAvailable ? 'Ready' : 'Sold Out'}
                       </span>
                     </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 gap-2">
-                      <Link 
-                        href={`/admin/products/${product.id}`}
-                        className="bg-emerald-500/90 hover:bg-emerald-500 text-white p-2 rounded-xl backdrop-blur-md transition-all translate-y-4 group-hover:translate-y-0 duration-300"
-                        title="Analytics"
-                      >
-                        <BarChart3 size={14} />
-                      </Link>
+                    {/* Quick Actions Hover Overlay */}
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
                       <Link 
                         href={`/admin/products/${product.id}/edit`}
-                        className="flex-1 bg-white/90 hover:bg-white text-slate-900 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 backdrop-blur-md transition-all translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
+                        className="w-12 h-12 bg-white text-slate-900 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0"
                       >
-                        <Edit3 size={14} /> Edit
+                        <Edit3 size={20} />
                       </Link>
                       <button 
-                        className="bg-rose-500/90 hover:bg-rose-500 text-white p-2 rounded-xl backdrop-blur-md transition-all translate-y-4 group-hover:translate-y-0 duration-300 delay-100"
                         onClick={() => removeProduct(product.id)}
                         disabled={deleting === product.id}
+                        className="w-12 h-12 bg-white text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-75"
                       >
-                        {deleting === product.id ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
+                        {deleting === product.id ? <Loader2 className="animate-spin" size={20} /> : <Trash2 size={20} />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-5 flex-1 flex flex-col justify-between bg-white/40">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                          {product.category || "Menu"}
+                  <div className="p-6 space-y-4 flex-1 flex flex-col">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">
+                          {product.category || "General"}
                         </span>
-                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                          <Clock size={10} /> {product.preparationTime || 10}&apos;
-                        </div>
+                        <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                        <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                          <Clock size={10} /> {product.preparationTime || 10}m
+                        </span>
                       </div>
-                      <h4 className="text-slate-900 font-bold text-lg mb-1 leading-tight">{product.name}</h4>
-                      <p className="text-slate-500 text-xs mb-4 line-clamp-2 leading-relaxed">
-                        {product.description || "Tanpa deskripsi"}
-                      </p>
+                      <h4 className="text-slate-900 font-black text-lg leading-tight truncate">{product.name}</h4>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                      <p className="text-[#FF6B6B] font-black text-xl">
-                        <span className="text-xs font-bold mr-0.5">Rp</span>
-                        {Number(product.price).toLocaleString("id-ID")}
-                      </p>
-                      <Utensils size={18} className="text-slate-200" />
+                    <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed flex-1 italic">
+                      {product.description || "Freshly made with traditional recipes."}
+                    </p>
+                    
+                    <div className="pt-4 flex items-end justify-between border-t border-slate-50">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Price Tag</span>
+                        <span className="text-xl font-black text-[#FF6B6B]">
+                          <small className="text-xs mr-0.5">Rp</small>
+                          {Number(product.price).toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                      <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-200">
+                        <Utensils size={20} />
+                      </div>
                     </div>
                   </div>
                 </motion.article>
               ))}
             </AnimatePresence>
-            {filteredProducts.length === 0 && (
-              <div className="col-span-full py-20 text-center">
-                <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-slate-200">
-                  <Search size={32} className="text-slate-300" />
-                </div>
-                <p className="text-slate-400 font-medium">Tidak ada produk ditemukan.</p>
-              </div>
-            )}
           </div>
         )}
       </section>
     </div>
+
   );
 }

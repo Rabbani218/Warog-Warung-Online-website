@@ -1,72 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UtensilsCrossed, Image as ImageIcon, ImageOff, Loader2 } from "lucide-react";
 
-export default function SafeImage({ src, alt, type = "menu", className = "", ...props }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
+/**
+ * SafeImage - A robust image component with shimmer loading and error fallback.
+ * Optimized for Base64 and remote URLs.
+ */
+export default function SafeImage({ src, alt, width = 500, height = 500, className = "", ...props }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    setHasError(false);
-    setIsLoaded(false);
+    setIsLoading(true);
+    setError(false);
   }, [src]);
 
-  const isValidSrc = src && src?.trim() !== "" && !hasError;
+  const isBase64 = typeof src === "string" && src.startsWith("data:image/");
 
   return (
-    <div className={`relative overflow-hidden bg-slate-100 ${className}`} style={{ ...props.style }}>
+    <div 
+      className={`relative overflow-hidden bg-slate-50/50 ${className}`}
+      style={{ width: width === "100%" ? "100%" : width, height: height === "100%" ? "100%" : height }}
+    >
       <AnimatePresence mode="wait">
-        {!isValidSrc ? (
+        {isLoading && (
           <motion.div
-            key="fallback"
+            key="shimmer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center"
+            className="absolute inset-0 z-10"
           >
-            {type === "menu" ? (
-              <div className="flex flex-col items-center gap-2 text-rose-300">
-                <UtensilsCrossed size={48} strokeWidth={1.5} />
-                <span className="text-xs font-medium uppercase tracking-widest text-rose-400/60">No Image</span>
-              </div>
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-300 flex flex-col items-center justify-center p-6">
-                <div className="bg-white/20 backdrop-blur-md p-4 rounded-2xl border border-white/30 shadow-xl text-center">
-                  <ImageIcon className="text-white mx-auto mb-2" size={32} />
-                  <p className="text-white font-bold text-sm leading-tight">Promo Menarik<br/>Segera Hadir</p>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="image"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-full h-full"
-          >
-            <Image
-              src={src}
-              alt={alt || "Image"}
-              {...props}
-              unoptimized
-              onLoad={() => setIsLoaded(true)}
-              onError={() => {
-                console.error("SafeImage failed to load:", src);
-                setHasError(true);
-              }}
-              className={`object-cover w-full h-full transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${props.className || ""}`}
-            />
+            <div className="w-full h-full animate-shimmer bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 bg-[length:200%_100%]" />
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {!isLoaded && isValidSrc && (
-        <div className="absolute inset-0 bg-slate-200 animate-pulse" />
+
+      {error || !src ? (
+        <div className="flex flex-col items-center justify-center w-full h-full text-slate-200">
+          <ImageIcon size={32} strokeWidth={1} />
+        </div>
+      ) : isBase64 ? (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setError(true);
+            setIsLoading(false);
+          }}
+        />
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
+          onLoadingComplete={() => setIsLoading(false)}
+          onError={() => {
+            setError(true);
+            setIsLoading(false);
+          }}
+          unoptimized={true}
+        />
       )}
     </div>
   );

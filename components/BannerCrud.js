@@ -44,101 +44,104 @@ export default function BannerCrud() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8">
-      <section className="glass-panel p-6 md:p-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+    <div className="w-full space-y-8">
+      <section className="bg-white/60 backdrop-blur-xl border border-white/40 p-8 md:p-12 rounded-[3rem] shadow-xl shadow-slate-200/30">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <h3 className="retro-title text-2xl text-slate-900 mb-1">Banner & Iklan</h3>
-            <p className="text-slate-500 text-sm">Atur promosi yang tampil di halaman depan aplikasi.</p>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-500 uppercase tracking-widest mb-3 border border-indigo-100">
+              Promotional Ads
+            </span>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight">Banner & Iklan</h3>
+            <p className="text-slate-500 font-medium mt-1">Atur promosi yang tampil di halaman depan aplikasi.</p>
           </div>
           
           <Link 
             href="/admin/ads/create"
-            className="glass-btn-primary flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl shadow-xl shadow-rose-100 whitespace-nowrap"
+            className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm flex items-center gap-2 shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95"
           >
-            <Plus size={20} /> Buat Iklan Baru
+            <Plus size={20} /> BUAT IKLAN BARU
           </Link>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="animate-spin text-rose-400" size={40} />
-            <p className="text-slate-400 font-medium">Memuat promosi...</p>
+            <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin" />
+            <p className="text-slate-400 font-black text-xs uppercase tracking-widest">Memuat Promosi...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <AnimatePresence>
               {banners.map((banner) => (
                 <motion.article 
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                   key={banner.id} 
-                  className={`glass-panel card-fix shadow-rose-50/50 group relative ${!banner.isActive ? 'opacity-70 grayscale-[0.5]' : ''}`}
+                  className={`group bg-white/70 backdrop-blur-sm border border-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-indigo-100/50 transition-all duration-500 ${!banner.isActive ? 'opacity-70' : ''}`}
                 >
-                  <div className="aspect-[21/9] w-full relative overflow-hidden bg-slate-100">
+                  <div className="aspect-[21/9] w-full relative overflow-hidden bg-slate-50">
                     <SafeImage 
                       src={banner.imageUrl} 
                       alt={banner.title} 
-                      fill 
+                      width={1200}
+                      height={400}
                       type="ads"
-                      className="object-cover transition-transform group-hover:scale-105 duration-700" 
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" 
                     />
                     
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm border ${
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md ${
                         banner.isActive 
-                          ? 'bg-emerald-500/80 text-white border-emerald-400' 
-                          : 'bg-slate-500/80 text-white border-slate-400'
+                          ? 'bg-emerald-500/80 text-white border-emerald-300' 
+                          : 'bg-slate-500/80 text-white border-slate-300'
                       }`}>
                         {banner.isActive ? 'Aktif' : 'Nonaktif'}
                       </span>
                     </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 gap-2">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
                       <Link 
                         href={`/admin/ads/${banner.id}/edit`}
-                        className="flex-1 bg-white/90 hover:bg-white text-slate-900 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 backdrop-blur-md transition-all translate-y-4 group-hover:translate-y-0 duration-300"
+                        className="px-6 py-3 bg-white text-slate-900 rounded-2xl font-black text-xs flex items-center gap-2 hover:bg-indigo-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0"
                       >
-                        <Edit3 size={14} /> Edit Iklan
+                        <Edit3 size={16} /> EDIT BANNER
                       </Link>
                       <button 
-                        className="bg-rose-500/90 hover:bg-rose-500 text-white p-2 rounded-xl backdrop-blur-md transition-all translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
                         onClick={() => deleteBanner(banner.id)}
                         disabled={deleting === banner.id}
+                        className="w-12 h-12 bg-white text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-75"
                       >
-                        {deleting === banner.id ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
+                        {deleting === banner.id ? <Loader2 className="animate-spin" size={20} /> : <Trash2 size={20} />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-white/40">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                        Banner #{banner.sortOrder}
+                  <div className="p-8 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-indigo-50 text-indigo-500 rounded-lg flex items-center justify-center">
+                        <Megaphone size={16} />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Slot Urutan #{banner.sortOrder}
                       </span>
                     </div>
-                    <h4 className="text-slate-900 font-bold text-lg mb-2 leading-tight truncate">{banner.title}</h4>
+                    
+                    <h4 className="text-xl font-black text-slate-900 leading-tight truncate">{banner.title}</h4>
                     
                     {banner.targetUrl && (
-                      <p className="text-slate-400 text-[10px] flex items-center gap-1 mb-3">
-                        <LinkIcon size={10} /> <span className="truncate">{banner.targetUrl}</span>
-                      </p>
-                    )}
-
-                    {(banner.startDate || banner.endDate) && (
-                      <div className="pt-3 border-t border-slate-100 flex items-center gap-4 text-[10px] text-slate-500 font-medium">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={10} />
-                          {banner.startDate ? new Date(banner.startDate).toLocaleDateString() : 'Always'}
-                        </div>
-                        <span>→</span>
-                        <div>
-                          {banner.endDate ? new Date(banner.endDate).toLocaleDateString() : 'Forever'}
-                        </div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-xl border border-indigo-100/50">
+                        <LinkIcon size={14} />
+                        <span className="truncate">{banner.targetUrl}</span>
                       </div>
                     )}
+
+                    <div className="pt-4 border-t border-slate-50 flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <Calendar size={12} className="text-slate-300" />
+                      <span>{banner.startDate ? new Date(banner.startDate).toLocaleDateString() : 'No Start'}</span>
+                      <span className="text-slate-200">/</span>
+                      <span>{banner.endDate ? new Date(banner.endDate).toLocaleDateString() : 'No End'}</span>
+                    </div>
                   </div>
                 </motion.article>
               ))}

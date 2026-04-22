@@ -21,14 +21,14 @@ const pieColors = ["#ef4444", "#f97316", "#22c55e"];
 function ChartCard({ title, children }) {
   return (
     <motion.section
-      className="panel glass-card p-6 flex flex-col items-center justify-center"
+      className="bg-white/60 backdrop-blur-xl border border-white/40 p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/30 flex flex-col items-center justify-center min-w-0 w-full overflow-hidden"
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.35 }}
     >
-      <h3 className="text-lg font-bold mb-6 w-full text-center text-slate-800">{title}</h3>
-      <div className="w-full h-[300px] md:h-[500px] min-h-[300px] min-w-0 relative overflow-hidden">
+      <h3 className="text-lg font-black mb-6 w-full text-center text-slate-800 tracking-tight">{title}</h3>
+      <div className="w-full h-[350px] md:h-[450px] min-h-[300px] min-w-0 relative">
         {children}
       </div>
     </motion.section>
