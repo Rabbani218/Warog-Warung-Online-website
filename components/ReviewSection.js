@@ -141,7 +141,7 @@ export default function ReviewSection({ menu, reviews, onRequireAuth }) {
                     />
                     <button 
                       type="submit" 
-                      disabled={isSubmitting || status === "unauthenticated" || !comment.trim()} 
+                      disabled={isSubmitting || status === "unauthenticated" || !comment?.trim()} 
                       className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FF6B6B] text-white p-2.5 rounded-xl hover:bg-[#ff5252] transition-all disabled:opacity-50 disabled:grayscale"
                     >
                       {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}

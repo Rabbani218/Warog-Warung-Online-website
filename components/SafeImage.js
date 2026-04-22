@@ -9,7 +9,7 @@ export default function SafeImage({ src, alt, type = "menu", className = "", ...
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const isValidSrc = src && src.trim() !== "" && !hasError;
+  const isValidSrc = src && src?.trim() !== "" && !hasError;
 
   return (
     <div className={`relative overflow-hidden bg-slate-100 ${className}`} style={{ ...props.style }}>

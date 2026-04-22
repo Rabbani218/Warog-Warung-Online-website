@@ -11,7 +11,7 @@ export default function QnaReplyForm({ qnaId }) {
 
   const handleReply = async (e) => {
     e.preventDefault();
-    if (!answer.trim()) return;
+    if (!answer?.trim()) return;
     
     setLoading(true);
     const res = await replyQuestionAction({ qnaId, answer });

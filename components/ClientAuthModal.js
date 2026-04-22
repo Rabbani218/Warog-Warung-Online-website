@@ -37,8 +37,8 @@ export default function ClientAuthModal({ isOpen, onClose }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
+          name: name?.trim(),
+          email: email?.trim().toLowerCase(),
           password,
           role: "USER", // Default role as per requirements
         }),
@@ -57,7 +57,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
       // 2. Auto-login after registration
       const res = await signIn("credentials", {
         redirect: false,
-        email: email.trim().toLowerCase(),
+        email: email?.trim().toLowerCase(),
         password,
       });
 
@@ -85,7 +85,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        email: email.trim().toLowerCase(),
+        email: email?.trim().toLowerCase(),
         password,
       });
 

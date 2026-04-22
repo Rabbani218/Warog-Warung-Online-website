@@ -121,7 +121,7 @@ export default function AIChatbot() {
                 />
                 <button 
                   type="submit" 
-                  disabled={isLoading || !input.trim() || !!error}
+                  disabled={isLoading || !input?.trim() || !!error}
                   className="absolute right-2 p-2 bg-[#FF6B6B] text-white rounded-xl disabled:opacity-30 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-md shadow-[#FF6B6B]/20"
                 >
                   <Send size={16} />
