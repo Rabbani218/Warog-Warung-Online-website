@@ -123,18 +123,9 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const browserOrigin = window.location.origin;
-      const configuredOrigin = String(process.env.NEXT_PUBLIC_AUTH_ORIGIN || "").trim();
-      const authOrigin = configuredOrigin || browserOrigin;
-      const callbackUrl = `${authOrigin}/admin/dashboard`;
-
-      if (authOrigin !== browserOrigin) {
-        window.location.assign(`${authOrigin}/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl)}`);
-        return;
-      }
-
-      await signIn("google", { callbackUrl });
+      await signIn("google", { callbackUrl: "/admin/dashboard" });
     } catch (error) {
+      console.error("Google sign in error:", error);
       toast.error("Login Google gagal. Coba lagi nanti.");
       setLoading(false);
     }
@@ -210,7 +201,9 @@ export default function AdminLoginPage() {
         <p className="muted" style={{ marginTop: "1rem", marginBottom: 0, fontSize: "0.88rem" }}>
           Jika login Google gagal, daftarkan callback berikut di Google Console:
           <br />
-          https://wareb-next-platform.vercel.app/api/auth/callback/google
+          <code className="bg-slate-100 px-1 rounded text-[#FF6B6B]">
+            {isMounted ? `${window.location.origin}/api/auth/callback/google` : "https://domain-anda.com/api/auth/callback/google"}
+          </code>
         </p>
       </section>
     </main>

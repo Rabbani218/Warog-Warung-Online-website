@@ -16,7 +16,7 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
   const [cart, setCart] = useState([]);
   const [query, setQuery] = useState("");
   const [addedItem, setAddedItem] = useState(null);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const [showAuth, setShowAuth] = useState(false);
 
   const filtered = useMemo(() => {
@@ -90,7 +90,7 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
           >
             <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#FF6B6B] transition-colors overflow-hidden">
               {session?.user?.avatar ? (
-                <img src={session.user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                <img src={session?.user?.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <UserIcon size={18} />
               )}
