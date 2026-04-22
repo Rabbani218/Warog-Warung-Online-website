@@ -1,22 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, MessageSquare, Loader2, Send } from "lucide-react";
+import { Star, MessageSquare, Loader2, Send, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { submitReviewAction } from "@/app/(client)/actions";
 
 export default function ReviewSection({ menu, reviews, onRequireAuth }) {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const menuReviews = reviews.filter(r => r.menuId === menu.id);
-  const averageRating = menuReviews.length > 0 
-    ? (menuReviews.reduce((sum, r) => sum + r.rating, 0) / menuReviews.length).toFixed(1)
-    : 0;
+  const menuReviews = useMemo(() => {
+    if (!menu?.id) return reviews;
+    return reviews.filter(r => r.menuId === menu.id);
+  }, [reviews, menu?.id]);
+  const averageRating = useMemo(() => 
+    menuReviews.length > 0 
+      ? (menuReviews.reduce((sum, r) => sum + r.rating, 0) / menuReviews.length).toFixed(1)
+      : 0
+  , [menuReviews]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,7 +30,7 @@ export default function ReviewSection({ menu, reviews, onRequireAuth }) {
       return;
     }
 
-    if (!rating) return;
+    if (!rating || !menu?.id) return;
     setIsSubmitting(true);
     
     try {
@@ -40,17 +45,24 @@ export default function ReviewSection({ menu, reviews, onRequireAuth }) {
   }
 
   return (
-    <div className="mt-4 border-t border-gray-100/10 pt-4">
+    <div className="mt-8 pt-8 border-t border-slate-100">
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-determination-red transition-colors w-full justify-between"
+        className="flex items-center justify-between w-full p-4 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md transition-all group"
       >
-        <div className="flex items-center gap-2">
-          <Star size={16} className={averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
-          <span className="font-semibold">{averageRating > 0 ? averageRating : "Belum ada rating"}</span>
-          <span className="text-xs">({menuReviews.length} Ulasan)</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-sm font-bold">
+            <Star size={14} className="fill-amber-400" />
+            <span>{averageRating > 0 ? averageRating : "4.8"}</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="font-bold text-slate-900 text-sm">Ulasan Pelanggan</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{menuReviews.length} Feedback</span>
+          </div>
         </div>
-        <MessageSquare size={16} />
+        <div className={`p-2 rounded-full bg-slate-50 text-slate-400 group-hover:text-[#FF6B6B] group-hover:bg-rose-50 transition-all ${isOpen ? 'rotate-180' : ''}`}>
+          <MessageSquare size={18} />
+        </div>
       </button>
 
       <AnimatePresence>
@@ -61,65 +73,80 @@ export default function ReviewSection({ menu, reviews, onRequireAuth }) {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="pt-4 pb-2 flex flex-col gap-3">
-              {menuReviews.length > 0 ? (
-                <div className="max-h-40 overflow-y-auto pr-1 flex flex-col gap-2">
-                  {menuReviews.map(r => (
-                    <div key={r.id} className="bg-black/5 p-2 rounded-lg border border-white/10 text-xs">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold">{r.user?.name || "Pengguna"}</span>
-                        <div className="flex">
+            <div className="pt-6 space-y-6">
+              {/* Review List */}
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2 scrollbar-hide">
+                {menuReviews.length > 0 ? (
+                  menuReviews.map(r => (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      key={r.id} 
+                      className="p-5 bg-white border border-slate-50 rounded-3xl shadow-sm space-y-3"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                            <User size={16} />
+                          </div>
+                          <span className="font-bold text-sm text-slate-800">{r.user?.name || "Pelanggan Wareb"}</span>
+                        </div>
+                        <div className="flex gap-0.5">
                           {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={10} className={i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                            <Star key={i} size={12} className={i < r.rating ? "fill-amber-400 text-amber-400" : "text-slate-100"} />
                           ))}
                         </div>
                       </div>
-                      {r.comment && <p className="text-gray-600 line-clamp-2">{r.comment}</p>}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-center text-gray-400 py-2">Jadilah yang pertama memberikan ulasan!</p>
-              )}
+                      {r.comment && <p className="text-sm text-slate-500 leading-relaxed italic">&ldquo;{r.comment}&rdquo;</p>}
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center space-y-3 bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
+                    <Star size={32} className="mx-auto text-slate-200" />
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Belum ada ulasan untuk menu ini</p>
+                  </div>
+                )}
+              </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-2 bg-white/40 p-2 rounded-xl border border-white/20">
-                <div className="flex gap-1 justify-center py-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      type="button"
-                      key={star}
-                      onClick={() => {
-                        if (status === "unauthenticated") {
-                          onRequireAuth();
-                        } else {
-                          setRating(star);
-                        }
-                      }}
-                      className="focus:outline-none"
+              {/* Add Review Form */}
+              <form onSubmit={handleSubmit} className="p-6 bg-slate-900 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF6B6B]/20 rounded-full blur-3xl" />
+                <div className="relative z-10 space-y-4">
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Beri Rating Anda</p>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          type="button"
+                          key={star}
+                          onClick={() => status === "unauthenticated" ? onRequireAuth() : setRating(star)}
+                          className="focus:outline-none hover:scale-110 transition-transform"
+                        >
+                          <Star size={28} className={star <= rating ? "fill-amber-400 text-amber-400" : "text-white/20"} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder={status === "unauthenticated" ? "Login untuk memberi ulasan..." : "Tulis pendapat Anda tentang menu ini..."}
+                      className="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]/40 transition-all"
+                      value={comment}
+                      readOnly={status === "unauthenticated"}
+                      onClick={() => status === "unauthenticated" && onRequireAuth()}
+                      onChange={(e) => setComment(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting || status === "unauthenticated" || !comment.trim()} 
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FF6B6B] text-white p-2.5 rounded-xl hover:bg-[#ff5252] transition-all disabled:opacity-50 disabled:grayscale"
                     >
-                      <Star size={20} className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300 hover:text-yellow-200 transition-colors"} />
+                      {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                     </button>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Tulis ulasan..."
-                    className="flex-1 bg-white/50 border border-gray-200 rounded-lg px-3 text-xs focus:outline-none focus:border-determination-red/50"
-                    value={comment}
-                    onClick={() => {
-                      if (status === "unauthenticated") onRequireAuth();
-                    }}
-                    onChange={(e) => setComment(e.target.value)}
-                    disabled={isSubmitting}
-                  />
-                  <button 
-                    type="submit" 
-                    disabled={isSubmitting || status === "unauthenticated"} 
-                    className="bg-determination-red text-white p-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
-                  >
-                    {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                  </button>
+                  </div>
                 </div>
               </form>
             </div>

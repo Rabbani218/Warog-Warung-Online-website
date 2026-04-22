@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GraduationCap, Heart, Terminal } from "lucide-react";
 
 export default function Footer() {
   const [showSecret, setShowSecret] = useState(false);
@@ -19,7 +20,6 @@ export default function Footer() {
     });
   };
 
-  // Reset click count after 2 seconds of inactivity
   useEffect(() => {
     if (clickCount > 0) {
       const timer = setTimeout(() => setClickCount(0), 2000);
@@ -28,47 +28,81 @@ export default function Footer() {
   }, [clickCount]);
 
   return (
-    <footer className="w-full py-8 mt-12 border-t border-slate-200 bg-white/50 backdrop-blur-sm">
-      <div className="container mx-auto px-4 text-center">
-        <p className="text-slate-600 font-medium">
-          Universitas Bina Sarana Informatika - Jurusan Informatika.
-        </p>
-        <p className="text-slate-400 text-sm mt-2">
-          © 2026 Wareb Platform. All rights{" "}
-          <span
-            className="cursor-pointer hover:text-slate-600 transition-colors"
-            onClick={handleReservedClick}
-            onDoubleClick={() => setShowSecret(true)}
-          >
-            reserved
-          </span>
-          .
-        </p>
+    <footer className="w-full pt-20 pb-10 mt-24 relative overflow-hidden bg-white/30 backdrop-blur-xl border-t border-slate-100">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center text-center space-y-8">
+          {/* Brand/Logo Area */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 bg-[#FF6B6B]/10 rounded-2xl flex items-center justify-center text-[#FF6B6B]">
+              <GraduationCap size={24} />
+            </div>
+            <div>
+              <h4 className="font-black text-slate-900 tracking-tight">Wareb Platform</h4>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Next-Gen POS & Ecommerce</p>
+            </div>
+          </div>
+
+          {/* Links & Info */}
+          <div className="space-y-2">
+            <p className="text-slate-600 font-bold text-sm">
+              Universitas Bina Sarana Informatika - Jurusan Informatika.
+            </p>
+            <div className="flex items-center justify-center gap-4 text-xs font-medium text-slate-400">
+              <span>Jakarta, Indonesia</span>
+              <span className="w-1 h-1 bg-slate-200 rounded-full" />
+              <span>Project V2.7</span>
+            </div>
+          </div>
+
+          {/* Copyright Area */}
+          <div className="pt-8 w-full border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest">
+              © 2026 Wareb Platform. All rights{" "}
+              <span
+                className="cursor-help hover:text-[#FF6B6B] transition-colors"
+                onClick={handleReservedClick}
+              >
+                reserved
+              </span>
+              .
+            </p>
+            <div className="flex items-center gap-1 text-[11px] text-slate-300 font-bold uppercase tracking-widest">
+              Made with <Heart size={12} className="text-[#FF6B6B] fill-[#FF6B6B]" /> by The UBSI Squad
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* Easter Egg Overlay */}
       <AnimatePresence>
         {showSecret && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black flex items-center justify-center p-6 font-mono"
+            className="fixed inset-0 z-[10000] bg-black flex items-center justify-center p-6 font-mono overflow-y-auto"
             style={{ color: charaMode ? "#ff0000" : "#ffffff" }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="max-w-2xl w-full text-center space-y-6"
+              className="max-w-2xl w-full text-center space-y-8"
             >
-              <h2 className="text-xl md:text-2xl mb-8">
+              <div className="flex justify-center">
+                <Terminal size={48} className={charaMode ? "animate-pulse" : ""} />
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight leading-relaxed">
                 {charaMode 
                   ? "Dibuat oleh Entitas yang Terlupakan dari Kelas 15.4E.01:" 
                   : "Dibuat oleh Mahasiswa Informatika Universitas Bina Sarana Informatika Kelas 15.4E.01:"}
               </h2>
 
-              <div className="space-y-4 text-left md:text-center">
+              <div className="space-y-4 text-left md:text-center text-lg">
                 <p 
-                  className={`cursor-pointer transition-all ${charaMode ? "text-red-500 font-bold scale-110" : "hover:text-yellow-400"}`}
+                  className={`cursor-pointer transition-all ${charaMode ? "text-red-500 font-black scale-125" : "hover:text-yellow-400"}`}
                   onClick={() => setCharaMode(true)}
                 >
                   1. {charaMode ? "Muhammad Hanif Al Ihsani (15240969)" : "Muhammad Abdurrahman Rabbani (15240969)"}
@@ -77,9 +111,9 @@ export default function Footer() {
                 <p>3. Wili Rijki A. (15241085)</p>
               </div>
 
-              <div className="pt-6 border-t border-white/20">
-                <h3 className="text-lg mb-4">"The Party:"</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm opacity-80">
+              <div className="pt-8 border-t border-white/20">
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-6 text-white/50">The Party:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm opacity-80">
                   <p className={charaMode ? "text-red-500 font-bold" : ""}>
                     4. {charaMode ? "Sabil Pangestu Samosir (15241004)" : "Ananda Kurniawan (15241004)"}
                   </p>
@@ -92,20 +126,17 @@ export default function Footer() {
                 </div>
               </div>
 
-              <div className="mt-12 pt-8 flex flex-col items-center">
+              <div className="mt-12 flex flex-col items-center gap-6">
                 {charaMode ? (
-                  <>
-                    <del className="text-gray-400 block mb-2">Obey & Survive, To protect and to serve</del>
-                    <motion.div 
-                      animate={{ opacity: [1, 0.5, 1], scale: [1, 1.05, 1] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="text-red-600 font-extrabold text-2xl tracking-widest"
-                    >
-                      It's Me =)
-                    </motion.div>
-                  </>
+                  <motion.div 
+                    animate={{ opacity: [1, 0.5, 1], scale: [1, 1.1, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="text-red-600 font-black text-4xl tracking-widest"
+                  >
+                    It's Me =)
+                  </motion.div>
                 ) : (
-                  <p className="italic opacity-60">"Despite everything, it's still you."</p>
+                  <p className="italic opacity-60 text-sm">"Despite everything, it's still you."</p>
                 )}
                 
                 <button 
@@ -113,9 +144,9 @@ export default function Footer() {
                     setShowSecret(false);
                     setCharaMode(false);
                   }}
-                  className="mt-12 px-6 py-2 border border-current hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-sm"
+                  className="px-10 py-3 border-2 border-current hover:bg-white hover:text-black transition-all uppercase font-bold tracking-[0.3em] text-xs"
                 >
-                  Close
+                  Return to Reality
                 </button>
               </div>
             </motion.div>

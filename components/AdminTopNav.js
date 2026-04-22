@@ -2,68 +2,98 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { BarChart3, Boxes, ChefHat, CreditCard, UserRound, MessageSquare } from "lucide-react";
+import { BarChart3, Boxes, ChefHat, CreditCard, UserRound, MessageSquare, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const links = [
   { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
-  { href: "/admin/products", label: "Products & Ads", icon: Boxes },
-  { href: "/admin/qna", label: "Inbox QnA", icon: MessageSquare },
-  { href: "/admin/settings", label: "Settings", icon: CreditCard },
-  { href: "/admin/kds", label: "KDS", icon: ChefHat },
+  { href: "/admin/products", label: "Inventory", icon: Boxes },
+  { href: "/admin/qna", label: "QnA", icon: MessageSquare },
+  { href: "/admin/settings", label: "Payments", icon: CreditCard },
+  { href: "/admin/kds", label: "Kitchen", icon: ChefHat },
   { href: "/admin/profile", label: "Profile", icon: UserRound }
 ];
 
 export default function AdminTopNav({ currentPath = "" }) {
   return (
     <>
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex flex-wrap gap-3">
-        {links.map((item) => {
-          const Icon = item.icon;
-          const active = currentPath.startsWith(item.href);
+      {/* Floating Desktop Navigation */}
+      <nav className="hidden md:flex items-center justify-center pt-2">
+        <div className="bg-white/40 backdrop-blur-xl border border-white/40 p-2 rounded-[2rem] shadow-2xl shadow-slate-200/50 flex items-center gap-1">
+          {links.map((item) => {
+            const Icon = item.icon;
+            const active = currentPath.startsWith(item.href);
 
-          return (
-            <motion.div key={item.href} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-              <Link 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-medium ${
-                  active 
-                    ? "bg-[#FF6B6B] text-white shadow-lg shadow-rose-200" 
-                    : "bg-white/50 text-slate-600 hover:bg-white/80"
-                }`} 
-                href={item.href}
-              >
-                <Icon size={18} />
-                <span>{item.label}</span>
+            return (
+              <Link key={item.href} href={item.href}>
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 font-bold text-sm ${
+                    active 
+                      ? "text-white" 
+                      : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                  }`}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-gradient-to-r from-[#FF6B6B] via-[#F5576C] to-[#F093FB] rounded-full shadow-lg shadow-rose-200/50"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </span>
+                </motion.div>
               </Link>
-            </motion.div>
-          );
-        })}
+            );
+          })}
+          
+          <div className="w-[1px] h-6 bg-slate-200 mx-2" />
+          
+          <button 
+            onClick={() => signOut({ callbackUrl: "/admin" })}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full text-slate-400 hover:text-red-500 transition-colors"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-200 px-2 py-3 flex justify-around md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        {links.map((item) => {
-          const Icon = item.icon;
-          const active = currentPath.startsWith(item.href);
+      {/* Modern Mobile Bottom Navigation */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-[400px] md:hidden">
+        <div className="bg-white/80 backdrop-blur-2xl border border-white/50 px-4 py-3 rounded-[2.5rem] flex justify-around items-center shadow-2xl shadow-slate-300">
+          {links.map((item) => {
+            const Icon = item.icon;
+            const active = currentPath.startsWith(item.href);
 
-          return (
-            <Link 
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center gap-1 transition-all ${
-                active ? "text-[#FF6B6B]" : "text-slate-400"
-              }`}
-            >
-              <motion.div
-                animate={active ? { scale: 1.2 } : { scale: 1 }}
-                className={active ? "bg-rose-50 p-1.5 rounded-lg" : ""}
+            return (
+              <Link 
+                key={item.href}
+                href={item.href}
+                className="relative p-2"
               >
-                <Icon size={20} />
-              </motion.div>
-              <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
-            </Link>
-          );
-        })}
+                <motion.div
+                  animate={{ 
+                    scale: active ? 1.1 : 1,
+                    color: active ? "#FF6B6B" : "#94a3b8"
+                  }}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <Icon size={22} />
+                  {active && (
+                    <motion.div 
+                      layoutId="mobileActiveDot"
+                      className="w-1 h-1 bg-[#FF6B6B] rounded-full mt-1"
+                    />
+                  )}
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </>
   );

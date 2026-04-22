@@ -417,3 +417,40 @@ td {
     display: none !important;
   }
 }
+
+/* Modern Utility Classes */
+@layer utilities {
+  .glass-crimson {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.12), rgba(255, 107, 107, 0.05));
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 107, 107, 0.25);
+    box-shadow: 0 12px 40px rgba(255, 107, 107, 0.1);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #FF6B6B, #FF8787);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .animate-float {
+    animation: orbFloat 6s ease-in-out infinite;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Optimization for Smooth UX */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+

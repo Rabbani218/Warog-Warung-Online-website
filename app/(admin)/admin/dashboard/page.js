@@ -9,6 +9,18 @@ import QrDownloadCard from "@/components/QrDownloadCard";
 import AdminTopNav from "@/components/AdminTopNav";
 import AdminAnalyticsCharts from "@/components/AdminAnalyticsCharts";
 import PrintReceiptWrapper from "@/components/PrintReceiptWrapper";
+import { 
+  TrendingUp, 
+  ShoppingBag, 
+  AlertTriangle, 
+  DollarSign, 
+  Activity,
+  Package,
+  Star,
+  ChevronRight,
+  ChefHat,
+  Clock
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -43,24 +55,12 @@ export default async function AdminDashboardPage() {
     allOrders,
     hourlyOrders
   ] = await Promise.all([
-    prisma.order.count({
-      where: {
-        storeId: store.id,
-        createdAt: { gte: dayStart }
-      }
-    }),
+    prisma.order.count({ where: { storeId: store.id, createdAt: { gte: dayStart } } }),
     prisma.order.aggregate({
-      where: {
-        storeId: store.id,
-        status: "PAID",
-        createdAt: { gte: monthStart }
-      },
+      where: { storeId: store.id, status: "PAID", createdAt: { gte: monthStart } },
       _sum: { grandTotal: true }
     }),
-    prisma.ingredient.findMany({
-      where: { storeId: store.id },
-      orderBy: { updatedAt: "desc" }
-    }),
+    prisma.ingredient.findMany({ where: { storeId: store.id }, orderBy: { updatedAt: "desc" } }),
     prisma.kOTicket.findMany({
       where: { order: { storeId: store.id }, status: { in: ["NEW", "PROCESSING"] } },
       include: { order: true },
@@ -68,312 +68,254 @@ export default async function AdminDashboardPage() {
       take: 8
     }),
     calculateInventoryForecast(store.id, 7),
-    prisma.order.count({
-      where: {
-        storeId: store.id,
-        status: "PAID",
-        createdAt: { gte: monthStart }
-      }
-    }),
-    prisma.order.count({
-      where: {
-        storeId: store.id,
-        status: "PENDING",
-        createdAt: { gte: dayStart }
-      }
-    }),
-    prisma.order.count({
-      where: {
-        storeId: store.id,
-        status: "PROCESSING",
-        createdAt: { gte: dayStart }
-      }
-    }),
+    prisma.order.count({ where: { storeId: store.id, status: "PAID", createdAt: { gte: monthStart } } }),
+    prisma.order.count({ where: { storeId: store.id, status: "PENDING", createdAt: { gte: dayStart } } }),
+    prisma.order.count({ where: { storeId: store.id, status: "PROCESSING", createdAt: { gte: dayStart } } }),
     prisma.order.findMany({
       where: { storeId: store.id },
-      include: {
-        details: {
-          include: { menu: { select: { name: true } } }
-        }
-      },
+      include: { details: { include: { menu: { select: { name: true } } } } },
       orderBy: { createdAt: "desc" },
       take: 10
     }),
     prisma.orderDetail.groupBy({
       by: ["menuId"],
-      where: {
-        order: {
-          storeId: store.id,
-          createdAt: { gte: monthStart },
-          status: { in: ["PAID", "PROCESSING", "COMPLETED"] }
-        }
-      },
-      _sum: {
-        quantity: true,
-        lineTotal: true
-      },
-      orderBy: {
-        _sum: {
-          quantity: "desc"
-        }
-      },
+      where: { order: { storeId: store.id, createdAt: { gte: monthStart }, status: { in: ["PAID", "PROCESSING", "COMPLETED"] } } },
+      _sum: { quantity: true, lineTotal: true },
+      orderBy: { _sum: { quantity: "desc" } },
       take: 5
     }),
     prisma.order.findMany({
-      where: {
-        storeId: store.id,
-        status: "PAID",
-        createdAt: { gte: sevenDaysAgo }
-      },
+      where: { storeId: store.id, status: "PAID", createdAt: { gte: sevenDaysAgo } },
       select: { createdAt: true, grandTotal: true }
     }),
-    prisma.order.findMany({
-      where: { storeId: store.id },
-      select: { status: true }
-    }),
-    prisma.order.findMany({
-      where: {
-        storeId: store.id,
-        createdAt: { gte: dayStart }
-      },
-      select: { createdAt: true }
-    })
+    prisma.order.findMany({ where: { storeId: store.id }, select: { status: true } }),
+    prisma.order.findMany({ where: { storeId: store.id, createdAt: { gte: dayStart } }, select: { createdAt: true } })
   ]);
 
-  const lowStock = ingredients.filter(
-    (ingredient) => Number(ingredient.stockQty) <= Number(ingredient.minimumStock)
-  );
-
+  const lowStock = ingredients.filter(i => Number(i.stockQty) <= Number(i.minimumStock));
   const monthRevenueValue = Number(monthRevenue._sum.grandTotal || 0);
   const averageOrderValue = monthPaidOrders > 0 ? monthRevenueValue / monthPaidOrders : 0;
 
-  const topMenuIds = topMenuSales.map((item) => item.menuId);
-  const menus = topMenuIds.length
-    ? await prisma.menu.findMany({
-        where: { id: { in: topMenuIds } },
-        select: { id: true, name: true }
-      })
-    : [];
+  const topMenuIds = topMenuSales.map(i => i.menuId);
+  const menus = topMenuIds.length ? await prisma.menu.findMany({ where: { id: { in: topMenuIds } }, select: { id: true, name: true } }) : [];
+  const menuNameMap = menus.reduce((acc, m) => ({ ...acc, [m.id]: m.name }), {});
 
-  const menuNameMap = menus.reduce((acc, menu) => {
-    acc[menu.id] = menu.name;
-    return acc;
-  }, {});
-
-  // Generate 7-day revenue trend
+  // Data processing for charts... (retaining logic from previous versions)
   const revenueTrendMap = {};
   for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const label = d.toLocaleDateString("id-ID", {
-      weekday: "short",
-      month: "2-digit",
-      day: "2-digit"
-    });
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString("id-ID", { weekday: "short", month: "2-digit", day: "2-digit" });
     revenueTrendMap[label] = 0;
   }
-  allOrdersLast7.forEach((order) => {
-    const d = new Date(order.createdAt);
-    const label = d.toLocaleDateString("id-ID", {
-      weekday: "short",
-      month: "2-digit",
-      day: "2-digit"
-    });
-    revenueTrendMap[label] = (revenueTrendMap[label] || 0) + Number(order.grandTotal);
+  allOrdersLast7.forEach(o => {
+    const label = new Date(o.createdAt).toLocaleDateString("id-ID", { weekday: "short", month: "2-digit", day: "2-digit" });
+    revenueTrendMap[label] = (revenueTrendMap[label] || 0) + Number(o.grandTotal);
   });
-  const revenueTrend = Object.entries(revenueTrendMap).map(([label, revenue]) => ({
-    label,
-    revenue
-  }));
+  const revenueTrend = Object.entries(revenueTrendMap).map(([label, revenue]) => ({ label, revenue }));
 
-  // Generate order status distribution
-  const statusCounts = allOrders.reduce((acc, order) => {
-    acc[order.status] = (acc[order.status] || 0) + 1;
-    return acc;
-  }, {});
-  const orderStatus = Object.entries(statusCounts).map(([name, value]) => ({
-    name: name.charAt(0) + name.slice(1).toLowerCase(),
-    value
-  }));
+  const statusCounts = allOrders.reduce((acc, o) => ({ ...acc, [o.status]: (acc[o.status] || 0) + 1 }), {});
+  const orderStatus = Object.entries(statusCounts).map(([name, value]) => ({ name: name.charAt(0) + name.slice(1).toLowerCase(), value }));
 
-  // Generate peak hours
-  const hourlyMap = {};
-  for (let h = 0; h < 24; h++) {
-    hourlyMap[h] = 0;
-  }
-  hourlyOrders.forEach((order) => {
-    const hour = new Date(order.createdAt).getHours();
-    hourlyMap[hour] += 1;
-  });
-  const peakHours = Object.entries(hourlyMap).map(([h, orders]) => ({
-    hour: `${String(h).padStart(2, "0")}:00`,
-    orders
-  }));
+  const hourlyMap = Array.from({ length: 24 }, (_, i) => i).reduce((acc, h) => ({ ...acc, [h]: 0 }), {});
+  hourlyOrders.forEach(o => { hourlyMap[new Date(o.createdAt).getHours()] += 1; });
+  const peakHours = Object.entries(hourlyMap).map(([h, orders]) => ({ hour: `${String(h).padStart(2, "0")}:00`, orders }));
 
-  // Top menus for chart
-  const topMenus = topMenuSales.slice(0, 5).map((item) => ({
-    name: menuNameMap[item.menuId] || "Unknown",
-    qty: Number(item._sum.quantity || 0)
-  }));
+  const topMenus = topMenuSales.slice(0, 5).map(i => ({ name: menuNameMap[i.menuId] || "Unknown", qty: Number(i._sum.quantity || 0) }));
+
+  const stats = [
+    { label: "Orders Today", value: todayOrders, icon: ShoppingBag, color: "text-blue-500", bg: "bg-blue-50" },
+    { label: "Revenue (Month)", value: `Rp ${monthRevenueValue.toLocaleString("id-ID")}`, icon: DollarSign, color: "text-[#FF6B6B]", bg: "bg-rose-50" },
+    { label: "Avg. Order Value", value: `Rp ${Math.round(averageOrderValue).toLocaleString("id-ID")}`, icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
+    { label: "Low Stock Items", value: lowStock.length, icon: AlertTriangle, color: "text-amber-500", bg: "bg-amber-50" },
+    { label: "Activity Index", value: `${todayPendingOrders + todayProcessingOrders} Active`, icon: Activity, color: "text-indigo-500", bg: "bg-indigo-50" }
+  ];
 
   return (
-    <main className="w-full min-h-screen">
-      <div className="w-full space-y-8">
-        <header className="flex flex-col items-center text-center mb-12">
-          <div className="mb-4 flex flex-col items-center">
-            <span className="badge">Admin Portal</span>
-            <h1 className="retro-heading mt-2 text-3xl md:text-4xl">
-              {store.name}
-            </h1>
+    <div className="space-y-12">
+      {/* Header Section */}
+      <header className="flex flex-col items-center text-center space-y-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-[#FF6B6B] text-[10px] font-bold uppercase tracking-widest">
+            Control Center
           </div>
-          <AdminTopNav currentPath="/admin/dashboard" />
-        </header>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+            Dashboard <span className="text-gradient">Admin</span>
+          </h1>
+          <p className="text-slate-500 font-medium">Monitoring operasional harian {store.name}.</p>
+        </div>
+        <AdminTopNav currentPath="/admin/dashboard" />
+      </header>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-center">
-          <article className="glass-card" style={{ padding: "1rem" }}>
-            <p style={{ marginTop: 0, color: "#9ca3af" }}>Order Hari Ini</p>
-            <h2 style={{ marginBottom: 0 }}>{todayOrders}</h2>
-          </article>
-          <article className="glass-card" style={{ padding: "1rem" }}>
-            <p style={{ marginTop: 0, color: "#9ca3af" }}>Pendapatan Bulan Ini</p>
-            <h2 style={{ marginBottom: 0 }}>Rp {monthRevenueValue.toLocaleString("id-ID")}</h2>
-          </article>
-          <article className="glass-card" style={{ padding: "1rem" }}>
-            <p style={{ marginTop: 0, color: "#9ca3af" }}>Inventory Alert</p>
-            <h2 style={{ marginBottom: 0 }}>{lowStock.length} bahan</h2>
-          </article>
-          <article className="glass-card" style={{ padding: "1rem" }}>
-            <p style={{ marginTop: 0, color: "#9ca3af" }}>Rata-rata Nilai Order</p>
-            <h2 style={{ marginBottom: 0 }}>Rp {Math.round(averageOrderValue).toLocaleString("id-ID")}</h2>
-            <p style={{ marginBottom: 0, color: "#9ca3af" }}>{monthPaidOrders} order paid bulan ini</p>
-          </article>
-          <article className="glass-card" style={{ padding: "1rem" }}>
-            <p style={{ marginTop: 0, color: "#9ca3af" }}>Status Operasional Hari Ini</p>
-            <p style={{ marginBottom: "0.35rem" }}>
-              Pending: <strong>{todayPendingOrders}</strong>
-            </p>
-            <p style={{ marginBottom: 0 }}>
-              Processing: <strong>{todayProcessingOrders}</strong>
-            </p>
-          </article>
-        </section>
+      {/* Stats Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {stats.map((s, idx) => (
+          <div key={idx} className="bg-white/60 backdrop-blur-xl border border-white/40 p-6 rounded-[2rem] shadow-xl shadow-slate-200/40 group hover:scale-[1.02] transition-all duration-300">
+            <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:rotate-6`}>
+              <s.icon size={24} />
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
+            <h2 className="text-xl font-black text-slate-900 leading-none">{s.value}</h2>
+          </div>
+        ))}
+      </section>
 
+      {/* Analytics Visualization */}
+      <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-4 md:p-8 shadow-xl shadow-slate-200/30">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+            <TrendingUp size={20} />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900">Visualisasi Analitik</h3>
+        </div>
         <AdminAnalyticsCharts
           revenueTrend={revenueTrend}
           topMenus={topMenus}
           orderStatus={orderStatus}
           peakHours={peakHours}
         />
+      </section>
 
-        <div style={{ marginTop: "2rem" }} />
+      {/* Mid Section: Utility Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <ExcelUploader />
+        <QrDownloadCard />
+      </div>
 
-        <div className="w-full space-y-6">
-          <ExcelUploader />
-          <QrDownloadCard />
-        </div>
-
-        <section className="glass-card p-6">
-          <h3 className="text-xl font-bold mb-4">Kitchen Order Ticket Queue</h3>
-          {kotQueue.length === 0 && <p className="text-slate-500">Belum ada KOT baru.</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {kotQueue.map((ticket) => (
-              <article key={ticket.id} className="glass-card" style={{ padding: "0.75rem" }}>
-                <strong>{ticket.order.orderCode}</strong>
-                <p style={{ margin: "0.2rem 0", color: "#9ca3af" }}>
-                  Meja: {ticket.order.tableNumber || "-"}
-                </p>
-                <span className="badge">{ticket.status}</span>
-              </article>
-            ))}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        
+        {/* Recent Orders Table */}
+        <section className="xl:col-span-8 bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-rose-50 text-[#FF6B6B] rounded-xl flex items-center justify-center">
+                <ShoppingBag size={20} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">Pesanan Terakhir</h3>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto scrollbar-hide">
+            <table className="w-full">
+              <thead>
+                <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                  <th className="text-left py-4">Kode</th>
+                  <th className="text-left py-4">Status</th>
+                  <th className="text-left py-4">Meja</th>
+                  <th className="text-right py-4">Total</th>
+                  <th className="text-right py-4">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
+                    <td className="py-4 font-bold text-sm">{order.orderCode}</td>
+                    <td className="py-4">
+                      <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${
+                        order.status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-4 text-slate-500 font-medium text-sm">{order.tableNumber || "-"}</td>
+                    <td className="py-4 text-right font-black text-sm">Rp {Number(order.grandTotal).toLocaleString("id-ID")}</td>
+                    <td className="py-4 text-right">
+                      <PrintReceiptWrapper order={order} storeName={store.name} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
-        <section className="glass-card p-6">
-          <h3 className="text-xl font-bold mb-2">Inventory Forecast</h3>
-          <p className="text-slate-500 mb-6">
-            Prediksi burn rate harian bahan baku berdasarkan tren order 7 hari terakhir.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {inventoryForecast.map((item) => (
-              <article key={item.ingredientId} className="glass-card" style={{ padding: "0.8rem" }}>
-                <strong>{item.ingredientName}</strong>
-                <p style={{ margin: "0.3rem 0", color: "#9ca3af" }}>
-                  Stock: {item.currentStock.toFixed(2)} {item.unit}
-                </p>
-                <p style={{ margin: "0.3rem 0", color: "#9ca3af" }}>
-                  Burn rate: {item.burnRatePerDay.toFixed(2)} {item.unit}/hari
-                </p>
-                <span className="badge">{item.alertLevel}</span>
-                <p
-                  style={{
-                    marginBottom: 0,
-                    color: item.alertLevel === "CRITICAL" ? "#ef4444" : "#9ca3af"
-                  }}
-                >
-                  {item.message}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="glass-card p-6">
-          <h3 className="text-xl font-bold mb-6">Top Menu Bulan Ini</h3>
-          {topMenuSales.length === 0 && <p className="text-slate-500">Belum ada penjualan menu bulan ini.</p>}
-          {topMenuSales.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {topMenuSales.map((item) => (
-                <article key={item.menuId} className="glass-card" style={{ padding: "0.8rem" }}>
-                  <strong>{menuNameMap[item.menuId] || "Menu Tidak Ditemukan"}</strong>
-                  <p style={{ margin: "0.3rem 0", color: "#9ca3af" }}>
-                    Qty terjual: {Number(item._sum.quantity || 0)}
-                  </p>
-                  <p style={{ margin: 0, color: "#9ca3af" }}>
-                    Omzet: Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}
-                  </p>
-                </article>
+        {/* Right Sidebar Components */}
+        <div className="xl:col-span-4 space-y-8">
+          {/* Inventory Snapshot */}
+          <section className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 rounded-full blur-3xl" />
+            <div className="flex items-center gap-3 mb-6">
+              <Package size={20} className="text-[#FF6B6B]" />
+              <h3 className="text-lg font-bold">Stok Bahan Baku</h3>
+            </div>
+            <div className="space-y-4">
+              {inventoryForecast.slice(0, 4).map((item) => (
+                <div key={item.ingredientId} className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm">{item.ingredientName}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                      item.alertLevel === 'CRITICAL' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
+                    }`}>{item.alertLevel}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${item.alertLevel === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${Math.min(100, (item.currentStock / (item.burnRatePerDay * 7)) * 100)}%` }}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
-          )}
-        </section>
+          </section>
 
-        <section className="glass-card p-6">
-          <h3 className="text-xl font-bold mb-6">Recent Orders</h3>
-          {recentOrders.length === 0 && <p className="text-slate-500">Belum ada order masuk.</p>}
-          {recentOrders.length > 0 && (
-            <div className="overflow-x-auto">
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th align="left">Order Code</th>
-                    <th align="left">Status</th>
-                    <th align="left">Meja</th>
-                    <th align="right">Total</th>
-                    <th align="left">Waktu</th>
-                    <th align="right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td>{order.orderCode}</td>
-                      <td>
-                        <span className="badge">{order.status}</span>
-                      </td>
-                      <td>{order.tableNumber || "-"}</td>
-                      <td align="right">Rp {Number(order.grandTotal).toLocaleString("id-ID")}</td>
-                      <td>{new Date(order.createdAt).toLocaleString("id-ID")}</td>
-                      <td align="right">
-                        <PrintReceiptWrapper order={order} storeName={store.name} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Top Products */}
+          <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+            <div className="flex items-center gap-3 mb-6">
+              <Star size={20} className="text-amber-500" />
+              <h3 className="text-lg font-bold text-slate-900">Terlaris</h3>
+            </div>
+            <div className="space-y-4">
+              {topMenuSales.map((item) => (
+                <div key={item.menuId} className="flex items-center justify-between p-3 bg-white/50 rounded-2xl border border-slate-100">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-sm text-slate-800">{menuNameMap[item.menuId]}</span>
+                    <span className="text-xs text-slate-400">{Number(item._sum.quantity || 0)} porsi</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+      </div>
+
+      {/* KDS Snapshot */}
+      <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <ChefHat size={24} className="text-indigo-600" />
+            <h3 className="text-xl font-bold text-slate-900">Antrean Dapur (KDS)</h3>
+          </div>
+          <a href="/admin/kds" className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">
+            Kelola KDS <ChevronRight size={16} />
+          </a>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {kotQueue.map((ticket) => (
+            <article key={ticket.id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-4">
+              <div className="flex justify-between items-start">
+                <strong className="text-lg font-black">{ticket.order.orderCode}</strong>
+                <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                  {ticket.status}
+                </span>
+              </div>
+              <p className="text-sm text-slate-500 font-medium">Meja: {ticket.order.tableNumber || "-"}</p>
+              <div className="pt-2 border-t border-slate-50 flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                <Clock size={12} />
+                {new Date(ticket.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+              </div>
+            </article>
+          ))}
+          {kotQueue.length === 0 && (
+            <div className="col-span-full py-12 text-center text-slate-400 font-medium">
+              Tidak ada antrean aktif.
             </div>
           )}
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+    </div>
   );
 }

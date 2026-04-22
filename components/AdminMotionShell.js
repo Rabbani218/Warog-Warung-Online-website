@@ -13,64 +13,64 @@ export default function AdminMotionShell({ children }) {
   }, []);
 
   if (!isMounted) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen bg-[#fafafa]" />;
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white text-slate-900 font-sans">
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-orange-50" />
-      {/* Animated Mesh Gradients */}
-      <motion.div
-        className="absolute w-[60vw] h-[60vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30"
+    <div className="relative min-h-screen overflow-hidden bg-[#fafafa] text-slate-900 font-sans selection:bg-rose-100 selection:text-rose-900">
+      {/* Dynamic Rainbow Mesh Background */}
+      <div className="fixed inset-0 z-0 bg-[#fafafa]">
+        {/* Layer 1: Base Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-rose-50/50 via-white to-blue-50/50" />
+        
+        {/* Layer 2: Animated Orbs (The Rainbow) */}
+        <motion.div
+          className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15]"
           style={{ background: 'radial-gradient(circle, #FF6B6B 0%, transparent 70%)' }}
-        animate={{
-          x: [0, 100, -100, 0],
-          y: [0, -100, 100, 0],
-          scale: [1, 1.1, 0.9, 1]
-        }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear", repeatType: "loop" }}
-      />
-      <motion.div
-        className="absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30"
-          style={{ background: 'radial-gradient(circle, #FF8787 0%, transparent 70%)' }}
-        animate={{
-          x: [0, -150, 50, 0],
-          y: [0, 100, -50, 0],
-          scale: [1, 1.2, 0.8, 1]
-        }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear", repeatType: "loop" }}
-      />
-      <motion.div
-        className="absolute bottom-0 left-[20%] w-[40vw] h-[40vw] rounded-full mix-blend-screen filter blur-[100px] opacity-20"
-          style={{ background: 'radial-gradient(circle, #FFB347 0%, transparent 70%)' }}
-        animate={{
-          x: [0, 50, -150, 0],
-          y: [0, -50, 100, 0],
-          scale: [1, 1.1, 0.9, 1]
-        }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear", repeatType: "loop" }}
-      />
+          animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute top-[20%] -right-[10%] w-[45vw] h-[45vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.12]"
+          style={{ background: 'radial-gradient(circle, #4FACFE 0%, transparent 70%)' }}
+          animate={{ x: [0, -40, 0], y: [0, 50, 0], scale: [1, 1.05, 1] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute -bottom-[10%] left-[10%] w-[40vw] h-[40vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.1]"
+          style={{ background: 'radial-gradient(circle, #F093FB 0%, transparent 70%)' }}
+          animate={{ x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.15, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute bottom-[20%] right-[10%] w-[35vw] h-[35vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08]"
+          style={{ background: 'radial-gradient(circle, #00F2FE 0%, transparent 70%)' }}
+          animate={{ x: [0, -30, 0], y: [0, -60, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
 
-      {/* Noise Texture */}
+      {/* Subtle Noise Overlay for Texture */}
       <div 
-          className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+        className="fixed inset-0 z-[1] opacity-[0.03] mix-blend-overlay pointer-events-none"
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
       />
 
-      <AnimatePresence mode="wait">
-        <div className="relative z-10 w-full flex justify-center">
-          <motion.div
+      {/* Content Container */}
+      <div className="relative z-10 w-full min-h-screen">
+        <AnimatePresence mode="wait">
+          <motion.main
             key={pathname}
-            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="container px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-24 md:pb-8"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 md:pb-12 max-w-[1440px]"
           >
             {children}
-          </motion.div>
-        </div>
-      </AnimatePresence>
+          </motion.main>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

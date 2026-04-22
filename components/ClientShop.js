@@ -1,16 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { Search, ShoppingBag, Info, MapPin, Clock, Users, ArrowRight } from "lucide-react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 import ClientAuthModal from "@/components/ClientAuthModal";
 import ReviewSection from "@/components/ReviewSection";
 import FloatingCSButton from "@/components/FloatingCSButton";
-
-import Image from "next/image";
 import SafeImage from "@/components/SafeImage";
 
 export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees, reviews = [] }) {
@@ -37,15 +36,12 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
       if (existing) {
         setAddedItem(menu.id);
         setTimeout(() => setAddedItem(null), 600);
-
         return prev.map((item) =>
           item.menuId === menu.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-
       setAddedItem(menu.id);
       setTimeout(() => setAddedItem(null), 600);
-
       return [...prev, { menuId: menu.id, name: menu.name, price: Number(menu.price), quantity: 1, note: "" }];
     });
   }
@@ -55,115 +51,254 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
     ? `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`
     : "";
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <main className="container" style={{ padding: "1.1rem 0 2rem" }}>
-      <header className="panel hero-shell flex flex-col items-center text-center max-w-3xl mx-auto" style={{ padding: "1.2rem", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", width: "100%" }}>
-          <span className="badge">{store.name || "Warteg Digital Experience"}</span>
-          <a className="btn btn-secondary" href="/admin" style={{ whiteSpace: "nowrap" }}>Admin Login</a>
-        </div>
-        <h1 style={{ margin: "0.6rem 0 0.3rem", fontSize: "clamp(1.7rem, 3vw, 2.5rem)" }}>{store.name || "Warteg Digital Experience"}</h1>
-        <p className="muted" style={{ margin: 0, maxWidth: 650 }}>
-          {store.bio || store.description || "Belanja menu favoritmu dengan checkout instan."}
-        </p>
-        {store.operationalHours && (
-          <p className="text-sm font-semibold text-emerald-600 mt-2">🕒 Jam Operasional: {store.operationalHours}</p>
-        )}
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.8rem", flexWrap: "wrap", justifyContent: "center" }}>
-          {tableNumber ? <p style={{ margin: 0, color: "#334155" }}>Meja aktif: <strong>{tableNumber}</strong></p> : <p style={{ margin: 0 }} className="muted">Pesan untuk makan di tempat atau takeaway.</p>}
-          <span className="badge">{menus.length} Menu Siap Dipesan</span>
-        </div>
-      </header>
+    <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+      {/* Premium Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-[2.5rem] bg-white border border-slate-100 shadow-2xl shadow-slate-200/50 p-8 md:p-12"
+      >
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-[#FF6B6B]/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl" />
+        
+        <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
+          <motion.div 
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6B6B]/5 border border-[#FF6B6B]/10 text-[#FF6B6B] text-sm font-bold tracking-tight"
+          >
+            <ShoppingBag size={14} />
+            <span>{store.name || "Warteg Digital Experience"}</span>
+          </motion.div>
+          
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+            Menu Lezat, <span className="text-gradient">Cepat Sampai</span> di Meja Anda.
+          </h1>
+          
+          <p className="text-lg text-slate-500 max-w-2xl leading-relaxed">
+            {store.bio || store.description || "Rasakan pengalaman makan di warteg dengan sentuhan teknologi modern. Pilih menu, checkout, dan biarkan kami melayani Anda."}
+          </p>
 
-      {mapAddress ? (
-        <section className="panel" style={{ padding: "1rem", marginBottom: "1rem" }}>
-          <h2 style={{ margin: "0 0 0.45rem" }}>Lokasi Warung</h2>
-          <p className="muted" style={{ marginTop: 0 }}>{mapAddress}</p>
-          <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-            <iframe
-              title="Lokasi Warung"
-              src={mapEmbedUrl}
-              style={{ width: "100%", height: 280, border: 0 }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm font-medium">
+            {store.operationalHours && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100">
+                <Clock size={16} />
+                <span>Buka: {store.operationalHours}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-2xl border border-slate-100">
+              <Users size={16} />
+              <span>{menus.length} Pilihan Menu</span>
+            </div>
+            {tableNumber && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-2xl border border-amber-100">
+                <Info size={16} />
+                <span>Meja {tableNumber}</span>
+              </div>
+            )}
           </div>
-          <a className="btn btn-ghost" style={{ marginTop: "0.75rem", display: "inline-flex" }} href={`https://maps.google.com/?q=${encodeURIComponent(mapAddress)}`} target="_blank" rel="noreferrer">
-            Buka di Google Maps
-          </a>
-        </section>
-      ) : null}
+        </div>
+      </motion.section>
 
-      <PromoCarousel banners={banners} />
-
-      <section className="shop-layout">
-        <div>
-          <div className="panel" style={{ padding: "1rem", marginBottom: "1rem" }}>
-            <input
-              className="input"
-              placeholder="Cari menu favorit..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+      {/* Main Shop Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 xl:col-span-9 space-y-8">
+          {/* Promo & Search */}
+          <div className="space-y-6">
+            <PromoCarousel banners={banners} />
+            
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#FF6B6B] transition-colors">
+                <Search size={20} />
+              </div>
+              <input
+                className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-4 pl-12 pr-6 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all shadow-sm shadow-slate-100"
+                placeholder="Cari makanan favoritmu hari ini..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
           </div>
-          <div className="menu-grid">
-            {filtered.map((menu) => (
-              <motion.article
-                key={menu.id}
-                className="panel menu-card"
-                whileHover={{ y: -4 }}
-                transition={{ type: "spring", stiffness: 260, damping: 24 }}
-              >
-                <Link href={`/product/${menu.slug}`} className="block overflow-hidden">
-                  <SafeImage 
-                    src={menu.imageUrl} 
-                    alt={menu.name} 
-                    className="menu-image transition-transform hover:scale-105 duration-500" 
-                    width={600} 
-                    height={400} 
-                    type="menu"
-                  />
-                </Link>
-                <div style={{ padding: "0.9rem" }}>
-                  <Link href={`/product/${menu.slug}`}>
-                    <h3 style={{ margin: 0 }} className="hover:text-[#FF6B6B] transition-colors">{menu.name}</h3>
+
+          {/* Menu Grid */}
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
+          >
+            {filtered.length > 0 ? (
+              filtered.map((menu) => (
+                <motion.article
+                  key={menu.id}
+                  variants={itemVariants}
+                  whileHover={{ y: -6 }}
+                  className="group bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
+                >
+                  <Link href={`/product/${menu.slug}`} className="relative block aspect-[4/3] overflow-hidden">
+                    <SafeImage 
+                      src={menu.imageUrl} 
+                      alt={menu.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      width={600} 
+                      height={400} 
+                      type="menu"
+                    />
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold text-[#FF6B6B] shadow-sm uppercase tracking-wider">
+                      {menu.category}
+                    </div>
                   </Link>
-                  <p className="muted" style={{ minHeight: 40, fontSize: '0.85rem' }}>{menu.description || "Menu warteg modern pilihan."}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
-                    <strong className="text-[#FF6B6B]">Rp {Number(menu.price).toLocaleString("id-ID")}</strong>
-                    <motion.button
-                      className="btn"
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => addToCart(menu)}
-                      style={{ minWidth: 100 }}
-                    >
-                      {addedItem === menu.id ? "Ditambahkan" : "Tambah"}
-                    </motion.button>
+                  
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-1">
+                      <Link href={`/product/${menu.slug}`}>
+                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#FF6B6B] transition-colors leading-tight">
+                          {menu.name}
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-slate-500 line-clamp-2 h-10 leading-relaxed">
+                        {menu.description || "Kelezatan warteg modern dalam satu sajian istimewa."}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Harga</span>
+                        <strong className="text-xl text-slate-900 tracking-tight">
+                          Rp {Number(menu.price).toLocaleString("id-ID")}
+                        </strong>
+                      </div>
+                      
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => addToCart(menu)}
+                        aria-label="Tambah pesanan"
+                        className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${
+                          addedItem === menu.id 
+                            ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200" 
+                            : "bg-[#FF6B6B] text-white shadow-lg shadow-[#FF6B6B]/20 hover:bg-[#ff5252]"
+                        }`}
+                      >
+                        {addedItem === menu.id ? "Berhasil!" : "Pesan"}
+                        <ArrowRight size={14} className={addedItem === menu.id ? "hidden" : "block"} />
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.article>
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center space-y-4">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
+                  <Search size={32} className="text-slate-300" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Menu Tidak Ditemukan</h3>
+                <p className="text-slate-500">Coba gunakan kata kunci pencarian yang lain.</p>
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Sidebar Cart */}
+        <aside className="lg:col-span-4 xl:col-span-3">
+          <div className="sticky top-8">
+            <FloatingCart cart={cart} setCart={setCart} paymentSettings={paymentSettings} />
+          </div>
+        </aside>
+      </div>
+
+      {/* Info Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Map Section */}
+        {mapAddress && (
+          <motion.section 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm space-y-6"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">Lokasi Kami</h3>
+                  <p className="text-sm text-slate-500">{mapAddress}</p>
+                </div>
+              </div>
+              <a 
+                href={`https://maps.google.com/?q=${encodeURIComponent(mapAddress)}`} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-xs font-bold text-[#FF6B6B] hover:underline"
+              >
+                Lihat Google Maps
+              </a>
+            </div>
+            
+            <div className="rounded-[2rem] overflow-hidden border border-slate-100 shadow-inner">
+              <iframe
+                title="Lokasi Warung"
+                src={mapEmbedUrl}
+                className="w-full h-64 grayscale-[0.2] hover:grayscale-0 transition-all duration-500"
+                loading="lazy"
+              />
+            </div>
+          </motion.section>
+        )}
+
+        {/* Team Section */}
+        {Array.isArray(employees) && employees.length > 0 && (
+          <motion.section 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 overflow-hidden relative"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6B6B]/10 rounded-full blur-3xl" />
+            
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                <Users size={24} />
+              </div>
+              <h3 className="text-xl font-bold">Tim Hebat Kami</h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {employees.map((employee) => (
+                <div key={employee.id} className="p-4 bg-white/5 border border-white/10 rounded-[1.5rem] flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#FF6B6B] rounded-xl flex items-center justify-center font-bold text-lg">
+                    {employee.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm">{employee.name}</h4>
+                    <p className="text-xs text-slate-400">{employee.role || "Crew"}</p>
                   </div>
                 </div>
-              </motion.article>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+      </div>
 
-        <FloatingCart cart={cart} setCart={setCart} paymentSettings={paymentSettings} />
-      </section>
-
-      {Array.isArray(employees) && employees.length ? (
-        <section className="panel" style={{ marginTop: "1rem", padding: "1rem" }}>
-          <h3 style={{ marginTop: 0 }}>Tim Kami</h3>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))" }}>
-            {employees.map((employee) => (
-              <article key={employee.id} className="glass-card" style={{ padding: "0.75rem" }}>
-                <strong>{employee.name}</strong>
-                <p className="muted" style={{ margin: "0.3rem 0" }}>{employee.role || "Crew"}</p>
-                {employee.phone ? <p style={{ margin: 0 }}>{employee.phone}</p> : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
+      <ReviewSection reviews={reviews} />
+      
       <FloatingCSButton whatsappNumber={store.whatsappNumber} onRequireAuth={() => setShowAuth(true)} />
       <ClientAuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
     </main>
