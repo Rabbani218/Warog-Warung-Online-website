@@ -47,7 +47,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-4"
           >
-            <div className="glass-card overflow-hidden rounded-2xl relative bg-white/95">
+            <div className="glass-card overflow-hidden rounded-[2.5rem] relative bg-white/95 shadow-2xl border-white/40">
               <button 
                 onClick={() => onClose()}
                 className="absolute right-4 top-4 text-gray-400 hover:text-slate-900 transition-colors z-10"
@@ -56,15 +56,18 @@ export default function ClientAuthModal({ isOpen, onClose }) {
               </button>
               
               <div className="p-6 md:p-8">
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Masuk ke Akun</h2>
-                  <p className="text-gray-500 text-sm">Masuk untuk melanjutkan pesanan atau interaksi.</p>
+                <div className="text-center mb-10">
+                  <div className="w-16 h-16 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                    <Lock className="text-[#FF6B6B]" size={32} />
+                  </div>
+                  <h2 className="text-3xl font-black text-slate-900 mb-2">Masuk ke Akun</h2>
+                  <p className="text-slate-500 text-sm px-6">Gunakan akun Anda untuk melanjutkan pesanan atau memberikan ulasan.</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => signIn("google")}
-                  className="w-full bg-white text-gray-800 border border-gray-200 hover:bg-gray-50 font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 mb-6 transition-colors shadow-sm"
+                  className="w-full bg-white text-slate-700 border border-slate-200 hover:border-rose-200 hover:bg-rose-50/30 font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -75,31 +78,31 @@ export default function ClientAuthModal({ isOpen, onClose }) {
                   Masuk dengan Google
                 </button>
 
-                <div className="relative flex items-center justify-center mb-6">
-                  <div className="border-t border-gray-200 w-full"></div>
-                  <span className="bg-white px-3 text-xs text-gray-400 absolute">atau</span>
+                <div className="relative flex items-center justify-center my-8">
+                  <div className="border-t border-slate-100 w-full"></div>
+                  <span className="bg-[#fffdfa] px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 absolute">atau</span>
                 </div>
 
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                  <div className="relative">
-                    <Mail size={18} className="absolute left-3 top-3 text-gray-400" />
+                  <div className="relative group">
+                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#FF6B6B] transition-colors" />
                     <input
                       type="email"
                       required
                       placeholder="Email anda"
-                      className="input pl-10 bg-white/80 border-gray-200 text-gray-800 placeholder-gray-400"
+                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   
-                  <div className="relative">
-                    <Lock size={18} className="absolute left-3 top-3 text-gray-400" />
+                  <div className="relative group">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#FF6B6B] transition-colors" />
                     <input
                       type="password"
                       required
                       placeholder="Password"
-                      className="input pl-10 bg-white/80 border-gray-200 text-gray-800 placeholder-gray-400"
+                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
