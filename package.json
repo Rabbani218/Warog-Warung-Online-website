@@ -12,7 +12,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "clean:git": "powershell -ExecutionPolicy Bypass -File ./scripts/clean-desktop-ini.ps1"
   },
   "keywords": [
     "nextjs",
