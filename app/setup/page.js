@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createSetup } from "./actions";
 import { toast } from "sonner";
 
@@ -17,22 +17,14 @@ function LoadingSpinner() {
 
 function SetupClient() {
   const { data: session, status, update } = useSession() || { data: null, status: 'loading' };
-  const router = useRouter();
   const searchParams = useSearchParams();
   const errorMessage = searchParams?.get("error") || "";
-  const [redirected, setRedirected] = useState(false);
 
-  useEffect(() => {
-    if (redirected) return; // prevent double-redirect
-
-    if (status === "unauthenticated") {
-      setRedirected(true);
-      router.replace("/admin");
-    } else if (status === "authenticated" && session?.user?.storeId) {
-      setRedirected(true);
-      router.replace("/admin/dashboard");
-    }
-  }, [status, session, router, redirected]);
+  // ── LOOP FIX: NO redirects from this page at all ──────────────
+  // Previously, this page redirected unauthenticated users to /admin
+  // and authenticated users with storeId to /admin/dashboard,
+  // which created a redirect chain: / → /setup → /admin → ...
+  // Now this page ALWAYS renders its content regardless of auth state.
 
   useEffect(() => {
     if (errorMessage) {
@@ -40,14 +32,41 @@ function SetupClient() {
     }
   }, [errorMessage]);
 
-  // Show spinner while loading — but NEVER return null to avoid blank screen
+  // Show spinner only while session is loading — never return null
   if (status === "loading") {
     return <LoadingSpinner />;
   }
 
-  // If unauthenticated, show spinner briefly while redirect happens
+  // If not authenticated, show a message instead of redirecting
   if (status === "unauthenticated") {
-    return <LoadingSpinner />;
+    return (
+      <section className="panel hero-shell" style={{ maxWidth: 680, margin: "0 auto", padding: "2rem", textAlign: "center" }}>
+        <p className="badge">Wareb V2 Onboarding</p>
+        <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)", color: "#FF6B6B" }}>Setup Toko</h1>
+        <p className="muted" style={{ margin: "0.75rem 0 1.5rem" }}>
+          Anda harus login terlebih dahulu untuk membuat toko.
+        </p>
+        <a href="/admin" className="btn" style={{ display: "inline-block", textDecoration: "none" }}>
+          Login sebagai Admin
+        </a>
+      </section>
+    );
+  }
+
+  // If already has a store, show info instead of redirecting
+  if (session?.user?.storeId) {
+    return (
+      <section className="panel hero-shell" style={{ maxWidth: 680, margin: "0 auto", padding: "2rem", textAlign: "center" }}>
+        <p className="badge" style={{ background: "#dcfce7", color: "#166534" }}>✓ Toko Sudah Aktif</p>
+        <h1 style={{ margin: "0.75rem 0 0", fontSize: "clamp(1.5rem, 3vw, 2.25rem)", color: "#10b981" }}>Toko Anda Sudah Siap!</h1>
+        <p className="muted" style={{ margin: "0.75rem 0 1.5rem" }}>
+          Anda sudah memiliki toko. Klik tombol di bawah untuk ke dashboard.
+        </p>
+        <a href="/admin/dashboard" className="btn" style={{ display: "inline-block", textDecoration: "none" }}>
+          Buka Dashboard
+        </a>
+      </section>
+    );
   }
 
   return (

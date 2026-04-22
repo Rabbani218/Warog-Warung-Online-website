@@ -33,7 +33,22 @@ export default async function AdminDashboardPage() {
 
   const store = await getDefaultStore();
   if (!store) {
-    redirect("/setup");
+    // ── LOOP FIX: render inline setup prompt instead of redirect("/setup") ──
+    return (
+      <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", padding: "2rem" }}>
+        <section className="panel hero-shell" style={{ maxWidth: 520, textAlign: "center", padding: "2.5rem" }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FF6B6B", marginBottom: "0.75rem" }}>
+            Toko Belum Tersedia
+          </h1>
+          <p className="muted" style={{ marginBottom: "1.5rem" }}>
+            Anda perlu membuat toko terlebih dahulu sebelum menggunakan dashboard.
+          </p>
+          <a href="/setup" className="btn" style={{ display: "inline-block", textDecoration: "none" }}>
+            Buat Toko Sekarang
+          </a>
+        </section>
+      </div>
+    );
   }
 
   const dayStart = new Date(new Date().setHours(0, 0, 0, 0));

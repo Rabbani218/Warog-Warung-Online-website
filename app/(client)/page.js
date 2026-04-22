@@ -1,7 +1,6 @@
 import { findStore } from "@/lib/store";
 import { prisma } from "@/lib/prisma";
 import ClientShop from "@/components/ClientShop";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +23,10 @@ export default async function ClientHomePage({ searchParams }) {
     console.error("findStore Error:", err);
   }
 
-  if (!store && !process.env.NEXT_PHASE) {
-    // If absolutely no store and not in build phase, try to redirect or show setup
-    // But to follow instructions "never show gangguan sistem", we might want a dummy store
-    // However, redirecting to /setup is the standard app flow if no store exists.
-    redirect("/setup");
-  }
+  // ── LOOP FIX: NEVER redirect from homepage ──────────────────────
+  // If no store exists, render the page with a fallback dummy store.
+  // The admin can set up a store via /admin → /setup flow instead.
+  // Previously: redirect("/setup") here caused a 307 infinite loop.
 
   const tableNumber = String(searchParams?.table || "").trim();
 
