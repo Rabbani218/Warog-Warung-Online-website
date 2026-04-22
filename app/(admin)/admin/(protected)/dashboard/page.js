@@ -153,148 +153,131 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-12">
-      {/* Header Section */}
-      <header className="flex flex-col items-center text-center space-y-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-[#FF6B6B] text-[10px] font-bold uppercase tracking-widest">
-            Control Center
+    <main className="admin-shell py-8 px-4 sm:px-6 lg:px-8 max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-12">
+        {/* Header Section */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
+          <div>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-rose-50 text-rose-500 uppercase tracking-widest mb-3 border border-rose-100">
+              Operational Hub
+            </span>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
+            <p className="text-slate-500 font-medium mt-1">Pantau performa harian dan manajemen stok {store.name}.</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
-            Dashboard <span className="text-gradient">Admin</span>
-          </h1>
-          <p className="text-slate-500 font-medium">Monitoring operasional harian {store.name}.</p>
-        </div>
-        <AdminTopNav currentPath="/admin/dashboard" />
-      </header>
+          <AdminTopNav currentPath="/admin/dashboard" />
+        </header>
 
-      {/* Stats Grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {stats.map((s, idx) => (
-          <div key={idx} className="bg-white/60 backdrop-blur-xl border border-white/40 p-6 rounded-[2rem] shadow-xl shadow-slate-200/40 group hover:scale-[1.02] transition-all duration-300">
-            <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:rotate-6`}>
-              <s.icon size={24} />
+        {/* Stats Grid */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          {stats.map((s, idx) => (
+            <div key={idx} className="bg-white/60 backdrop-blur-xl border border-white/40 p-6 rounded-[2rem] shadow-xl shadow-slate-200/40 group hover:scale-[1.02] transition-all duration-300">
+              <div className={`w-12 h-12 ${s.bg} ${s.color} rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:rotate-6`}>
+                <s.icon size={24} />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
+              <h2 className="text-xl font-black text-slate-900 leading-none">{s.value}</h2>
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
-            <h2 className="text-xl font-black text-slate-900 leading-none">{s.value}</h2>
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
 
-      {/* Analytics Visualization */}
-      <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-4 md:p-8 shadow-xl shadow-slate-200/30">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-            <TrendingUp size={20} />
+        {/* Analytics Visualization */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-8 bg-indigo-500 rounded-full" />
+            <h2 className="text-xl font-bold text-slate-800">Visualisasi Analitik</h2>
           </div>
-          <h3 className="text-xl font-bold text-slate-900">Visualisasi Analitik</h3>
+          <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-4 md:p-8 shadow-xl shadow-slate-200/30">
+            <AdminAnalyticsCharts
+              revenueTrend={revenueTrend}
+              topMenus={topMenus}
+              orderStatus={orderStatus}
+              peakHours={peakHours}
+            />
+          </div>
+        </section>
+
+        {/* Mid Section: Utility Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ExcelUploader />
+          <QrDownloadCard />
         </div>
-        <AdminAnalyticsCharts
-          revenueTrend={revenueTrend}
-          topMenus={topMenus}
-          orderStatus={orderStatus}
-          peakHours={peakHours}
-        />
-      </section>
 
-      {/* Mid Section: Utility Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ExcelUploader />
-        <QrDownloadCard />
-      </div>
+        {/* Inventory Management (Full Width) */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-8 bg-emerald-500 rounded-full" />
+            <h2 className="text-xl font-bold text-slate-800">Manajemen Stok Bahan Baku</h2>
+          </div>
+          <InlineInventoryManager initialItems={inventoryForecast} />
+        </section>
 
-      {/* ── NEW VERTICAL FLUID LAYOUT (STACK) ── */}
-      <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto">
-        
-        {/* 1. Inventory Management (Full Width) */}
-        <InlineInventoryManager initialItems={inventoryForecast} />
-
-        {/* 2. Live Top Products (Full Width & Horizontal Grid) */}
-        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
+        {/* Live Top Products & KDS Snapshot */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Menu Terlaris */}
+          <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+            <div className="flex items-center gap-3 mb-8">
               <div className="relative">
                 <Star size={24} className="text-amber-500" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">Live: Menu Terlaris Saat Ini</h3>
-                <p className="text-sm text-slate-500">Berdasarkan data penjualan bulan ini.</p>
-              </div>
+              <h3 className="text-xl font-bold text-slate-900">Live: Menu Terlaris</h3>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            {topMenuSales.map((item) => (
-              <div 
-                key={item.menuId} 
-                className="flex flex-col p-5 bg-white/50 rounded-3xl border border-slate-100 shadow-sm hover:border-amber-200 transition-all duration-300 hover:scale-105"
-              >
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Top Dish</span>
-                <span className="font-bold text-slate-800 mb-2 truncate">{menuNameMap[item.menuId]}</span>
-                <div className="flex justify-between items-end mt-auto">
-                  <span className="text-xs font-bold text-emerald-500">{Number(item._sum.quantity || 0)} Porsi</span>
-                  <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {topMenuSales.slice(0, 4).map((item) => (
+                <div key={item.menuId} className="p-5 bg-white/50 rounded-3xl border border-slate-100 shadow-sm">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Top Dish</span>
+                  <p className="font-bold text-slate-800 truncate">{menuNameMap[item.menuId]}</p>
+                  <div className="flex justify-between items-end mt-2">
+                    <span className="text-xs font-bold text-emerald-500">{Number(item._sum.quantity || 0)} Porsi</span>
+                    <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        {/* 3. KDS Snapshot (Moved up for better visibility) */}
-        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <ChefHat size={24} className="text-indigo-600" />
-              <h3 className="text-xl font-bold text-slate-900">Antrean Dapur (KDS)</h3>
-            </div>
-            <a href="/admin/kds" className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">
-              Kelola KDS <ChevronRight size={16} />
-            </a>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {kotQueue.map((ticket) => (
-              <article key={ticket.id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-4">
-                <div className="flex justify-between items-start">
-                  <strong className="text-lg font-black">{ticket.order.orderCode}</strong>
-                  <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
-                    {ticket.status}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 font-medium">Meja: {ticket.order.tableNumber || "-"}</p>
-                <div className="pt-2 border-t border-slate-50 flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                  <Clock size={12} />
-                  {new Date(ticket.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                </div>
-              </article>
-            ))}
-            {kotQueue.length === 0 && (
-              <div className="col-span-full py-12 text-center text-slate-400 font-medium">
-                Tidak ada antrean aktif saat ini.
+          {/* KDS Snapshot */}
+          <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <ChefHat size={24} className="text-indigo-600" />
+                <h3 className="text-xl font-bold text-slate-900">Antrean Dapur (KDS)</h3>
               </div>
-            )}
-          </div>
-        </section>
+              <a href="/admin/kds" className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">
+                Kelola KDS <ChevronRight size={16} />
+              </a>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {kotQueue.slice(0, 4).map((ticket) => (
+                <article key={ticket.id} className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <strong className="font-black">{ticket.order.orderCode}</strong>
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase">
+                      {ticket.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">Meja: {ticket.order.tableNumber || "-"}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
 
-        {/* 4. Recent Orders Table (At the bottom, full width) */}
-        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-50 text-[#FF6B6B] rounded-xl flex items-center justify-center">
-                <ShoppingBag size={20} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Pesanan Terakhir</h3>
+        {/* Recent Orders Table */}
+        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30 pb-20">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 bg-rose-50 text-[#FF6B6B] rounded-xl flex items-center justify-center">
+              <ShoppingBag size={20} />
             </div>
+            <h3 className="text-xl font-bold text-slate-900">Transaksi Terakhir</h3>
           </div>
-          
           <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full">
               <thead>
                 <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
-                  <th className="text-left py-4 px-2">Kode Order</th>
+                  <th className="text-left py-4 px-2">Order</th>
                   <th className="text-left py-4">Status</th>
-                  <th className="text-left py-4">Meja</th>
-                  <th className="text-right py-4">Total Pembayaran</th>
+                  <th className="text-right py-4">Total</th>
                   <th className="text-right py-4 pr-2">Aksi</th>
                 </tr>
               </thead>
@@ -309,7 +292,6 @@ export default async function AdminDashboardPage() {
                         {order.status}
                       </span>
                     </td>
-                    <td className="py-4 text-slate-500 font-medium text-sm">{order.tableNumber || "-"}</td>
                     <td className="py-4 text-right font-black text-sm">Rp {Number(order.grandTotal).toLocaleString("id-ID")}</td>
                     <td className="py-4 text-right pr-2">
                       <PrintReceiptWrapper order={order} storeName={store.name} />
@@ -320,8 +302,8 @@ export default async function AdminDashboardPage() {
             </table>
           </div>
         </section>
-
       </div>
-    </div>
+    </main>
   );
 }
+

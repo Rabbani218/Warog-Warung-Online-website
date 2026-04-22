@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { UtensilsCrossed, Image as ImageIcon } from "lucide-react";
+import { UtensilsCrossed, Image as ImageIcon, ImageOff, Loader2 } from "lucide-react";
 
 export default function SafeImage({ src, alt, type = "menu", className = "", ...props }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+    setIsLoaded(false);
+  }, [src]);
 
   const isValidSrc = src && src?.trim() !== "" && !hasError;
 
