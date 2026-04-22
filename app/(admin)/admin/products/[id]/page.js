@@ -122,7 +122,7 @@ export default async function AdminProductInsightPage({ params }) {
               </div>
               <div className="pt-4 border-t border-slate-100">
                 <p className="text-xs text-slate-500 leading-relaxed italic">
-                  "{product.description || "Tidak ada deskripsi tersedia."}"
+                  &quot;{product.description || "Tidak ada deskripsi tersedia."}&quot;
                 </p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default async function AdminProductInsightPage({ params }) {
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-slate-500 leading-relaxed italic">"{r.comment}"</p>
+                      <p className="text-sm text-slate-500 leading-relaxed italic">&quot;{r.comment}&quot;</p>
                       <p className="text-[10px] text-slate-300 flex items-center gap-1">
                         <Calendar size={10} /> {new Date(r.createdAt).toLocaleString()}
                       </p>
