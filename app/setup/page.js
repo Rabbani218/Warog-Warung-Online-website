@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSetup } from "./actions";
+import { toast } from "sonner";
 
 function LoadingSpinner() {
   return (
@@ -14,21 +15,24 @@ function LoadingSpinner() {
   );
 }
 
-import { toast } from "sonner";
-
 function SetupClient() {
   const { data: session, status, update } = useSession() || { data: null, status: 'loading' };
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorMessage = searchParams?.get("error") || "";
+  const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
+    if (redirected) return; // prevent double-redirect
+
     if (status === "unauthenticated") {
-      router.push("/admin");
+      setRedirected(true);
+      router.replace("/admin");
     } else if (status === "authenticated" && session?.user?.storeId) {
-      router.push("/admin/dashboard");
+      setRedirected(true);
+      router.replace("/admin/dashboard");
     }
-  }, [status, session, router]);
+  }, [status, session, router, redirected]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -36,7 +40,13 @@ function SetupClient() {
     }
   }, [errorMessage]);
 
-  if (status === "loading" || status === "unauthenticated") {
+  // Show spinner while loading — but NEVER return null to avoid blank screen
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
+
+  // If unauthenticated, show spinner briefly while redirect happens
+  if (status === "unauthenticated") {
     return <LoadingSpinner />;
   }
 

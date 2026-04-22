@@ -1,34 +1,22 @@
-import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+// ──────────────────────────────────────────────────────────────────────
+// Middleware — TEMPORARILY DISABLED (Scorched Earth Reset)
+//
+// All route interception is turned off to break an infinite redirect
+// loop between middleware ↔ /setup ↔ / ↔ /admin.
+//
+// Auth protection is still enforced by the (protected) layout server
+// check in app/(admin)/admin/(protected)/layout.js.
+//
+// Re-enable gradually once the redirect loop is confirmed resolved.
+// ──────────────────────────────────────────────────────────────────────
 
-export async function middleware(request) {
-  const { pathname } = request.nextUrl;
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-
-  // PROTECTED ADMIN ROUTES: /admin/... (dashboard, products, etc.)
-  // We exclude the root "/admin" (login page) from this check via matcher
-  if (pathname.startsWith("/admin/")) {
-    if (!token || token.role !== "ADMIN") {
-      // Redirect to home or setup instead of /admin to break any potential loops
-      const url = new URL("/", request.url);
-      url.searchParams.set("error", "Unauthorized");
-      return NextResponse.redirect(url);
-    }
-  }
-
-  // SETUP ROUTES: /setup/...
-  if (pathname.startsWith("/setup")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    if (token.storeId) {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-    }
-  }
-
-  return NextResponse.next();
+export function middleware() {
+  // pass-through — no interception
+  return;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/setup/:path*"],
+  // keep the matcher so Next.js still registers the middleware file,
+  // but the function above is a no-op
+  matcher: [],
 };
