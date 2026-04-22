@@ -54,31 +54,45 @@ export default function ProductCrud() {
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
       <section className="glass-panel p-6 md:p-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-          <div>
-            <h3 className="retro-title text-2xl text-slate-900 mb-1">Katalog Produk</h3>
-            <p className="text-slate-500 text-sm">Kelola menu dan ketersediaan stok dapur Anda.</p>
+        <div className="flex flex-col items-center text-center gap-4 mb-12">
+          <span className="badge">Katalog Menu</span>
+          <h3 className="retro-title text-3xl text-slate-900">Product Catalog</h3>
+          <p className="text-slate-500 max-w-lg">Kelola ketersediaan menu, harga, dan informasi katalog warung Anda secara real-time.</p>
+        </div>
+
+        {/* Quick Search & Filter */}
+        <div className="flex justify-center mb-10">
+          <div className="relative w-full max-w-xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input 
+              type="text" 
+              placeholder="Cari menu berdasarkan nama..." 
+              className="glass-input pl-12 py-4 text-lg shadow-inner"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-          
-          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-3 top-2.5 text-slate-400" size={18} />
-              <input 
-                type="text" 
-                placeholder="Cari menu..." 
-                className="glass-input pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            
-            <Link 
+        </div>
+
+        {/* Quick Add Form Section */}
+        <div className="mb-12 p-1 bg-slate-50 rounded-[2rem] border border-slate-200/60 shadow-inner">
+          <div className="glass-panel p-6 flex flex-col md:flex-row items-center gap-4">
+             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+                <input placeholder="Nama Menu" className="glass-input bg-white" />
+                <input placeholder="Slug" className="glass-input bg-white" />
+                <input placeholder="Harga" type="number" className="glass-input bg-white" />
+                <input placeholder="Image URL" className="glass-input bg-white" />
+             </div>
+             <Link 
               href="/admin/products/create"
-              className="glass-btn-primary flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl shadow-xl shadow-rose-100 whitespace-nowrap"
+              className="glass-btn-primary w-full md:w-auto px-8 py-3 rounded-2xl flex items-center justify-center gap-2"
             >
-              <Plus size={20} /> Tambah Produk
+              <Plus size={20} /> Tambah Menu
             </Link>
           </div>
+          <p className="text-[10px] text-center py-2 text-slate-400 font-medium italic">
+            Tip: Klik 'Tambah Menu' untuk membuka formulir detail lengkap (Kategori, Waktu Masak, Deskripsi).
+          </p>
         </div>
 
         {loading ? (

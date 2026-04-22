@@ -42,7 +42,7 @@ export default function AdminAnalyticsCharts({
   peakHours
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start justify-center">
       <ChartCard title="Tren Pendapatan 7 Hari Terakhir">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={revenueTrend}>

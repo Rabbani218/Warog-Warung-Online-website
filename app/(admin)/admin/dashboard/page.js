@@ -221,17 +221,17 @@ export default async function AdminDashboardPage() {
   return (
     <main className="w-full min-h-screen">
       <div className="w-full space-y-8">
-        <header style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
+        <header className="flex flex-col items-center text-center mb-12">
+          <div className="mb-4 flex flex-col items-center">
             <span className="badge">Admin Portal</span>
-            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
+            <h1 className="retro-heading mt-2 text-3xl md:text-4xl">
               {store.name}
             </h1>
           </div>
           <AdminTopNav currentPath="/admin/dashboard" />
         </header>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-center">
           <article className="glass-card" style={{ padding: "1rem" }}>
             <p style={{ marginTop: 0, color: "#9ca3af" }}>Order Hari Ini</p>
             <h2 style={{ marginBottom: 0 }}>{todayOrders}</h2>

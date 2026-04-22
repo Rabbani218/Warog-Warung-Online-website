@@ -58,16 +58,18 @@ export default function AdminMotionShell({ children }) {
       />
 
       <AnimatePresence mode="wait">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, scale: 0.98, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.98, y: -10 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-24 md:pb-8"
-        >
-          {children}
-        </motion.div>
+        <div className="relative z-10 w-full flex justify-center">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="container px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-24 md:pb-8"
+          >
+            {children}
+          </motion.div>
+        </div>
       </AnimatePresence>
     </div>
   );
