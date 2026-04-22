@@ -55,9 +55,9 @@ export default function AdminMotionShell({ children }) {
       />
 
       {/* Content Container */}
-      <div className="relative z-10 w-full min-h-screen">
+      <div className="relative z-10 w-full min-h-screen max-w-full overflow-x-hidden">
         <main
-          className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 md:pb-12 max-w-[1440px]"
+          className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 md:pb-12 max-w-[1440px] overflow-hidden"
         >
           {children}
         </main>

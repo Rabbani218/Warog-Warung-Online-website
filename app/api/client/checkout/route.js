@@ -130,6 +130,7 @@ export async function POST(request) {
           orderCode,
           tableNumber: body.tableNumber || null,
           status: "PENDING",
+          paymentStatus: "PENDING",
           paymentMethod: body.paymentMethod || "CASH",
           subTotal,
           taxAmount,

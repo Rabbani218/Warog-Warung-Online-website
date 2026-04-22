@@ -221,14 +221,42 @@ export default function ProductForm({ initialData = null }) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Image URL</label>
-                <input 
-                  className="glass-input text-xs"
-                  placeholder="https://..."
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({...form, imageUrl: e.target.value})}
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">Gambar Produk</label>
+                  <div className="flex gap-2">
+                    <input 
+                      className="glass-input text-xs flex-1"
+                      placeholder="https://... atau upload di samping"
+                      value={form.imageUrl}
+                      onChange={(e) => setForm({...form, imageUrl: e.target.value})}
+                    />
+                    <label className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-800 transition-all flex items-center gap-2">
+                      <ImageIcon size={14} />
+                      Upload
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 2 * 1024 * 1024) {
+                              toast.error("Ukuran file maksimal 2MB");
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setForm(prev => ({ ...prev, imageUrl: reader.result }));
+                              toast.success("Gambar berhasil diproses!");
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">

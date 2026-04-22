@@ -47,3 +47,24 @@ export async function createIngredient(data) {
   }
 }
 
+export async function updatePaymentStatus(orderId, paymentStatus) {
+  try {
+    const validStatuses = ["PENDING", "PAID", "FAILED"];
+    if (!validStatuses.includes(paymentStatus)) {
+      throw new Error("Status pembayaran tidak valid.");
+    }
+
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: { paymentStatus }
+    });
+
+    revalidatePath("/admin/dashboard");
+    return { success: true, orderCode: order.orderCode, paymentStatus };
+  } catch (error) {
+    console.error("Payment Status Update Error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+

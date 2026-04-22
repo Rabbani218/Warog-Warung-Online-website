@@ -11,8 +11,25 @@ export async function POST(req) {
   const { messages } = await req.json();
   const session = await getServerSession(authOptions);
   
-  // Fetch Context
   const store = await findStore();
+  
+  // Log User Message to Database
+  const lastMessage = messages[messages.length - 1];
+  if (lastMessage && lastMessage.role === "user" && store) {
+    try {
+      await prisma.chatMessage.create({
+        data: {
+          storeId: store.id,
+          userId: session?.user?.id || null,
+          message: lastMessage.content,
+          role: "USER"
+        }
+      });
+    } catch (dbErr) {
+      console.error("[ChatAPI] Failed to log message:", dbErr);
+    }
+  }
+
   const menus = await prisma.menu.findMany({
     where: { storeId: store?.id, isActive: true },
     select: { name: true, price: true, description: true, category: true }

@@ -11,7 +11,22 @@ export default function ReceiptTicket({ order, storeName }) {
   });
 
   return (
-    <div className="receipt-ticket hidden print:block fixed print:absolute print:top-0 print:left-0 print:w-[80mm] print:min-h-screen bg-white text-black font-mono text-[12px] leading-tight z-[9999] p-8" style={{ width: "80mm" }}>
+    <>
+      <style jsx global>{`
+        @media print {
+          body { visibility: hidden; background: white !important; }
+          #receipt-area { 
+            visibility: visible; 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 80mm !important;
+            margin: 0 !important;
+            padding: 20px !important;
+          }
+        }
+      `}</style>
+      <div id="receipt-area" className="receipt-ticket hidden print:block bg-white text-black font-mono text-[12px] leading-tight z-[9999]" style={{ width: "80mm" }}>
       <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
         <h2 className="text-lg font-bold uppercase">{storeName || "WAREB PLATFORM"}</h2>
         <p className="text-xs">Struk Pesanan Digital</p>
@@ -70,6 +85,7 @@ export default function ReceiptTicket({ order, storeName }) {
         <p>Silakan berkunjung kembali.</p>
         <p className="mt-2 text-[10px] opacity-50">Powered by Wareb Platform</p>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
