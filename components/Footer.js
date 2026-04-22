@@ -133,10 +133,10 @@ export default function Footer() {
                     transition={{ repeat: Infinity, duration: 1.5 }}
                     className="text-red-600 font-black text-4xl tracking-widest"
                   >
-                    It's Me =)
+                    It&apos;s Me =)
                   </motion.div>
                 ) : (
-                  <p className="italic opacity-60 text-sm">"Despite everything, it's still you."</p>
+                  <p className="italic opacity-60 text-sm">&quot;Despite everything, it&apos;s still you.&quot;</p>
                 )}
                 
                 <button 
