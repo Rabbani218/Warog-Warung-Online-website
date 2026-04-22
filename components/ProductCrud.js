@@ -91,7 +91,7 @@ export default function ProductCrud() {
             </Link>
           </div>
           <p className="text-[10px] text-center py-2 text-slate-400 font-medium italic">
-            Tip: Klik 'Tambah Menu' untuk membuka formulir detail lengkap (Kategori, Waktu Masak, Deskripsi).
+            Tip: Klik &apos;Tambah Menu&apos; untuk membuka formulir detail lengkap (Kategori, Waktu Masak, Deskripsi).
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function ProductCrud() {
                           {product.category || "Menu"}
                         </span>
                         <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                          <Clock size={10} /> {product.preparationTime || 10}'
+                          <Clock size={10} /> {product.preparationTime || 10}&apos;
                         </div>
                       </div>
                       <h4 className="text-slate-900 font-bold text-lg mb-1 leading-tight">{product.name}</h4>

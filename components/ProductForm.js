@@ -182,7 +182,7 @@ export default function ProductForm({ initialData = null }) {
                     onChange={(e) => setForm({...form, preparationTime: e.target.value})}
                   />
                   <span className="w-16 text-center font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-                    {form.preparationTime}'
+                    {form.preparationTime}&apos;
                   </span>
                 </div>
               </div>

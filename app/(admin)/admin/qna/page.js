@@ -81,7 +81,7 @@ export default async function AdminQnaInboxPage() {
 
               <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 italic text-slate-600 leading-relaxed relative">
                 <span className="absolute -top-3 left-6 px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-black text-slate-400 uppercase">Pertanyaan</span>
-                "{q.question}"
+                &quot;{q.question}&quot;
               </div>
 
               {q.answer ? (
