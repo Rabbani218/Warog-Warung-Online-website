@@ -8,6 +8,7 @@ export default function Footer() {
   const [showSecret, setShowSecret] = useState(false);
   const [charaMode, setCharaMode] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const [adminClicks, setAdminClicks] = useState(0);
 
   const handleReservedClick = () => {
     setClickCount((prev) => {
@@ -27,6 +28,24 @@ export default function Footer() {
     }
   }, [clickCount]);
 
+  useEffect(() => {
+    if (adminClicks > 0) {
+      const timer = setTimeout(() => setAdminClicks(0), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [adminClicks]);
+
+  const handleLogoClick = () => {
+    setAdminClicks((prev) => {
+      const next = prev + 1;
+      if (next >= 7) {
+        window.location.href = "/admin";
+        return 0;
+      }
+      return next;
+    });
+  };
+
   return (
     <footer className="w-full pt-20 pb-10 mt-24 relative overflow-hidden bg-white/30 backdrop-blur-xl border-t border-slate-100">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
@@ -34,7 +53,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center space-y-8">
           {/* Brand/Logo Area */}
-          <div className="flex flex-col items-center gap-3">
+          <div 
+            className="flex flex-col items-center gap-3 cursor-pointer select-none active:scale-95 transition-transform"
+            onClick={handleLogoClick}
+          >
             <div className="w-12 h-12 bg-[#FF6B6B]/10 rounded-2xl flex items-center justify-center text-[#FF6B6B]">
               <GraduationCap size={24} />
             </div>

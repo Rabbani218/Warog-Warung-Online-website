@@ -1,290 +1,198 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { Upload, Camera, Save, Loader2, CheckCircle2, User as UserIcon, Plus, Trash2, Store } from "lucide-react";
-
+import { motion } from "framer-motion";
+import { User, Mail, MapPin, Heart, Utensils, TextQuote, Save, Loader2, Camera } from "lucide-react";
 import { toast } from "sonner";
 
-export default function ProfileForm({ initialData }) {
-  const { update } = useSession();
-  const fileInputRef = useRef(null);
-  
-  const [form, setForm] = useState({
-    name: initialData?.name || "",
-    email: initialData?.email || "",
-    avatar: initialData?.avatar || "",
-    bio: initialData?.bio || "",
-    description: initialData?.description || "",
-    address: initialData?.address || "",
-    whatsappNumber: initialData?.whatsappNumber || "",
-    operationalHours: initialData?.operationalHours || "",
-    employees: Array.isArray(initialData?.employees) && initialData.employees.length
-      ? initialData.employees.map((item) => ({
-          id: item.id || `new-${Math.random().toString(16).slice(2)}`,
-          name: item.name || "",
-          role: item.role || "",
-          phone: item.phone || ""
-        }))
-      : [{ id: "new-1", name: "", role: "", phone: "" }]
+export default function ClientProfileForm() {
+  const { data: session, update } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: session?.user?.name || "",
+    bio: session?.user?.bio || "",
+    address: session?.user?.address || "",
+    hobbies: session?.user?.hobbies || "",
+    favoriteFood: session?.user?.favoriteFood || "",
+    avatar: session?.user?.avatar || ""
   });
-  
-  const [saving, setSaving] = useState(false);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Ukuran gambar maksimal 2MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm(prev => ({ ...prev, avatar: reader.result }));
-      toast.success("Foto profil berhasil diproses!");
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setSaving(true);
+    setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/profile", {
-        method: "PATCH",
+      const res = await fetch("/api/client/profile", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(formData)
       });
 
+      if (!res.ok) throw new Error("Failed to update profile");
+
       const data = await res.json();
+      
+      // Update next-auth session
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          ...formData
+        }
+      });
 
-      if (res.ok) {
-        toast.success("Profil berhasil diperbarui!");
-        await update({ name: form.name, avatar: form.avatar });
-      } else {
-        toast.error(data.message || "Gagal memperbarui profil.");
-      }
+      toast.success("Profil berhasil diperbarui!");
     } catch (error) {
-      toast.error("Terjadi kesalahan sistem.");
+      toast.error("Gagal memperbarui profil.");
+      console.error(error);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const addEmployee = () => {
-    setForm((prev) => ({
-      ...prev,
-      employees: [
-        ...prev.employees,
-        { id: `new-${Math.random().toString(16).slice(2)}`, name: "", role: "", phone: "" }
-      ]
-    }));
-  };
-
-  const removeEmployee = (id) => {
-    setForm((prev) => ({
-      ...prev,
-      employees: prev.employees.filter((employee) => employee.id !== id)
-    }));
-  };
-
-  const updateEmployee = (id, key, value) => {
-    setForm((prev) => ({
-      ...prev,
-      employees: prev.employees.map((employee) =>
-        employee.id === id ? { ...employee, [key]: value } : employee
-      )
-    }));
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, avatar: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
-    <section className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-xl backdrop-blur-md sm:p-10">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        
-        {/* Avatar Section */}
-        <div className="flex flex-col items-center sm:flex-row gap-6 mb-4">
-          <div className="relative group">
-            <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-gray-100 bg-slate-50">
-              {form.avatar ? (
-                <Image src={form.avatar} alt="Profile" fill className="object-cover" unoptimized />
-              ) : (
-                <UserIcon size={48} className="text-gray-400" />
-              )}
-              
-              <div 
-                className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Camera size={24} className="text-white mb-1" />
-                <span className="text-xs text-white font-medium">Ubah</span>
+    <div className="max-w-4xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-[2.5rem] shadow-2xl overflow-hidden"
+      >
+        <div className="bg-gradient-to-r from-[#FF6B6B] to-[#ff8e8e] p-8 md:p-12 text-white relative">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <User size={120} />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">Profil Pelanggan</h1>
+          <p className="text-white/80 font-medium">Lengkapi data dirimu untuk pengalaman yang lebih personal.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-8">
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-4 mb-8">
+            <div className="relative group">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-100 flex items-center justify-center">
+                {formData.avatar ? (
+                  <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={48} className="text-slate-300" />
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 bg-[#FF6B6B] text-white p-2.5 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-all border-4 border-white">
+                <Camera size={18} />
+                <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+              </label>
+            </div>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Ketuk untuk ubah foto</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Nama Lengkap</label>
+              <div className="relative">
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-700 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-all"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Nama anda"
+                />
+              </div>
+            </div>
+
+            {/* Email (Read Only) */}
+            <div className="space-y-2 opacity-60">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Email (Permanen)</label>
+              <div className="relative">
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-500 cursor-not-allowed"
+                  value={session?.user?.email || ""}
+                  disabled
+                />
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Tentang Saya (Bio)</label>
+              <div className="relative">
+                <TextQuote size={18} className="absolute left-4 top-4 text-slate-400" />
+                <textarea
+                  className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-700 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-all min-h-[100px]"
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  placeholder="Ceritakan sedikit tentang dirimu..."
+                />
+              </div>
+            </div>
+
+            {/* Address */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Alamat Pengiriman</label>
+              <div className="relative">
+                <MapPin size={18} className="absolute left-4 top-4 text-slate-400" />
+                <textarea
+                  className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-700 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-all min-h-[80px]"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Alamat lengkap rumah atau kantor..."
+                />
+              </div>
+            </div>
+
+            {/* Hobbies */}
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Hobi</label>
+              <div className="relative">
+                <Heart size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-700 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-all"
+                  value={formData.hobbies}
+                  onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+                  placeholder="Olahraga, Game, Musik..."
+                />
+              </div>
+            </div>
+
+            {/* Favorite Food */}
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-2">Makanan Favorit</label>
+              <div className="relative">
+                <Utensils size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-slate-700 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-all"
+                  value={formData.favoriteFood}
+                  onChange={(e) => setFormData({ ...formData, favoriteFood: e.target.value })}
+                  placeholder="Nasi Goreng, Rendang, etc..."
+                />
               </div>
             </div>
           </div>
-          
-          <div className="flex-1 text-center sm:text-left">
-            <h3 className="mb-1 text-lg font-bold text-slate-900">Foto Profil</h3>
-            <p className="mb-4 text-sm text-slate-500">Maksimal 2MB. Format: JPG, PNG, GIF.</p>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-            <button 
-              type="button" 
-              onClick={() => fileInputRef.current?.click()}
-              className="btn btn-ghost inline-flex items-center gap-2 px-4 py-1.5 text-sm"
-            >
-              <Upload size={16} /> Unggah Foto
-            </button>
-            {form.avatar && (
-              <button 
-                type="button" 
-                onClick={() => setForm(prev => ({ ...prev, avatar: "" }))}
-                className="ml-2 py-1.5 px-4 text-sm text-red-400 hover:text-red-300 transition-colors"
-              >
-                Hapus
-              </button>
-            )}
-          </div>
-        </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm text-slate-500">Nama Lengkap</label>
-            <input 
-              type="text" 
-              className="input" 
-              value={form.name} 
-              onChange={(e) => setForm({ ...form, name: e.target.value })} 
-              required 
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm text-slate-500">Alamat Email</label>
-            <input 
-              type="email" 
-              className="input" 
-              value={form.email} 
-              onChange={(e) => setForm({ ...form, email: e.target.value })} 
-              required 
-            />
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-gray-100 bg-white/80 p-4">
-          <div className="mb-4 flex items-center gap-2 text-slate-800">
-            <Store size={16} />
-            <h3 className="m-0 text-base font-semibold">Profil Toko</h3>
-          </div>
-          <div className="grid gap-4">
-            <label className="grid gap-1.5">
-              <span className="text-sm text-slate-500">Bio Toko</span>
-              <input
-                className="input"
-                value={form.bio}
-                onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))}
-                placeholder="Contoh: Warung rumahan dengan menu harian segar"
-              />
-            </label>
-            <label className="grid gap-1.5">
-              <span className="text-sm text-slate-500">Deskripsi Lengkap</span>
-              <textarea
-                className="input"
-                rows={4}
-                value={form.description}
-                onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Ceritakan keunggulan warung Anda"
-              />
-            </label>
-            <label className="grid gap-1.5">
-              <span className="text-sm text-slate-500">Alamat Lengkap (untuk peta)</span>
-              <input
-                className="input"
-                value={form.address}
-                onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
-                placeholder="Jl. Contoh No. 123, Jakarta"
-              />
-            </label>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-1.5">
-                <span className="text-sm text-slate-500">Nomor WhatsApp CS</span>
-                <input
-                  className="input"
-                  value={form.whatsappNumber}
-                  onChange={(e) => setForm((prev) => ({ ...prev, whatsappNumber: e.target.value }))}
-                  placeholder="Contoh: 08123456789"
-                />
-              </label>
-              <label className="grid gap-1.5">
-                <span className="text-sm text-slate-500">Jam Operasional</span>
-                <input
-                  className="input"
-                  value={form.operationalHours}
-                  onChange={(e) => setForm((prev) => ({ ...prev, operationalHours: e.target.value }))}
-                  placeholder="Contoh: 08:00 - 22:00"
-                />
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-gray-100 bg-white/80 p-4">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="m-0 text-base font-semibold text-slate-800">Daftar Karyawan</h3>
-            <button type="button" className="btn btn-ghost inline-flex items-center gap-2" onClick={addEmployee}>
-              <Plus size={14} /> Tambah Karyawan
-            </button>
-          </div>
-
-          <div className="grid gap-3">
-            {form.employees.map((employee) => (
-              <div key={employee.id} className="grid gap-2 rounded-xl border border-gray-100 bg-white p-3 md:grid-cols-[1fr_1fr_1fr_auto]">
-                <input
-                  className="input"
-                  placeholder="Nama"
-                  value={employee.name}
-                  onChange={(e) => updateEmployee(employee.id, "name", e.target.value)}
-                />
-                <input
-                  className="input"
-                  placeholder="Posisi"
-                  value={employee.role || ""}
-                  onChange={(e) => updateEmployee(employee.id, "role", e.target.value)}
-                />
-                <input
-                  className="input"
-                  placeholder="No. HP"
-                  value={employee.phone || ""}
-                  onChange={(e) => updateEmployee(employee.id, "phone", e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="btn btn-ghost inline-flex items-center justify-center text-red-500"
-                  onClick={() => removeEmployee(employee.id)}
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-
-        <button 
-          type="submit" 
-          disabled={saving} 
-          className="btn mt-2 flex w-full items-center justify-center gap-2 self-end py-3 font-bold sm:w-auto"
-        >
-          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-          {saving ? "Menyimpan..." : "Simpan Perubahan"}
-        </button>
-      </form>
-    </section>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#FF6B6B] hover:bg-[#ff5252] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B6B]/20 transition-all disabled:opacity-50 mt-4"
+          >
+            {loading ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+            {loading ? "Menyimpan..." : "Simpan Perubahan"}
+          </motion.button>
+        </form>
+      </motion.div>
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Search, ShoppingBag, Info, MapPin, Clock, Users, ArrowRight } from "lucide-react";
+import { Search, ShoppingBag, Info, MapPin, Clock, Users, ArrowRight, User as UserIcon } from "lucide-react";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 import ClientAuthModal from "@/components/ClientAuthModal";
@@ -77,6 +77,30 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-[#FF6B6B]/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl" />
         
+        <div className="absolute top-8 right-8 z-20">
+          <Link 
+            href={status === "authenticated" ? "/profile" : "#"} 
+            onClick={(e) => {
+              if (status !== "authenticated") {
+                e.preventDefault();
+                setShowAuth(true);
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#FF6B6B]/20 transition-all group"
+          >
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#FF6B6B] transition-colors overflow-hidden">
+              {session?.user?.avatar ? (
+                <img src={session.user.avatar} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon size={18} />
+              )}
+            </div>
+            <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
+              {status === "authenticated" ? (session?.user?.name?.split(" ")[0] || "Profil") : "Masuk"}
+            </span>
+          </Link>
+        </div>
+
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
           <motion.div 
             initial={{ scale: 0.9 }}

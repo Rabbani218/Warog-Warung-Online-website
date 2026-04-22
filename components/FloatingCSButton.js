@@ -8,19 +8,30 @@ export default function FloatingCSButton({ whatsappNumber, onRequireAuth }) {
   const { status } = useSession();
 
   function handleClick() {
-    if (status === "unauthenticated") {
-      onRequireAuth();
-      return;
-    }
+    try {
+      if (status === "unauthenticated") {
+        if (typeof onRequireAuth === "function") {
+          onRequireAuth();
+        }
+        return;
+      }
 
-    if (!whatsappNumber) {
-      alert("Nomor WhatsApp Customer Service belum diatur oleh Admin.");
-      return;
-    }
+      if (!whatsappNumber) {
+        alert("Nomor WhatsApp Customer Service belum diatur oleh Admin.");
+        return;
+      }
 
-    const cleanNumber = whatsappNumber.replace(/\D/g, "");
-    const waUrl = `https://wa.me/${cleanNumber.startsWith("0") ? "62" + cleanNumber.slice(1) : cleanNumber}`;
-    window.open(waUrl, "_blank");
+      const cleanNumber = String(whatsappNumber).replace(/\D/g, "");
+      if (!cleanNumber) {
+        alert("Format nomor WhatsApp tidak valid.");
+        return;
+      }
+      
+      const waUrl = `https://wa.me/${cleanNumber.startsWith("0") ? "62" + cleanNumber.slice(1) : cleanNumber}`;
+      window.open(waUrl, "_blank");
+    } catch (err) {
+      console.error("CS Button error:", err);
+    }
   }
 
   return (

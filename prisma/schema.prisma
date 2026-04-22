@@ -26,6 +26,10 @@ model User {
   email         String    @unique
   passwordHash  String
   avatar        String?   @db.Text
+  bio           String?   @db.Text
+  address       String?   @db.Text
+  hobbies       String?   @db.Text
+  favoriteFood  String?   @db.Text
   role          Role      @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
