@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { updateIngredientStock, createIngredient } from "@/app/(admin)/admin/(protected)/dashboard/actions";
 import { toast } from "sonner";
-import { Package, Plus, Minus, Loader2, PlusCircle, X } from "lucide-react";
+import { Package, Plus, Minus, Loader2, PlusCircle, X, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function InlineInventoryManager({ initialItems }) {
