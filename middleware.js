@@ -5,53 +5,30 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
-  // ─── /admin (login page) ───────────────────────────────────────────
-  // If already authenticated as ADMIN → redirect straight to dashboard
-  if (pathname === "/admin") {
-    if (token && token.role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-    }
-    // Not logged in or not admin → show login page
-    return NextResponse.next();
-  }
-
-  // ─── /admin/* (protected admin area) ──────────────────────────────
+  // PROTECTED ADMIN ROUTES: /admin/... (dashboard, products, etc.)
+  // We exclude the root "/admin" (login page) from this check via matcher
   if (pathname.startsWith("/admin/")) {
-    // No session at all → kick to login
-    if (!token) {
-      const loginUrl = new URL("/admin", request.url);
-      loginUrl.searchParams.set("error", "SessionExpired");
-      loginUrl.searchParams.set("message", "Sesi Anda telah berakhir. Silakan login kembali.");
-      return NextResponse.redirect(loginUrl);
+    if (!token || token.role !== "ADMIN") {
+      // Redirect to home or setup instead of /admin to break any potential loops
+      const url = new URL("/", request.url);
+      url.searchParams.set("error", "Unauthorized");
+      return NextResponse.redirect(url);
     }
-
-    // Has session but NOT an admin → kick to home with error
-    if (token.role !== "ADMIN") {
-      const homeUrl = new URL("/", request.url);
-      homeUrl.searchParams.set("error", "Unauthorized");
-      return NextResponse.redirect(homeUrl);
-    }
-
-    // Is ADMIN → allow through (store check happens at page level)
-    return NextResponse.next();
   }
 
-  // ─── /setup (store initialization) ────────────────────────────────
+  // SETUP ROUTES: /setup/...
   if (pathname.startsWith("/setup")) {
     if (!token) {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
-    // If admin already has a store cached in token, redirect to dashboard
     if (token.storeId) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
-    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
-// Only match admin and setup routes — don't intercept API, static, or client routes
 export const config = {
-  matcher: ["/admin", "/admin/:path*", "/setup/:path*"],
+  matcher: ["/admin/:path*", "/setup/:path*"],
 };

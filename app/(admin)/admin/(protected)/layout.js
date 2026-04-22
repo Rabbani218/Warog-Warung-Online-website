@@ -8,7 +8,9 @@ export default async function AdminLayout({ children }) {
 
   // Secure server-side protection
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/admin?error=Unauthorized&message=Akses+ditolak.+Silakan+login+sebagai+admin.");
+    // Redirect to home page instead of /admin to avoid infinite loops
+    // especially if this layout is active for the login page.
+    redirect("/?error=Unauthorized");
   }
 
   return <AdminMotionShell>{children}</AdminMotionShell>;
