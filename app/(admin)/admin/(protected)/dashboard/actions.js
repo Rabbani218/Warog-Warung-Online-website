@@ -20,3 +20,30 @@ export async function updateIngredientStock(ingredientId, newQty) {
     return { success: false, message: error.message };
   }
 }
+
+export async function createIngredient(data) {
+  try {
+    const { name, unit, initialStock } = data;
+    
+    // Get default store (first one)
+    const store = await prisma.store.findFirst();
+    if (!store) throw new Error("Toko tidak ditemukan.");
+
+    const ingredient = await prisma.ingredient.create({
+      data: {
+        name: name.trim(),
+        unit: unit.trim(),
+        stockQty: parseFloat(initialStock) || 0,
+        minimumStock: 10, // Default minimum
+        storeId: store.id
+      }
+    });
+
+    revalidatePath("/admin/dashboard");
+    return { success: true, data: ingredient };
+  } catch (error) {
+    console.error("Create Ingredient Error:", error);
+    return { success: false, message: error.message };
+  }
+}
+

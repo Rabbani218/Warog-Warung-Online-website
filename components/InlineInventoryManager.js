@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateIngredientStock } from "@/app/(admin)/admin/(protected)/dashboard/actions";
+import { updateIngredientStock, createIngredient } from "@/app/(admin)/admin/(protected)/dashboard/actions";
 import { toast } from "sonner";
-import { Package, Plus, Minus, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Package, Plus, Minus, Loader2, PlusCircle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function InlineInventoryManager({ initialItems }) {
   const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState(initialItems);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", unit: "Gram", initialStock: "" });
 
   async function handleUpdate(id, currentQty, delta) {
     const newQty = Math.max(0, parseFloat(currentQty) + delta);
@@ -28,9 +30,28 @@ export default function InlineInventoryManager({ initialItems }) {
     });
   }
 
+  async function handleCreate(e) {
+    e.preventDefault();
+    if (!newItem.name || !newItem.initialStock) return;
+
+    startTransition(async () => {
+      const result = await createIngredient(newItem);
+      if (result.success) {
+        toast.success(`Bahan ${newItem.name} berhasil ditambahkan!`);
+        setIsAdding(false);
+        setNewItem({ name: "", unit: "Gram", initialStock: "" });
+        // Since we use revalidatePath, we don't strictly need to update state manually, 
+        // but for immediate feedback without full refresh:
+        window.location.reload(); 
+      } else {
+        toast.error("Gagal menambah bahan: " + result.message);
+      }
+    });
+  }
+
   return (
     <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-rose-50 text-[#FF6B6B] rounded-2xl flex items-center justify-center">
             <Package size={24} />
@@ -40,7 +61,73 @@ export default function InlineInventoryManager({ initialItems }) {
             <p className="text-sm text-slate-500">Edit stok langsung (gram/unit) tanpa pindah halaman.</p>
           </div>
         </div>
+
+        <button 
+          onClick={() => setIsAdding(!isAdding)}
+          className="flex items-center gap-2 bg-[#FF6B6B] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#ff5252] transition-all shadow-lg shadow-[#FF6B6B]/20 active:scale-95"
+        >
+          {isAdding ? <X size={20} /> : <PlusCircle size={20} />}
+          {isAdding ? "Batal" : "Tambah Bahan"}
+        </button>
       </div>
+
+      <AnimatePresence>
+        {isAdding && (
+          <motion.form 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            onSubmit={handleCreate}
+            className="mb-8 overflow-hidden"
+          >
+            <div className="p-6 bg-rose-50/50 rounded-[2rem] border border-rose-100 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-rose-400 ml-2">Nama Bahan</label>
+                <input 
+                  className="w-full bg-white border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#FF6B6B]/20"
+                  placeholder="Contoh: Terigu"
+                  value={newItem.name}
+                  onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-rose-400 ml-2">Satuan</label>
+                <select 
+                  className="w-full bg-white border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#FF6B6B]/20"
+                  value={newItem.unit}
+                  onChange={(e) => setNewItem({...newItem, unit: e.target.value})}
+                >
+                  <option>Gram</option>
+                  <option>Kilogram</option>
+                  <option>Liter</option>
+                  <option>Unit</option>
+                  <option>Pcs</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-rose-400 ml-2">Stok Awal</label>
+                <input 
+                  type="number"
+                  className="w-full bg-white border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#FF6B6B]/20"
+                  placeholder="0"
+                  value={newItem.initialStock}
+                  onChange={(e) => setNewItem({...newItem, initialStock: e.target.value})}
+                  required
+                />
+              </div>
+              <button 
+                type="submit"
+                disabled={isPending}
+                className="bg-slate-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+              >
+                {isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                Simpan Bahan
+              </button>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {items.map((item) => (

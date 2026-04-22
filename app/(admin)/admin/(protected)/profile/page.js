@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
 import AdminTopNav from "@/components/AdminTopNav";
-import ProfileForm from "@/components/ProfileForm";
+import StoreSettingsForm from "@/components/StoreSettingsForm";
 
 export const dynamic = "force-dynamic";
 
@@ -15,23 +15,15 @@ export default async function ProfilePage() {
     redirect("/admin");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { name: true, email: true, avatar: true }
-  });
-
   const store = await getDefaultStore();
   const storeProfile = store
     ? await prisma.store.findUnique({
         where: { id: store.id },
         select: {
+          name: true,
           bio: true,
-          description: true,
           address: true,
-          employees: {
-            select: { id: true, name: true, role: true, phone: true },
-            orderBy: { createdAt: "asc" }
-          }
+          whatsappNumber: true,
         }
       })
     : null;
@@ -41,23 +33,17 @@ export default async function ProfilePage() {
       <div className="w-full max-w-7xl mx-auto">
         <header style={{ marginBottom: "2rem" }}>
           <div style={{ marginBottom: "1rem" }}>
-            <span className="badge">User Settings</span>
+            <span className="badge">Business Settings</span>
             <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
-              Profil Pengguna
+              Pengaturan Toko
             </h1>
           </div>
           <AdminTopNav currentPath="/admin/profile" />
         </header>
 
         <div style={{ maxWidth: "880px", margin: "0 auto" }}>
-          <ProfileForm
-            initialData={{
-              ...user,
-              bio: storeProfile?.bio || "",
-              description: storeProfile?.description || "",
-              address: storeProfile?.address || "",
-              employees: storeProfile?.employees || []
-            }}
+          <StoreSettingsForm
+            initialData={storeProfile}
           />
         </div>
       </div>

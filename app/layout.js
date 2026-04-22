@@ -47,14 +47,16 @@ import Footer from "@/components/Footer";
 export default function RootLayout({ children }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="print:bg-white">
         <Providers>
-          <Toaster position="top-center" richColors />
-          <PwaBootstrap />
-          <main className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
-            {children}
-          </main>
-          <Footer />
+          <div className="print:hidden">
+            <Toaster position="top-center" richColors />
+            <PwaBootstrap />
+            <main className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>
