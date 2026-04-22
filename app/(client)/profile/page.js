@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ClientProfileForm from "@/components/ProfileForm";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";

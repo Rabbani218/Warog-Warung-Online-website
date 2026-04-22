@@ -1,8 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import AdminMotionShell from "@/components/AdminMotionShell";
 
 function AdminLoadingSkeleton() {
@@ -41,32 +39,15 @@ function AdminLoadingSkeleton() {
 
 export default function AdminLayout({ children }) {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  useEffect(() => {
-    // Still loading → do nothing
-    if (status === "loading") return;
-
-    // No session → redirect to login
-    if (status === "unauthenticated" || !session) {
-      router.replace("/admin?error=SessionExpired&message=Sesi+Anda+telah+berakhir");
-      return;
-    }
-
-    // Session exists but not ADMIN → redirect to home
-    if (session.user?.role !== "ADMIN") {
-      router.replace("/?error=Unauthorized");
-      return;
-    }
-
-    // Authorized!
-    setIsAuthorized(true);
-  }, [session, status, router]);
-
-  // Show loading skeleton while session is being resolved
-  if (status === "loading" || !isAuthorized) {
+  if (status === "loading") {
     return <AdminLoadingSkeleton />;
+  }
+
+  // If session is missing or user is not ADMIN, middleware should have handled it.
+  // But we add a safety check here to avoid rendering admin UI for non-admins.
+  if (!session || session.user?.role !== "ADMIN") {
+    return null;
   }
 
   return <AdminMotionShell>{children}</AdminMotionShell>;
