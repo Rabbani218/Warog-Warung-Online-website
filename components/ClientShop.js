@@ -1,4 +1,5 @@
 "use client";
+// Antigravity Fixed: Added session handling and profile button
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
