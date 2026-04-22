@@ -35,12 +35,24 @@ function ChartCard({ title, children }) {
   );
 }
 
+import { useState, useEffect } from "react";
+
 export default function AdminAnalyticsCharts({
   revenueTrend,
   topMenus,
   orderStatus,
   peakHours
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-full h-[500px] bg-slate-50 animate-pulse rounded-[2rem]" />;
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start justify-center">
       <ChartCard title="Tren Pendapatan 7 Hari Terakhir">

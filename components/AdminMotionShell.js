@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function AdminMotionShell({ children }) {
-  const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -58,18 +56,11 @@ export default function AdminMotionShell({ children }) {
 
       {/* Content Container */}
       <div className="relative z-10 w-full min-h-screen">
-        <AnimatePresence mode="wait">
-          <motion.main
-            key={pathname}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 md:pb-12 max-w-[1440px]"
-          >
-            {children}
-          </motion.main>
-        </AnimatePresence>
+        <main
+          className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 pb-24 md:pb-12 max-w-[1440px]"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
