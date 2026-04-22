@@ -8,6 +8,7 @@ import ExcelUploader from "@/components/ExcelUploader";
 import QrDownloadCard from "@/components/QrDownloadCard";
 import AdminTopNav from "@/components/AdminTopNav";
 import nextDynamic from "next/dynamic";
+import InlineInventoryManager from "@/components/InlineInventoryManager";
 
 const AdminAnalyticsCharts = nextDynamic(() => import("@/components/AdminAnalyticsCharts"), { 
   ssr: false,
@@ -225,10 +226,9 @@ export default async function AdminDashboardPage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {topMenuSales.map((item) => (
-              <motion.div 
+              <div 
                 key={item.menuId} 
-                whileHover={{ scale: 1.05 }}
-                className="flex flex-col p-5 bg-white/50 rounded-3xl border border-slate-100 shadow-sm hover:border-amber-200 transition-all"
+                className="flex flex-col p-5 bg-white/50 rounded-3xl border border-slate-100 shadow-sm hover:border-amber-200 transition-all duration-300 hover:scale-105"
               >
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Top Dish</span>
                 <span className="font-bold text-slate-800 mb-2 truncate">{menuNameMap[item.menuId]}</span>
@@ -236,7 +236,7 @@ export default async function AdminDashboardPage() {
                   <span className="text-xs font-bold text-emerald-500">{Number(item._sum.quantity || 0)} Porsi</span>
                   <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
