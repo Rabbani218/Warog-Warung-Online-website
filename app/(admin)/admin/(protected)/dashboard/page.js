@@ -196,11 +196,82 @@ export default async function AdminDashboardPage() {
         <QrDownloadCard />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      {/* ── NEW VERTICAL FLUID LAYOUT (STACK) ── */}
+      <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto">
         
-        {/* Recent Orders Table */}
-        <section className="xl:col-span-8 bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+        {/* 1. Inventory Management (Full Width) */}
+        <InlineInventoryManager initialItems={inventoryForecast} />
+
+        {/* 2. Live Top Products (Full Width & Horizontal Grid) */}
+        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Star size={24} className="text-amber-500" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Live: Menu Terlaris Saat Ini</h3>
+                <p className="text-sm text-slate-500">Berdasarkan data penjualan bulan ini.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {topMenuSales.map((item) => (
+              <motion.div 
+                key={item.menuId} 
+                whileHover={{ scale: 1.05 }}
+                className="flex flex-col p-5 bg-white/50 rounded-3xl border border-slate-100 shadow-sm hover:border-amber-200 transition-all"
+              >
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Top Dish</span>
+                <span className="font-bold text-slate-800 mb-2 truncate">{menuNameMap[item.menuId]}</span>
+                <div className="flex justify-between items-end mt-auto">
+                  <span className="text-xs font-bold text-emerald-500">{Number(item._sum.quantity || 0)} Porsi</span>
+                  <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* 3. KDS Snapshot (Moved up for better visibility) */}
+        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <ChefHat size={24} className="text-indigo-600" />
+              <h3 className="text-xl font-bold text-slate-900">Antrean Dapur (KDS)</h3>
+            </div>
+            <a href="/admin/kds" className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">
+              Kelola KDS <ChevronRight size={16} />
+            </a>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {kotQueue.map((ticket) => (
+              <article key={ticket.id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-4">
+                <div className="flex justify-between items-start">
+                  <strong className="text-lg font-black">{ticket.order.orderCode}</strong>
+                  <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                    {ticket.status}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-500 font-medium">Meja: {ticket.order.tableNumber || "-"}</p>
+                <div className="pt-2 border-t border-slate-50 flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                  <Clock size={12} />
+                  {new Date(ticket.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </article>
+            ))}
+            {kotQueue.length === 0 && (
+              <div className="col-span-full py-12 text-center text-slate-400 font-medium">
+                Tidak ada antrean aktif saat ini.
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 4. Recent Orders Table (At the bottom, full width) */}
+        <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-rose-50 text-[#FF6B6B] rounded-xl flex items-center justify-center">
@@ -214,17 +285,17 @@ export default async function AdminDashboardPage() {
             <table className="w-full">
               <thead>
                 <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
-                  <th className="text-left py-4">Kode</th>
+                  <th className="text-left py-4 px-2">Kode Order</th>
                   <th className="text-left py-4">Status</th>
                   <th className="text-left py-4">Meja</th>
-                  <th className="text-right py-4">Total</th>
-                  <th className="text-right py-4">Aksi</th>
+                  <th className="text-right py-4">Total Pembayaran</th>
+                  <th className="text-right py-4 pr-2">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 font-bold text-sm">{order.orderCode}</td>
+                    <td className="py-4 px-2 font-bold text-sm">{order.orderCode}</td>
                     <td className="py-4">
                       <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${
                         order.status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
@@ -234,7 +305,7 @@ export default async function AdminDashboardPage() {
                     </td>
                     <td className="py-4 text-slate-500 font-medium text-sm">{order.tableNumber || "-"}</td>
                     <td className="py-4 text-right font-black text-sm">Rp {Number(order.grandTotal).toLocaleString("id-ID")}</td>
-                    <td className="py-4 text-right">
+                    <td className="py-4 text-right pr-2">
                       <PrintReceiptWrapper order={order} storeName={store.name} />
                     </td>
                   </tr>
@@ -244,93 +315,7 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* Right Sidebar Components */}
-        <div className="xl:col-span-4 space-y-8">
-          {/* Inventory Snapshot */}
-          <section className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 rounded-full blur-3xl" />
-            <div className="flex items-center gap-3 mb-6">
-              <Package size={20} className="text-[#FF6B6B]" />
-              <h3 className="text-lg font-bold">Stok Bahan Baku</h3>
-            </div>
-            <div className="space-y-4">
-              {inventoryForecast.slice(0, 4).map((item) => (
-                <div key={item.ingredientId} className="p-4 bg-white/5 border border-white/10 rounded-2xl">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-sm">{item.ingredientName}</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                      item.alertLevel === 'CRITICAL' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
-                    }`}>{item.alertLevel}</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full transition-all duration-1000 ${item.alertLevel === 'CRITICAL' ? 'bg-red-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${Math.min(100, (item.currentStock / (item.burnRatePerDay * 7)) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Top Products */}
-          <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-            <div className="flex items-center gap-3 mb-6">
-              <Star size={20} className="text-amber-500" />
-              <h3 className="text-lg font-bold text-slate-900">Terlaris</h3>
-            </div>
-            <div className="space-y-4">
-              {topMenuSales.map((item) => (
-                <div key={item.menuId} className="flex items-center justify-between p-3 bg-white/50 rounded-2xl border border-slate-100">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm text-slate-800">{menuNameMap[item.menuId]}</span>
-                    <span className="text-xs text-slate-400">{Number(item._sum.quantity || 0)} porsi</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-[#FF6B6B]">Rp {Number(item._sum.lineTotal || 0).toLocaleString("id-ID")}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
       </div>
-
-      {/* KDS Snapshot */}
-      <section className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <ChefHat size={24} className="text-indigo-600" />
-            <h3 className="text-xl font-bold text-slate-900">Antrean Dapur (KDS)</h3>
-          </div>
-          <a href="/admin/kds" className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">
-            Kelola KDS <ChevronRight size={16} />
-          </a>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {kotQueue.map((ticket) => (
-            <article key={ticket.id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-4">
-              <div className="flex justify-between items-start">
-                <strong className="text-lg font-black">{ticket.order.orderCode}</strong>
-                <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
-                  {ticket.status}
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 font-medium">Meja: {ticket.order.tableNumber || "-"}</p>
-              <div className="pt-2 border-t border-slate-50 flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                <Clock size={12} />
-                {new Date(ticket.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-              </div>
-            </article>
-          ))}
-          {kotQueue.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-400 font-medium">
-              Tidak ada antrean aktif.
-            </div>
-          )}
-        </div>
-      </section>
     </div>
   );
 }

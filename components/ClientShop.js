@@ -10,7 +10,6 @@ import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 import ClientAuthModal from "@/components/ClientAuthModal";
 import ReviewSection from "@/components/ReviewSection";
-import FloatingCSButton from "@/components/FloatingCSButton";
 import SafeImage from "@/components/SafeImage";
 
 export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees, reviews = [] }) {
@@ -323,8 +322,6 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
       </div>
 
       <ReviewSection reviews={reviews} />
-      
-      <FloatingCSButton whatsappNumber={store.whatsappNumber} onRequireAuth={() => setShowAuth(true)} />
       <ClientAuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
     </main>
   );

@@ -45,7 +45,7 @@ export async function POST(request) {
     const name = String(body?.name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();
     const password = String(body?.password || "").trim();
-    const role = body?.role === "ADMIN" ? "ADMIN" : "USER";
+    const role = body?.role === "ADMIN" ? "ADMIN" : "CLIENT";
 
     if (!name || !email || !password) {
       return Response.json({ error: "Nama, email, dan password wajib diisi." }, { status: 400 });
@@ -73,7 +73,8 @@ export async function POST(request) {
           name,
           email,
           passwordHash,
-          role
+          // If it's ADMIN, pass it explicitly. Otherwise, the default in schema is CLIENT.
+          ...(role === "ADMIN" ? { role: "ADMIN" } : {})
         }
       });
 
