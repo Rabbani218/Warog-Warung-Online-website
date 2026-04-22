@@ -48,9 +48,13 @@ export default function SafeImage({ src, alt, type = "menu", className = "", ...
               src={src}
               alt={alt || "Image"}
               {...props}
+              unoptimized
               onLoad={() => setIsLoaded(true)}
-              onError={() => setHasError(true)}
-              className={`object-cover w-full h-full ${props.className || ""}`}
+              onError={() => {
+                console.error("SafeImage failed to load:", src);
+                setHasError(true);
+              }}
+              className={`object-cover w-full h-full transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${props.className || ""}`}
             />
           </motion.div>
         )}

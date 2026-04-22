@@ -45,29 +45,29 @@ export default function ClientAuthModal({ isOpen, onClose }) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="glass-card overflow-hidden rounded-[2.5rem] relative bg-white/95 shadow-2xl border-white/40">
+            <div className="glass-card overflow-hidden rounded-[2.5rem] relative bg-white/95 shadow-2xl border-white/40 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto pointer-events-auto custom-scrollbar">
               <button 
                 onClick={() => onClose()}
-                className="absolute right-4 top-4 text-gray-400 hover:text-slate-900 transition-colors z-10"
+                className="absolute right-6 top-6 text-gray-400 hover:text-slate-900 transition-colors z-10 p-2 hover:bg-slate-100 rounded-full"
               >
                 <X size={20} />
               </button>
               
-              <div className="p-6 md:p-8">
-                <div className="text-center mb-10">
+              <div className="p-6 md:p-10">
+                <div className="text-center mb-8">
                   <div className="w-16 h-16 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
                     <Lock className="text-[#FF6B6B]" size={32} />
                   </div>
                   <h2 className="text-3xl font-black text-slate-900 mb-2">Masuk ke Akun</h2>
-                  <p className="text-slate-500 text-sm px-6">Gunakan akun Anda untuk melanjutkan pesanan atau memberikan ulasan.</p>
+                  <p className="text-slate-500 text-sm px-4">Gunakan akun Anda untuk melanjutkan pesanan atau memberikan ulasan.</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => signIn("google")}
-                  className="w-full bg-white text-slate-700 border border-slate-200 hover:border-rose-200 hover:bg-rose-50/30 font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md"
+                  className="w-full bg-white text-slate-700 border border-slate-200 hover:border-rose-200 hover:bg-rose-50/30 font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -80,7 +80,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
 
                 <div className="relative flex items-center justify-center my-8">
                   <div className="border-t border-slate-100 w-full"></div>
-                  <span className="bg-[#fffdfa] px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 absolute">atau</span>
+                  <span className="bg-[#fffdfd] px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 absolute">atau</span>
                 </div>
 
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -90,7 +90,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
                       type="email"
                       required
                       placeholder="Email anda"
-                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all"
+                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all rounded-2xl"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -102,21 +102,21 @@ export default function ClientAuthModal({ isOpen, onClose }) {
                       type="password"
                       required
                       placeholder="Password"
-                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all"
+                      className="input pl-12 bg-slate-50/50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white transition-all rounded-2xl"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
 
-                  {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+                  {error && <p className="text-red-500 text-sm font-medium animate-shake">{error}</p>}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn w-full flex items-center justify-center gap-2 mt-2"
+                    className="btn w-full flex items-center justify-center gap-2 mt-2 py-4 rounded-2xl"
                   >
                     {loading ? <Loader2 size={18} className="animate-spin" /> : null}
-                    {loading ? "Memproses..." : "Masuk"}
+                    {loading ? "Memproses..." : "Masuk ke Akun"}
                   </button>
                 </form>
               </div>
