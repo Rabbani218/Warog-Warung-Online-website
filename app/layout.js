@@ -29,12 +29,15 @@ export const metadata = {
   applicationName: "Wareb Platform",
   appleWebApp: {
     capable: true,
+    statusBarStyle: "default",
     title: "Wareb Platform",
-    statusBarStyle: "default"
   },
   formatDetection: {
-    telephone: false
-  }
+    telephone: false,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 import Providers from "@/components/Providers";

@@ -27,8 +27,8 @@ function ChartCard({ title, children }) {
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.35 }}
     >
-      <h3 className="text-lg font-bold mb-6 w-full text-center">{title}</h3>
-      <div className="w-full h-[300px] md:h-[500px]">
+      <h3 className="text-lg font-bold mb-6 w-full text-center text-slate-800">{title}</h3>
+      <div className="w-full h-[300px] md:h-[500px] min-h-[300px] min-w-0 relative overflow-hidden">
         {children}
       </div>
     </motion.section>
