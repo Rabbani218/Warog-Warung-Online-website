@@ -45,24 +45,24 @@ export async function POST(request) {
     const name = String(body?.name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();
     const password = String(body?.password || "").trim();
-    const role = body?.role === "CLIENT" ? "CLIENT" : "ADMIN";
+    const role = body?.role === "ADMIN" ? "ADMIN" : "USER";
 
     if (!name || !email || !password) {
-      return Response.json({ message: "Name, email, dan password wajib diisi." }, { status: 400 });
+      return Response.json({ error: "Nama, email, dan password wajib diisi." }, { status: 400 });
     }
 
     if (!isValidEmail(email)) {
-      return Response.json({ message: "Format email tidak valid." }, { status: 400 });
+      return Response.json({ error: "Format email tidak valid." }, { status: 400 });
     }
 
     if (password.length < 8) {
-      return Response.json({ message: "Password minimal 8 karakter." }, { status: 400 });
+      return Response.json({ error: "Password minimal 8 karakter." }, { status: 400 });
     }
 
     const existing = await prisma.user.findUnique({ where: { email } });
 
     if (existing) {
-      return Response.json({ message: "Email sudah terdaftar." }, { status: 409 });
+      return Response.json({ error: "Email sudah terdaftar." }, { status: 409 });
     }
 
     const passwordHash = await hash(password, 10);
