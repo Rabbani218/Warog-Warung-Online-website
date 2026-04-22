@@ -24,7 +24,8 @@ model User {
   id            String    @id @default(cuid())
   name          String
   email         String    @unique
-  passwordHash  String
+  emailVerified DateTime?
+  passwordHash  String?
   avatar        String?   @db.Text
   bio           String?   @db.Text
   address       String?   @db.Text
@@ -237,6 +238,10 @@ model SalesHistory {
   @@index([menuName, soldAt])
 }
 
+// ─── NextAuth.js Required Models ─────────────────────────────────────
+// These models MUST match the @auth/prisma-adapter specification exactly.
+// Reference: https://authjs.dev/getting-started/adapters/prisma
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -254,6 +259,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -263,6 +269,8 @@ model Session {
   expires       DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
