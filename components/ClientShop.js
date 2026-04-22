@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import PromoCarousel from "@/components/PromoCarousel";
 import FloatingCart from "@/components/FloatingCart";
 import ClientAuthModal from "@/components/ClientAuthModal";
@@ -10,6 +11,7 @@ import ReviewSection from "@/components/ReviewSection";
 import FloatingCSButton from "@/components/FloatingCSButton";
 
 import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 
 export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees, reviews = [] }) {
   const [cart, setCart] = useState([]);
@@ -112,12 +114,23 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 260, damping: 24 }}
               >
-                <Image src={menu.imageUrl || "https://placehold.co/600x400/f8fafc/334155.png?text=Wareb+Menu"} alt={menu.name} className="menu-image" width={600} height={400} />
+                <Link href={`/product/${menu.slug}`} className="block overflow-hidden">
+                  <SafeImage 
+                    src={menu.imageUrl} 
+                    alt={menu.name} 
+                    className="menu-image transition-transform hover:scale-105 duration-500" 
+                    width={600} 
+                    height={400} 
+                    type="menu"
+                  />
+                </Link>
                 <div style={{ padding: "0.9rem" }}>
-                  <h3 style={{ margin: 0 }}>{menu.name}</h3>
-                  <p className="muted" style={{ minHeight: 40 }}>{menu.description || "Menu warteg modern pilihan."}</p>
+                  <Link href={`/product/${menu.slug}`}>
+                    <h3 style={{ margin: 0 }} className="hover:text-[#FF6B6B] transition-colors">{menu.name}</h3>
+                  </Link>
+                  <p className="muted" style={{ minHeight: 40, fontSize: '0.85rem' }}>{menu.description || "Menu warteg modern pilihan."}</p>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
-                    <strong>Rp {Number(menu.price).toLocaleString("id-ID")}</strong>
+                    <strong className="text-[#FF6B6B]">Rp {Number(menu.price).toLocaleString("id-ID")}</strong>
                     <motion.button
                       className="btn"
                       whileTap={{ scale: 0.96 }}
@@ -127,7 +140,6 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
                       {addedItem === menu.id ? "Ditambahkan" : "Tambah"}
                     </motion.button>
                   </div>
-                  <ReviewSection menu={menu} reviews={reviews} onRequireAuth={() => setShowAuth(true)} />
                 </div>
               </motion.article>
             ))}

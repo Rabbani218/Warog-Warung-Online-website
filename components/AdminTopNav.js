@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { BarChart3, Boxes, ChefHat, CreditCard, UserRound } from "lucide-react";
+import { BarChart3, Boxes, ChefHat, CreditCard, UserRound, MessageSquare } from "lucide-react";
 
 const links = [
   { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/products", label: "Products & Ads", icon: Boxes },
+  { href: "/admin/qna", label: "Inbox QnA", icon: MessageSquare },
   { href: "/admin/settings", label: "Settings", icon: CreditCard },
   { href: "/admin/kds", label: "KDS", icon: ChefHat },
   { href: "/admin/profile", label: "Profile", icon: UserRound }
