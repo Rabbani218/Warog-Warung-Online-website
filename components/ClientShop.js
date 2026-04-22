@@ -57,19 +57,19 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
 
   return (
     <main className="container" style={{ padding: "1.1rem 0 2rem" }}>
-      <header className="panel hero-shell" style={{ padding: "1.2rem", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-          <span className="badge">Warteg Digital Experience</span>
+      <header className="panel hero-shell flex flex-col items-center text-center max-w-3xl mx-auto" style={{ padding: "1.2rem", marginBottom: "1rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", width: "100%" }}>
+          <span className="badge">{store.name || "Warteg Digital Experience"}</span>
           <a className="btn btn-secondary" href="/admin" style={{ whiteSpace: "nowrap" }}>Admin Login</a>
         </div>
-        <h1 style={{ margin: "0.6rem 0 0.3rem", fontSize: "clamp(1.7rem, 3vw, 2.5rem)" }}>{store.heroTitle || store.name}</h1>
+        <h1 style={{ margin: "0.6rem 0 0.3rem", fontSize: "clamp(1.7rem, 3vw, 2.5rem)" }}>{store.name || "Warteg Digital Experience"}</h1>
         <p className="muted" style={{ margin: 0, maxWidth: 650 }}>
-          {store.heroSubtitle || store.description || "Belanja menu favoritmu dengan checkout instan."}
+          {store.bio || store.description || "Belanja menu favoritmu dengan checkout instan."}
         </p>
         {store.operationalHours && (
           <p className="text-sm font-semibold text-emerald-600 mt-2">🕒 Jam Operasional: {store.operationalHours}</p>
         )}
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.8rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.8rem", flexWrap: "wrap", justifyContent: "center" }}>
           {tableNumber ? <p style={{ margin: 0, color: "#334155" }}>Meja aktif: <strong>{tableNumber}</strong></p> : <p style={{ margin: 0 }} className="muted">Pesan untuk makan di tempat atau takeaway.</p>}
           <span className="badge">{menus.length} Menu Siap Dipesan</span>
         </div>

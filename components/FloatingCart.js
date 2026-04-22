@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { enqueueCheckout, flushCheckoutQueue, getQueueItems } from "@/lib/offline-queue";
+import ReceiptTicket from "@/components/ReceiptTicket";
 
 export default function FloatingCart({ cart, setCart, paymentSettings }) {
   const [tableNumber, setTableNumber] = useState("");
@@ -170,7 +171,14 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
         <div style={{ marginTop: "0.8rem", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "0.7rem" }}>
           <strong>Invoice {invoice.invoiceNumber}</strong>
           <p style={{ margin: "0.35rem 0" }}>Order: {invoice.orderCode}</p>
-          <p style={{ margin: 0 }}>Grand Total: Rp {Number(invoice.grandTotal).toLocaleString("id-ID")}</p>
+          <p style={{ margin: "0 0 0.5rem" }}>Grand Total: Rp {Number(invoice.grandTotal).toLocaleString("id-ID")}</p>
+          <button 
+            className="btn btn-secondary w-full" 
+            onClick={() => window.print()}
+          >
+            🖨️ Cetak Struk Thermal
+          </button>
+          <ReceiptTicket order={invoice} storeName="WAREB PLATFORM" />
         </div>
       )}
     </aside>

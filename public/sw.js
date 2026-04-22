@@ -1,5 +1,5 @@
 const CACHE_NAME = "wareb-cache-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest"];
+const APP_SHELL = ["/", "/manifest.json"];
 const DB_NAME = "wareb-offline-db";
 const STORE_NAME = "checkoutQueue";
 

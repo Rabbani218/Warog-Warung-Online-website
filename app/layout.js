@@ -22,7 +22,7 @@ export const metadata = {
     template: "%s | Wareb Platform"
   },
   description: "Wareb multi-portal ecommerce POS",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico"
   },
@@ -39,6 +39,7 @@ export const metadata = {
 
 import Providers from "@/components/Providers";
 import { Toaster } from "sonner";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({ children }) {
   return (
@@ -47,9 +48,10 @@ export default function RootLayout({ children }) {
         <Providers>
           <Toaster position="top-center" richColors />
           <PwaBootstrap />
-          <main className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <main className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
             {children}
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>

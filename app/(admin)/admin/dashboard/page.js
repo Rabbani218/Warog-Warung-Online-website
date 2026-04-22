@@ -8,6 +8,7 @@ import ExcelUploader from "@/components/ExcelUploader";
 import QrDownloadCard from "@/components/QrDownloadCard";
 import AdminTopNav from "@/components/AdminTopNav";
 import AdminAnalyticsCharts from "@/components/AdminAnalyticsCharts";
+import PrintReceiptWrapper from "@/components/PrintReceiptWrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -90,13 +91,10 @@ export default async function AdminDashboardPage() {
     }),
     prisma.order.findMany({
       where: { storeId: store.id },
-      select: {
-        id: true,
-        orderCode: true,
-        status: true,
-        tableNumber: true,
-        grandTotal: true,
-        createdAt: true
+      include: {
+        details: {
+          include: { menu: { select: { name: true } } }
+        }
       },
       orderBy: { createdAt: "desc" },
       take: 10
@@ -352,6 +350,7 @@ export default async function AdminDashboardPage() {
                     <th align="left">Meja</th>
                     <th align="right">Total</th>
                     <th align="left">Waktu</th>
+                    <th align="right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -364,6 +363,9 @@ export default async function AdminDashboardPage() {
                       <td>{order.tableNumber || "-"}</td>
                       <td align="right">Rp {Number(order.grandTotal).toLocaleString("id-ID")}</td>
                       <td>{new Date(order.createdAt).toLocaleString("id-ID")}</td>
+                      <td align="right">
+                        <PrintReceiptWrapper order={order} storeName={store.name} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>

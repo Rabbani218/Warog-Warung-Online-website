@@ -394,3 +394,26 @@ td {
     font-size: 0.9rem;
   }
 }
+
+/* Print Styles for Thermal Receipt */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-ticket, .receipt-ticket * {
+    visibility: visible;
+  }
+  .receipt-ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+  header, nav, footer, .btn, .panel, .container, .sidebar, aside {
+    display: none !important;
+  }
+}
