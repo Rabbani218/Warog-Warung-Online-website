@@ -78,27 +78,34 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-emerald-50 rounded-full blur-3xl" />
         
         <div className="absolute top-8 right-8 z-20">
-          <Link 
-            href={status === "authenticated" ? "/profile" : "#"} 
-            onClick={(e) => {
-              if (status !== "authenticated") {
-                e.preventDefault();
-                setShowAuth(true);
-              }
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#FF6B6B]/20 transition-all group"
-          >
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#FF6B6B] transition-colors overflow-hidden">
-              {session?.user?.avatar ? (
-                <img src={session?.user?.avatar} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <UserIcon size={18} />
-              )}
+          {status === "loading" ? (
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-100 rounded-2xl animate-pulse shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-slate-100" />
+              <div className="w-16 h-3 bg-slate-100 rounded-full" />
             </div>
-            <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
-              {status === "authenticated" ? (session?.user?.name?.split(" ")[0] || "Profil") : "Masuk"}
-            </span>
-          </Link>
+          ) : (
+            <Link 
+              href={status === "authenticated" ? "/profile" : "#"} 
+              onClick={(e) => {
+                if (status !== "authenticated") {
+                  e.preventDefault();
+                  setShowAuth(true);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#FF6B6B]/20 transition-all group"
+            >
+              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#FF6B6B] transition-colors overflow-hidden">
+                {session?.user?.avatar ? (
+                  <img src={session?.user?.avatar} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <UserIcon size={18} />
+                )}
+              </div>
+              <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
+                {status === "authenticated" ? (session?.user?.name?.split(" ")[0] || "Profil") : "Masuk"}
+              </span>
+            </Link>
+          )}
         </div>
 
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">

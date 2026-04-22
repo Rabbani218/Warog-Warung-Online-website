@@ -1,341 +1,242 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { X, Mail, Lock, Loader2, User, UserPlus } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  X, Mail, Lock, LogIn, UserPlus, 
+  ArrowRight, ShieldCheck, User, 
+  Heart, Sparkles, CheckCircle2
+} from "lucide-react";
 import { toast } from "sonner";
 
-/**
- * ClientAuthModal - A modern, glassmorphic login/register portal.
- * Theme: Soft Crimson & Slate
- */
 export default function ClientAuthModal({ isOpen, onClose }) {
   const [mode, setMode] = useState("login"); // "login" | "register"
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
 
-  function resetForm() {
-    setName("");
-    setEmail("");
-    setPassword("");
-    setError("");
-  }
-
-  // ── Register then auto-login ──────────────────────────────────────
-  async function handleRegister(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
-      // 1. Create account via API
-      const registerRes = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name?.trim(),
-          email: email?.trim().toLowerCase(),
-          password,
-          role: "USER", // Default role as per requirements
-        }),
-      });
+      if (mode === "login") {
+        const res = await signIn("credentials", {
+          email: form.email.trim().toLowerCase(),
+          password: form.password,
+          redirect: false,
+        });
 
-      const data = await registerRes.json().catch(() => ({}));
+        if (res?.error) {
+          toast.error(res.error || "Email atau Password salah!");
+        } else {
+          toast.success("Selamat Datang Kembali!");
+          setTimeout(() => {
+            onClose();
+            window.location.reload();
+          }, 500);
+        }
 
-      if (!registerRes.ok) {
-        throw new Error(data?.error || data?.message || "Registrasi gagal.");
+      } else {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            name: form.name.trim(),
+            email: form.email.trim().toLowerCase(),
+            password: form.password,
+            role: "USER" 
+          }),
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+          toast.success("Akun berhasil dibuat! Silakan masuk.");
+          setMode("login");
+        } else {
+          toast.error(data.message || "Gagal mendaftar.");
+        }
       }
-
-      toast.success("Akun berhasil dibuat! Sedang masuk…", {
-        style: { background: "#fff5f5", color: "#e53e3e", border: "1px solid #feb2b2" }
-      });
-
-      // 2. Auto-login after registration
-      const res = await signIn("credentials", {
-        redirect: false,
-        email: email?.trim().toLowerCase(),
-        password,
-      });
-
-      if (res?.error) {
-        throw new Error(res.error);
-      }
-
-      toast.success("Selamat datang di Wareb!");
-      onClose(true);
     } catch (err) {
-      const message = err?.message || "Terjadi kesalahan saat registrasi.";
-      setError(message);
-      toast.error(message);
+      toast.error("Terjadi kesalahan sistem.");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  // ── Credentials Login ─────────────────────────────────────────────
-  async function handleLogin(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email: email?.trim().toLowerCase(),
-        password,
-      });
-
-      if (!res) {
-        setError("Tidak ada respons dari server. Coba lagi.");
-        return;
-      }
-
-      if (res.error) {
-        setError(res.error);
-        toast.error(res.error);
-        return;
-      }
-
-      toast.success("Login berhasil! Senang melihat Anda kembali.");
-      onClose(true);
-    } catch (err) {
-      const message = err?.message || "Terjadi kesalahan saat login.";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // ── Google OAuth ──────────────────────────────────────────────────
-  async function handleGoogleLogin() {
-    setLoading(true);
-    setError("");
-
-    try {
-      // Direct call to GoogleProvider without manual overrides to avoid mismatch
-      await signIn("google", {
-        callbackUrl: window.location.href,
-      });
-    } catch (err) {
-      console.error("[ClientAuth] Google login error:", err);
-      toast.error("Login Google gagal. Pastikan Authorized Redirect URI di Google Cloud Console sudah benar.");
-      setLoading(false);
-    }
-  }
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => onClose()}
-            className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md"
-          />
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        {/* Backdrop - High quality blur */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-xl"
+        />
 
-          {/* Modal Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40 }}
-            className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
-          >
-            <div className="glass-card overflow-hidden rounded-[3rem] relative bg-white/90 shadow-[0_32px_64px_-16px_rgba(229,62,62,0.15)] border border-white/60 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto pointer-events-auto custom-scrollbar">
-              
-              {/* Close Button */}
-              <button
-                onClick={() => onClose()}
-                className="absolute right-8 top-8 text-slate-400 hover:text-rose-500 transition-all z-10 p-2 hover:bg-rose-50 rounded-full active:scale-90"
-              >
-                <X size={22} />
-              </button>
+        {/* Modal Container - Responsive & Elegant */}
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 30 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 30 }}
+          className="relative w-full max-w-4xl bg-white/95 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col md:flex-row min-h-[500px]"
+        >
+          {/* Left Side: Branding & Illustration */}
+          <div className="w-full md:w-5/12 bg-gradient-to-br from-[#FF6B6B] to-[#ff8e8e] p-10 text-white flex flex-col justify-between relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+            
+            <div className="relative z-10">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-lg">
+                <Heart size={28} className="fill-white" />
+              </div>
+              <h2 className="text-3xl font-black tracking-tight leading-tight mb-4">
+                Warung Digital <br /> Penuh Cinta.
+              </h2>
+              <p className="text-rose-50/80 text-sm leading-relaxed">
+                Masuk untuk memesan menu favoritmu dan kumpulkan poin setiap transaksi.
+              </p>
+            </div>
 
-              <div className="p-8 md:p-12">
-                {/* Header Section */}
-                <div className="text-center mb-8">
-                  <motion.div 
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="w-20 h-20 bg-gradient-to-br from-rose-50 to-rose-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner"
-                  >
-                    {mode === "login" ? (
-                      <Lock className="text-[#FF6B6B]" size={36} />
-                    ) : (
-                      <UserPlus className="text-[#FF6B6B]" size={36} />
-                    )}
-                  </motion.div>
-                  <h2 className="text-3xl font-[900] text-slate-900 mb-2 tracking-tight">
-                    {mode === "login" ? "Masuk ke Akun" : "Bergabung Sekarang"}
-                  </h2>
-                  <p className="text-slate-500 text-sm leading-relaxed px-2">
-                    {mode === "login"
-                      ? "Akses pesanan Anda dan berikan ulasan terbaik untuk menu kami."
-                      : "Daftar gratis untuk menikmati kemudahan pemesanan digital."}
-                  </p>
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <CheckCircle2 size={16} />
                 </div>
-
-                {/* Mode Switcher Tabs */}
-                <div className="flex gap-2 p-1.5 bg-slate-100/60 rounded-2xl mb-8 border border-slate-200/50">
-                  <button
-                    type="button"
-                    onClick={() => { setMode("login"); setError(""); }}
-                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${
-                      mode === "login"
-                        ? "bg-white text-rose-500 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
-                    }`}
-                  >
-                    Masuk
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setMode("register"); setError(""); }}
-                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${
-                      mode === "register"
-                        ? "bg-white text-rose-500 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
-                    }`}
-                  >
-                    Daftar
-                  </button>
+                <span className="text-xs font-bold">Pemesanan Instan</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <Sparkles size={16} />
                 </div>
-
-                {/* Social Login Section */}
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  disabled={loading}
-                  className="w-full bg-white text-slate-700 border border-slate-200 hover:border-rose-200 hover:bg-rose-50/40 font-bold py-4 px-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50"
-                >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
-                  {loading ? "Menghubungkan…" : mode === "login" ? "Masuk dengan Google" : "Daftar dengan Google"}
-                </button>
-
-                <div className="relative flex items-center justify-center my-8">
-                  <div className="border-t border-slate-100 w-full"></div>
-                  <span className="bg-[#fffdfd] px-5 text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 absolute">atau</span>
-                </div>
-
-                {/* Credentials Form Section */}
-                <form
-                  onSubmit={mode === "login" ? handleLogin : handleRegister}
-                  className="flex flex-col gap-5"
-                >
-                  {mode === "register" && (
-                    <div className="relative group">
-                      <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Nama Lengkap"
-                        className="w-full pl-14 pr-5 py-4 bg-slate-50 border-2 border-transparent focus:border-rose-100 focus:bg-white text-slate-800 placeholder-slate-400 transition-all rounded-[1.5rem] outline-none text-sm font-medium"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  <div className="relative group">
-                    <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
-                    <input
-                      type="email"
-                      required
-                      placeholder="Email Aktif"
-                      className="w-full pl-14 pr-5 py-4 bg-slate-50 border-2 border-transparent focus:border-rose-100 focus:bg-white text-slate-800 placeholder-slate-400 transition-all rounded-[1.5rem] outline-none text-sm font-medium"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="relative group">
-                    <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
-                    <input
-                      type="password"
-                      required
-                      minLength={mode === "register" ? 8 : undefined}
-                      placeholder={mode === "register" ? "Kata Sandi (min. 8 karakter)" : "Kata Sandi"}
-                      className="w-full pl-14 pr-5 py-4 bg-slate-50 border-2 border-transparent focus:border-rose-100 focus:bg-white text-slate-800 placeholder-slate-400 transition-all rounded-[1.5rem] outline-none text-sm font-medium"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Enhanced Error Box */}
-                  <AnimatePresence>
-                    {error && (
-                      <motion.div 
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="bg-rose-50 border border-rose-100 rounded-2xl px-5 py-4"
-                      >
-                        <p className="text-rose-600 text-[13px] font-bold flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                          {error}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-rose-500 to-rose-400 text-white font-black py-4.5 rounded-[1.5rem] shadow-[0_12px_24px_-8px_rgba(244,63,94,0.4)] hover:shadow-[0_16px_32px_-8px_rgba(244,63,94,0.5)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 mt-2 disabled:grayscale disabled:opacity-70"
-                  >
-                    {loading ? (
-                      <Loader2 size={20} className="animate-spin" />
-                    ) : null}
-                    {loading
-                      ? "Memproses…"
-                      : mode === "login"
-                        ? "Masuk ke Akun"
-                        : "Buat Akun Sekarang"}
-                  </button>
-                </form>
-
-                {/* Toggle Footer */}
-                <p className="text-center text-sm text-slate-500 mt-8 font-medium">
-                  {mode === "login" ? (
-                    <>
-                      Belum punya akun?{" "}
-                      <button
-                        type="button"
-                        className="text-rose-500 font-black hover:underline underline-offset-4"
-                        onClick={() => { setMode("register"); setError(""); }}
-                      >
-                        Daftar Gratis
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      Sudah punya akun?{" "}
-                      <button
-                        type="button"
-                        className="text-rose-500 font-black hover:underline underline-offset-4"
-                        onClick={() => { setMode("login"); setError(""); }}
-                      >
-                        Masuk Sekarang
-                      </button>
-                    </>
-                  )}
-                </p>
+                <span className="text-xs font-bold">Promo Member Khusus</span>
               </div>
             </div>
-          </motion.div>
-        </>
-      )}
+          </div>
+
+          {/* Right Side: Auth Form */}
+          <div className="w-full md:w-7/12 p-8 md:p-12 bg-white relative">
+            <button 
+              onClick={onClose}
+              className="absolute right-8 top-8 p-2 text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-all"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Form Toggle */}
+            <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100 mb-8 max-w-[300px] mx-auto md:mx-0">
+              <button 
+                onClick={() => setMode("login")}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${mode === "login" ? 'bg-white shadow-md text-[#FF6B6B]' : 'text-slate-400'}`}
+              >
+                MASUK
+              </button>
+              <button 
+                onClick={() => setMode("register")}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${mode === "register" ? 'bg-white shadow-md text-[#FF6B6B]' : 'text-slate-400'}`}
+              >
+                DAFTAR
+              </button>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                {mode === "login" ? "Selamat Datang!" : "Mulai Sekarang"}
+              </h3>
+              <p className="text-slate-400 text-sm mt-1">
+                {mode === "login" ? "Senang melihat Anda kembali di Wareb." : "Lengkapi data di bawah untuk membuat akun baru."}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {mode === "register" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-rose-50 focus:border-rose-200 outline-none transition-all font-medium"
+                      placeholder="Masukkan nama Anda"
+                      value={form.name}
+                      onChange={(e) => setForm({...form, name: e.target.value})}
+                      required={mode === "register"}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alamat Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    type="email"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-rose-50 focus:border-rose-200 outline-none transition-all font-medium"
+                    placeholder="email@anda.com"
+                    value={form.email}
+                    onChange={(e) => setForm({...form, email: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kata Sandi</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    type="password"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-4 focus:ring-rose-50 focus:border-rose-200 outline-none transition-all font-medium"
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={(e) => setForm({...form, password: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button 
+                type="submit"
+                disabled={loading}
+                className="w-full py-4.5 bg-[#FF6B6B] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-[#ff5252] transition-all shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50"
+              >
+                {loading ? "Memproses..." : (mode === "login" ? "MASUK SEKARANG" : "DAFTAR AKUN")}
+                {!loading && <ArrowRight size={18} />}
+              </button>
+            </form>
+
+            {/* Social Login Divider */}
+            <div className="relative flex items-center py-8">
+              <div className="flex-grow border-t border-slate-100"></div>
+              <span className="flex-shrink mx-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Atau</span>
+              <div className="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            {/* Google Login */}
+            <button 
+              onClick={() => signIn("google")}
+              className="w-full py-4 px-6 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 font-bold text-slate-600 hover:bg-slate-50 hover:border-rose-100 transition-all active:scale-95"
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
+              Lanjutkan dengan Google
+            </button>
+
+            <div className="mt-8 text-center flex items-center justify-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+              <ShieldCheck size={14} className="text-emerald-500" />
+              Keamanan Data Terjamin
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </AnimatePresence>
   );
 }

@@ -14,15 +14,29 @@ export default function ReceiptTicket({ order, storeName }) {
     <>
       <style jsx global>{`
         @media print {
-          body { visibility: hidden; background: white !important; }
-          #receipt-area { 
+          /* Hide everything */
+          body * { 
+            visibility: hidden; 
+            margin: 0; 
+            padding: 0; 
+          }
+          /* Show only the receipt and its children */
+          #receipt-area, #receipt-area * { 
             visibility: visible; 
+          }
+          /* Position receipt at the top left */
+          #receipt-area { 
             position: absolute; 
             left: 0; 
             top: 0; 
             width: 80mm !important;
-            margin: 0 !important;
-            padding: 20px !important;
+            display: block !important;
+            background: white !important;
+          }
+          /* Prevent layout shift */
+          @page {
+            margin: 0;
+            size: auto;
           }
         }
       `}</style>

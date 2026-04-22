@@ -57,7 +57,7 @@ model Store {
   bio                 String?           @db.Text
   description         String?
   address             String?           @db.Text
-  logoUrl             String?
+  logoUrl             String?           @db.LongText
   heroTitle           String?
   heroSubtitle        String?
   bankAccountNumber   String?
@@ -96,7 +96,7 @@ model PaymentSettings {
   storeId        String    @unique
   ewalletNumber  String?
   bankAccount    String?
-  qrisImageUrl   String?   @db.Text
+  qrisImageUrl   String?   @db.LongText
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   store          Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -106,7 +106,7 @@ model Banner {
   id          String   @id @default(cuid())
   storeId     String
   title       String
-  imageUrl    String
+  imageUrl    String   @db.LongText
   targetUrl   String?
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
@@ -125,7 +125,7 @@ model Menu {
   name          String
   slug            String
   description     String?       @db.Text
-  imageUrl        String?
+  imageUrl        String?       @db.LongText
   price           Decimal       @db.Decimal(12, 2)
   category        String        @default("Makanan")
   preparationTime Int           @default(10)

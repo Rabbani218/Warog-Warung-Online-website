@@ -186,7 +186,7 @@ export async function POST(request) {
           note: detail.note
         }))
       };
-    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
 
     emitKotUpdate({
       type: "KOT_CREATED",

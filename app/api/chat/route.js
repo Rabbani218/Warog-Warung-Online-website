@@ -13,21 +13,22 @@ export async function POST(req) {
   
   const store = await findStore();
   
-  // Log User Message to Database
-  const lastMessage = messages[messages.length - 1];
-  if (lastMessage && lastMessage.role === "user" && store) {
-    try {
-      await prisma.chatMessage.create({
+  // Log User Message to Database (Non-blocking)
+  try {
+    const lastMessage = messages && messages.length > 0 ? messages[messages.length - 1] : null;
+    if (lastMessage && lastMessage.role === "user" && store) {
+      // Use fire-and-forget or ensure it doesn't throw to top level
+      prisma.chatMessage.create({
         data: {
           storeId: store.id,
           userId: session?.user?.id || null,
           message: lastMessage.content,
           role: "USER"
         }
-      });
-    } catch (dbErr) {
-      console.error("[ChatAPI] Failed to log message:", dbErr);
+      }).catch(e => console.error("Async logging failed:", e));
     }
+  } catch (err) {
+    console.error("[ChatAPI] Logging logic error:", err);
   }
 
   const menus = await prisma.menu.findMany({

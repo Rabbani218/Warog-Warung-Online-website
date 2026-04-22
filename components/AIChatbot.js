@@ -111,17 +111,29 @@ export default function AIChatbot() {
 
             {/* Input */}
             <form onSubmit={handleSubmit} className="p-5 bg-white border-t border-slate-100">
+              {error && (
+                <div className="mb-3 flex items-center justify-between bg-rose-50 p-2 rounded-xl border border-rose-100">
+                  <span className="text-[10px] text-rose-600 font-bold italic">Terjadi gangguan koneksi...</span>
+                  <button 
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="text-[10px] bg-rose-500 text-white px-2 py-1 rounded-lg font-bold"
+                  >
+                    Reset Bot
+                  </button>
+                </div>
+              )}
               <div className="relative flex items-center">
                 <input
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-5 pr-14 text-[13px] focus:ring-2 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none"
                   value={input}
-                  placeholder="Ketik pesan Anda..."
+                  placeholder={isLoading ? "Bot sedang mengetik..." : "Ketik pesan Anda..."}
                   onChange={handleInputChange}
-                  disabled={isLoading || !!error}
+                  disabled={isLoading}
                 />
                 <button 
                   type="submit" 
-                  disabled={isLoading || !input?.trim() || !!error}
+                  disabled={isLoading || !input?.trim()}
                   className="absolute right-2 p-2 bg-[#FF6B6B] text-white rounded-xl disabled:opacity-30 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-md shadow-[#FF6B6B]/20"
                 >
                   <Send size={16} />
