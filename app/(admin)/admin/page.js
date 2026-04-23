@@ -17,8 +17,12 @@ export default function AdminLoginPage() {
 
   // ── Auto-redirect if already logged in ──────────────────────────────
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.role === "ADMIN") {
-      window.location.href = "/admin/dashboard";
+    if (status === "authenticated") {
+      if (session?.user?.role === "ADMIN") {
+        window.location.href = "/admin/dashboard";
+      } else {
+        toast.error("Akun Anda terdaftar sebagai pelanggan. Silakan gunakan akun admin.");
+      }
     }
   }, [status, session]);
 
