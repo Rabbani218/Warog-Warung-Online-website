@@ -8,7 +8,7 @@ export default withAuth(
     const pathname = req.nextUrl.pathname;
 
     // 1. If trying to access admin dashboard but not an admin
-    if (pathname.startsWith("/admin/admin/(protected)") && token?.role !== "ADMIN") {
+    if (pathname.startsWith("/admin/") && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
@@ -26,7 +26,7 @@ export default withAuth(
         
         // Only require auth for these specific paths
         if (
-          pathname.startsWith("/admin/admin/(protected)") || 
+          (pathname.startsWith("/admin") && pathname !== "/admin") || 
           pathname.startsWith("/setup")
         ) {
           return !!token;
@@ -41,7 +41,8 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/admin/admin/(protected)/:path*",
+    "/admin/:path+",
     "/setup/:path*"
   ],
 };
+

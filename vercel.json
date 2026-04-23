@@ -37,12 +37,7 @@
         }
       ]
     }
-  ],
-  "redirects": [
-    {
-      "source": "/admin/dashboard",
-      "destination": "/admin/admin/dashboard",
-      "permanent": false
-    }
   ]
 }
+
+
