@@ -2,6 +2,7 @@
 // Antigravity Fixed: Added session handling and profile button
 
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -84,7 +85,7 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
             >
               <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#FF6B6B] transition-colors overflow-hidden">
                 {session?.user?.avatar ? (
-                  <img src={session?.user?.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  <Image src={session?.user?.avatar} alt="Profile" width={32} height={32} className="w-full h-full object-cover" />
                 ) : (
                   <UserIcon size={18} />
                 )}

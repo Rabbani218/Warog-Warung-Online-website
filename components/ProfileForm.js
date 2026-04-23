@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { User, Mail, MapPin, Heart, Utensils, TextQuote, Save, Loader2, Camera } from "lucide-react";
@@ -83,7 +84,7 @@ export default function ClientProfileForm() {
             <div className="relative group">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-100 flex items-center justify-center">
                 {formData.avatar ? (
-                  <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <Image src={formData.avatar} alt="Avatar" width={128} height={128} className="w-full h-full object-cover" unoptimized />
                 ) : (
                   <User size={48} className="text-slate-300" />
                 )}

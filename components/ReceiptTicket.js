@@ -3,12 +3,13 @@
 import { useMemo } from "react";
 
 export default function ReceiptTicket({ order, storeName }) {
-  if (!order) return null;
-
   const receiptItems = useMemo(() => {
+    if (!order) return [];
     const rawItems = order.details || order.items || order.kot || order.receipt?.items || [];
     return Array.isArray(rawItems) ? rawItems : [];
   }, [order]);
+
+  if (!order) return null;
 
   const invoiceNumber = order.invoiceNumber || order.invoice?.invoiceNumber || order.summary?.transaction_code || order.orderCode || "-";
   const paymentMethod = order.paymentMethod || order.summary?.payment_method || "CASH";

@@ -44,15 +44,18 @@ export default function SafeImage({ src, alt, width = 500, height = 500, classNa
           <ImageIcon size={32} strokeWidth={1} />
         </div>
       ) : isBase64 ? (
-        <img
+        <Image
           src={src}
           alt={alt}
+          width={typeof width === 'number' ? width : 500}
+          height={typeof height === 'number' ? height : 500}
           className={`w-full h-full object-cover transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
-          onLoad={() => setIsLoading(false)}
+          onLoadingComplete={() => setIsLoading(false)}
           onError={() => {
             setError(true);
             setIsLoading(false);
           }}
+          unoptimized
         />
       ) : (
         <Image
