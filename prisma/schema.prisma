@@ -190,6 +190,8 @@ model Order {
   details        OrderDetail[]
   invoice        Invoice?
   koticket       KOTicket?
+  receiptData    Json?
+  paymentEvidence String?      @db.LongText
 
   @@index([storeId, status, createdAt])
   @@index([storeId, createdAt])

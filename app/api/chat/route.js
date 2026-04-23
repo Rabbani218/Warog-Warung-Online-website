@@ -83,6 +83,18 @@ INSTRUKSI:
     model: google("models/gemini-1.5-flash"),
     system: systemPrompt,
     messages,
+    onFinish: async ({ text }) => {
+      if (store) {
+        await prisma.chatMessage.create({
+          data: {
+            storeId: store.id,
+            userId: session?.user?.id || null,
+            message: text,
+            role: "AI"
+          }
+        }).catch(e => console.error("AI message logging failed:", e));
+      }
+    }
   });
 
   return result.toDataStreamResponse();
