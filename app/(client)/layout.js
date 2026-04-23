@@ -5,7 +5,9 @@ import AuthProvider from "@/components/Providers";
 export default function ClientLayout({ children }) {
   return (
     <AuthProvider>
-      {children}
+      <main className="min-h-screen overflow-x-hidden max-w-[100vw]">
+        {children}
+      </main>
       <Suspense fallback={null}>
         <AIChatbot />
       </Suspense>
