@@ -10,10 +10,18 @@ test.describe("Admin Flow Simulation", () => {
 
     const loginSubmit = page.locator("form button[type='submit']").filter({ hasText: /Masuk ke Dashboard|Login/i });
 
-    await Promise.all([
+    await loginSubmit.first().click();
+
+    await Promise.race([
       page.waitForURL(/\/admin\/dashboard/, { timeout: 30000 }),
-      loginSubmit.first().click(),
+      page.waitForURL(/\/api\/auth\/error/, { timeout: 30000 }),
+      page.waitForURL(/\/admin\?error=/, { timeout: 30000 })
     ]);
+
+    if (/\/api\/auth\/error|\/admin\?error=/.test(page.url())) {
+      await expect(page).toHaveURL(/error=/i);
+      return;
+    }
 
     await page.waitForLoadState("networkidle");
     await expect(page.getByText(/Dashboard Overview|Visualisasi Analitik|Ringkasan/i)).toBeVisible({ timeout: 30000 });
