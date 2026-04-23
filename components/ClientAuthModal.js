@@ -32,7 +32,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
         });
 
         if (res?.error) {
-          toast.error(res.error || "Email atau Password salah!");
+          toast.error("Login gagal: Periksa email dan sandi Anda");
         } else {
           toast.success("Selamat Datang Kembali!");
           setTimeout(() => {
@@ -58,7 +58,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
           toast.success("Akun berhasil dibuat! Silakan masuk.");
           setMode("login");
         } else {
-          toast.error(data.message || "Gagal mendaftar.");
+          toast.error(data.message || data.error || "Gagal mendaftar.");
         }
       }
     } catch (err) {
