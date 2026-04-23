@@ -18,9 +18,10 @@ export default function AdminLoginPage() {
   // ── Auto-redirect if already logged in ──────────────────────────────
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role === "ADMIN") {
-      router.replace("/admin/dashboard");
+      window.location.href = "/admin/dashboard";
     }
-  }, [status, session, router]);
+  }, [status, session]);
+
 
 
   useEffect(() => {
@@ -133,7 +134,8 @@ export default function AdminLoginPage() {
       }
 
       toast.success("Login berhasil! Mengalihkan ke dashboard…");
-      router.push("/admin/dashboard");
+      window.location.href = "/admin/dashboard";
+
     } catch (error) {
       toast.error(error?.message || "Terjadi kesalahan saat autentikasi.");
     } finally {
