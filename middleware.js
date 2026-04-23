@@ -3,22 +3,23 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
+    const { pathname } = req.nextUrl;
     const { token } = req.nextauth;
     const isAuth = !!token;
-    const pathname = req.nextUrl.pathname;
 
-    // 1. If trying to access admin dashboard but not an admin
+    // 1. Jika akses area admin (/admin/...) tapi bukan ADMIN
     if (pathname.startsWith("/admin/") && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
-    // 2. If logged in but trying to access setup while already having a store
+    // 2. Jika sudah login & punya store, tapi akses /setup
     if (pathname.startsWith("/setup") && isAuth && token?.storeId) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
     return NextResponse.next();
   },
+
   {
     callbacks: {
       authorized: ({ token, req }) => {
