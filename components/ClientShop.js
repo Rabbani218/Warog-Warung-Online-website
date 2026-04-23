@@ -12,8 +12,10 @@ import ClientAuthModal from "@/components/ClientAuthModal";
 import ReviewSection from "@/components/ReviewSection";
 import SafeImage from "@/components/SafeImage";
 
+import { useCart } from "@/lib/CartContext";
+
 export default function ClientShop({ store, menus, banners, tableNumber, paymentSettings, employees, reviews = [] }) {
-  const [cart, setCart] = useState([]);
+  const { cart, setCart, addToCart: globalAddToCart } = useCart();
   const [query, setQuery] = useState("");
   const [addedItem, setAddedItem] = useState(null);
   const { data: session, status } = useSession();
@@ -26,22 +28,11 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
   }, [menus, query]);
 
   function addToCart(menu) {
-    // Guest can add to cart now
-    setCart((prev) => {
-
-      const existing = prev.find((item) => item.menuId === menu.id);
-      if (existing) {
-        setAddedItem(menu.id);
-        setTimeout(() => setAddedItem(null), 600);
-        return prev.map((item) =>
-          item.menuId === menu.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      setAddedItem(menu.id);
-      setTimeout(() => setAddedItem(null), 600);
-      return [...prev, { menuId: menu.id, name: menu.name, price: Number(menu.price), quantity: 1, note: "" }];
-    });
+    setAddedItem(menu.id);
+    setTimeout(() => setAddedItem(null), 600);
+    globalAddToCart(menu);
   }
+
 
   const mapAddress = String(store.address || "").trim();
   const mapEmbedUrl = mapAddress
