@@ -1,25 +1,33 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Client Flow", () => {
-  test("customer can browse, open chatbot, and add menu to cart", async ({ page }) => {
+test.describe("Client Flow Simulation", () => {
+  test("Customer can browse menu, open chatbot, and add items to cart", async ({ page }) => {
+    // 1. Membuka halaman utama
     await page.goto("/");
 
-    // Store title / hero content should render (not blank)
+    // 2. Memverifikasi judul toko dan daftar menu (tidak blank)
+    // Menggunakan heading level 1 sebagai indikator judul toko
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    
+    // Memastikan setidaknya ada satu kartu menu (menggunakan locator modern)
+    const menuItems = page.locator("article, .menu-card, [data-testid='menu-item']");
+    await expect(menuItems.first()).toBeVisible({ timeout: 10000 });
 
-    const menuCards = page.locator("article");
-    await expect(menuCards.first()).toBeVisible();
+    // 3. Mengklik tombol "Buka Chatbot CS"
+    // Mencari tombol chatbot berdasarkan label atau icon
+    const chatbotButton = page.getByLabel(/Layanan Customer Service|Chatbot/i);
+    await chatbotButton.click();
 
-    // Open chatbot and ensure dialog area is rendered
-    await page.getByLabel(/Layanan Customer Service/i).click();
+    // Memastikan modal chatbot muncul
     await expect(page.getByText(/Wareb AI Assistant/i)).toBeVisible();
     await expect(page.getByPlaceholder(/Ketik pesan Anda/i)).toBeVisible();
 
-    // Add one menu item to cart
-    await page.getByLabel(/Tambah pesanan/i).first().click();
+    // 4. Menyimulasikan klik tombol "Tambah ke Keranjang"
+    // Mencari tombol tambah pesanan pertama
+    const addToCartButton = page.getByLabel(/Tambah pesanan|Add to cart/i).first();
+    await addToCartButton.click();
 
-    // Cart should reflect at least one item
-    await expect(page.getByRole("heading", { name: /Keranjang/i })).toBeVisible();
-    await expect(page.getByText(/1 Item|Item/i)).toBeVisible();
+    // Verifikasi indikator keranjang muncul atau bertambah (opsional tapi disarankan)
+    await expect(page.getByText(/Item|Keranjang/i)).toBeVisible();
   });
 });

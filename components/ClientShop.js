@@ -26,12 +26,9 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
   }, [menus, query]);
 
   function addToCart(menu) {
-    if (status === "unauthenticated") {
-      setShowAuth(true);
-      return;
-    }
-
+    // Guest can add to cart now
     setCart((prev) => {
+
       const existing = prev.find((item) => item.menuId === menu.id);
       if (existing) {
         setAddedItem(menu.id);
