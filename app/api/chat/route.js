@@ -1,5 +1,5 @@
-import { google } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -7,95 +7,118 @@ import { findStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
+const FALLBACK_REPLY =
+  "Maaf, sistem AI kami sedang istirahat sebentar. Silakan hubungi kasir secara langsung.";
+const BASE_SYSTEM_PROMPT =
+  "Kamu adalah asisten AI ramah untuk Warung Digital Wareb. Jawablah dengan singkat, sopan, dan dalam bahasa Indonesia.";
+
 export async function POST(req) {
-  const { messages } = await req.json();
-  const session = await getServerSession(authOptions);
-  
-  const store = await findStore();
-  
-  // Log User Message to Database (Non-blocking)
   try {
-    const lastMessage = messages && messages.length > 0 ? messages[messages.length - 1] : null;
-    if (lastMessage && lastMessage.role === "user" && store) {
-      // Use fire-and-forget or ensure it doesn't throw to top level
-      prisma.chatMessage.create({
+    const body = await req.json().catch(() => ({}));
+    const message = String(body?.message || "").trim();
+
+    if (!message) {
+      return NextResponse.json(
+        { reply: "Silakan tulis pesan terlebih dahulu, ya." },
+        { status: 400 }
+      );
+    }
+
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Gemini API key is missing.");
+    }
+
+    const [session, store] = await Promise.all([
+      getServerSession(authOptions),
+      findStore(),
+    ]);
+
+    if (store) {
+      prisma.chatMessage
+        .create({
         data: {
           storeId: store.id,
           userId: session?.user?.id || null,
-          message: lastMessage.content,
-          role: "USER"
-        }
-      }).catch(e => console.error("Async logging failed:", e));
+            message,
+            role: "USER",
+          },
+        })
+        .catch((error) => console.error("User chat log failed:", error));
     }
-  } catch (err) {
-    console.error("[ChatAPI] Logging logic error:", err);
-  }
 
-  const menus = await prisma.menu.findMany({
-    where: { storeId: store?.id, isActive: true },
-    select: { name: true, price: true, description: true, category: true }
-  });
+    const menus = store
+      ? await prisma.menu.findMany({
+          where: { storeId: store.id, isActive: true },
+          select: { name: true, price: true, description: true },
+          take: 20,
+        })
+      : [];
 
-  let userOrders = [];
-  if (session?.user?.id) {
-    userOrders = await prisma.order.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: { orderCode: true, status: true, grandTotal: true, createdAt: true }
-    });
-  }
+    const userOrders = session?.user?.id
+      ? await prisma.order.findMany({
+          where: { userId: session.user.id },
+          orderBy: { createdAt: "desc" },
+          take: 3,
+          select: { orderCode: true, status: true, grandTotal: true },
+        })
+      : [];
 
-  const systemPrompt = `
-Anda adalah asisten Customer Service AI yang ramah untuk toko "${store?.name || "Wareb Platform"}".
-Tugas Anda adalah membantu pelanggan dengan pertanyaan seputar menu, toko, atau status pesanan mereka.
+    const menuContext = menus.length
+      ? menus
+          .map(
+            (item) =>
+              `- ${item.name}: Rp ${Number(item.price).toLocaleString("id-ID")}. ${item.description || ""}`
+          )
+          .join("\n")
+      : "- Data menu belum tersedia.";
 
-INFORMASI TOKO:
-- Nama: ${store?.name || "Wareb"}
-- Bio: ${store?.bio || "-"}
+    const orderContext = userOrders.length
+      ? userOrders
+          .map(
+            (order) =>
+              `- ${order.orderCode} (${order.status}) total Rp ${Number(order.grandTotal).toLocaleString("id-ID")}`
+          )
+          .join("\n")
+      : "- Tidak ada riwayat pesanan terbaru.";
+
+    const prompt = `${BASE_SYSTEM_PROMPT}
+
+KONTEKS TOKO:
+- Nama toko: ${store?.name || "Wareb"}
 - Alamat: ${store?.address || "-"}
-- Jam Operasional: ${store?.operationalHours || "Tidak ditentukan"}
+- Jam operasional: ${store?.operationalHours || "Tidak ditentukan"}
 
-DAFTAR MENU:
-${menus.map(m => `- ${m.name} (${m.category}): Rp ${Number(m.price).toLocaleString("id-ID")}. ${m.description || ""}`).join("\n")}
+MENU TERSEDIA:
+${menuContext}
 
-${session?.user ? `
-INFORMASI PENGGUNA:
-- Nama: ${session.user.name}
-- Email: ${session.user.email}
+PESANAN TERAKHIR USER:
+${orderContext}
 
-PESANAN TERAKHIR PENGGUNA:
-${userOrders.length > 0 
-  ? userOrders.map(o => `- Kode: ${o.orderCode}, Status: ${o.status}, Total: Rp ${Number(o.grandTotal).toLocaleString("id-ID")}, Tanggal: ${new Date(o.createdAt).toLocaleDateString("id-ID")}`).join("\n")
-  : "Pengguna belum memiliki riwayat pesanan."}
-` : "Pengguna belum login. Sarankan mereka login untuk melihat status pesanan."}
+PESAN USER:
+${message}`;
 
-INSTRUKSI:
-1. Jawablah dalam Bahasa Indonesia yang sopan dan membantu.
-2. Berikan jawaban yang singkat namun informatif.
-3. Jika ditanya tentang status pesanan, gunakan data "PESANAN TERAKHIR PENGGUNA" di atas.
-4. Jangan memberikan informasi internal atau teknis sistem.
-5. Jika pengguna ingin memesan, beri tahu mereka untuk menambah menu ke keranjang di halaman utama.
-6. Tetaplah dalam karakter sebagai asisten toko.
-`;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const reply = result?.response?.text?.()?.trim() || FALLBACK_REPLY;
 
-  const result = await streamText({
-    model: google("models/gemini-1.5-flash"),
-    system: systemPrompt,
-    messages,
-    onFinish: async ({ text }) => {
-      if (store) {
-        await prisma.chatMessage.create({
+    if (store) {
+      prisma.chatMessage
+        .create({
           data: {
             storeId: store.id,
             userId: session?.user?.id || null,
-            message: text,
-            role: "AI"
-          }
-        }).catch(e => console.error("AI message logging failed:", e));
-      }
+            message: reply,
+            role: "AI",
+          },
+        })
+        .catch((error) => console.error("AI chat log failed:", error));
     }
-  });
 
-  return result.toDataStreamResponse();
+    return NextResponse.json({ reply });
+  } catch (error) {
+    console.error("[ChatAPI] Gemini request failed:", error);
+    return NextResponse.json({ reply: FALLBACK_REPLY });
+  }
 }

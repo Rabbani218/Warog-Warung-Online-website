@@ -1,20 +1,110 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Loader2, AlertCircle } from "lucide-react";
 
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat();
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const scrollRef = useRef(null);
+  const REQUEST_TIMEOUT_MS = 12000;
+  const MAX_RETRY = 1;
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const message = input.trim();
+    if (!message || isLoading) return;
+
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: message,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setErrorMessage("");
+    setIsLoading(true);
+
+    try {
+      let reply = "";
+
+      for (let attempt = 0; attempt <= MAX_RETRY; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message }),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          const data = await response.json().catch(() => ({}));
+          const parsedReply = String(data?.reply || "").trim();
+
+          if (!response.ok) {
+            throw new Error(parsedReply || "Server mengembalikan error.");
+          }
+
+          if (!parsedReply) {
+            throw new Error("Balasan AI kosong.");
+          }
+
+          reply = parsedReply;
+          break;
+        } catch (requestError) {
+          clearTimeout(timeoutId);
+
+          if (attempt === MAX_RETRY) {
+            throw requestError;
+          }
+        }
+      }
+
+      if (!reply) {
+        throw new Error("Balasan AI kosong.");
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `bot-${Date.now()}`,
+          role: "assistant",
+          content: reply,
+        },
+      ]);
+    } catch (error) {
+      setErrorMessage("Terjadi gangguan koneksi...");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `bot-fallback-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Maaf, sistem AI kami sedang istirahat sebentar. Silakan hubungi kasir secara langsung.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -51,7 +141,7 @@ export default function AIChatbot() {
               ref={scrollRef}
               className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30 scroll-smooth"
             >
-              {messages.length === 0 && !error && (
+              {messages.length === 0 && !errorMessage && (
                 <div className="text-center mt-12 space-y-4">
                   <div className="w-16 h-16 bg-rose-50 text-[#FF6B6B] rounded-2xl flex items-center justify-center mx-auto">
                     <Bot size={32} />
@@ -96,7 +186,7 @@ export default function AIChatbot() {
                 </div>
               )}
 
-              {error && (
+              {errorMessage && (
                 <div className="p-6 bg-rose-50 border border-rose-100 rounded-[1.5rem] text-center space-y-3">
                   <AlertCircle size={32} className="mx-auto text-rose-400" />
                   <div className="space-y-1">
@@ -111,12 +201,16 @@ export default function AIChatbot() {
 
             {/* Input */}
             <form onSubmit={handleSubmit} className="p-5 bg-white border-t border-slate-100">
-              {error && (
+              {errorMessage && (
                 <div className="mb-3 flex items-center justify-between bg-rose-50 p-2 rounded-xl border border-rose-100">
-                  <span className="text-[10px] text-rose-600 font-bold italic">Terjadi gangguan koneksi...</span>
+                  <span className="text-[10px] text-rose-600 font-bold italic">{errorMessage}</span>
                   <button 
                     type="button"
-                    onClick={() => window.location.reload()}
+                    onClick={() => {
+                      setErrorMessage("");
+                      setMessages([]);
+                      setInput("");
+                    }}
                     className="text-[10px] bg-rose-500 text-white px-2 py-1 rounded-lg font-bold"
                   >
                     Reset Bot
@@ -128,7 +222,7 @@ export default function AIChatbot() {
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-5 pr-14 text-[13px] focus:ring-2 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none"
                   value={input}
                   placeholder={isLoading ? "Bot sedang mengetik..." : "Ketik pesan Anda..."}
-                  onChange={handleInputChange}
+                  onChange={(event) => setInput(event.target.value)}
                   disabled={isLoading}
                 />
                 <button 
