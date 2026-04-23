@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { subscribeKotUpdate } from "@/lib/kot-events";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 function sseHeaders() {
   return {

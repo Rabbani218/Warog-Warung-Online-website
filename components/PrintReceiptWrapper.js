@@ -5,12 +5,16 @@ import ReceiptTicket from "./ReceiptTicket";
 
 export default function PrintReceiptWrapper({ order, storeName }) {
   const [isPrinting, setIsPrinting] = useState(false);
+  const safeReceiptId = `receipt-${String(order?.id || order?.orderCode || order?.invoiceNumber || "default")}`
+    .replace(/[^a-zA-Z0-9-_]/g, "-");
 
   const handlePrint = () => {
     setIsPrinting(true);
+    document.body.setAttribute("data-print-receipt-id", safeReceiptId);
     // Give state time to update if needed, though hidden print works fine
     setTimeout(() => {
       window.print();
+      document.body.removeAttribute("data-print-receipt-id");
       setIsPrinting(false);
     }, 50);
   };
