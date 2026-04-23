@@ -186,7 +186,11 @@ export async function POST(request) {
           note: detail.note
         }))
       };
-    }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
+    }, { 
+      timeout: 15000,
+      isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted 
+    });
+
 
     emitKotUpdate({
       type: "KOT_CREATED",
