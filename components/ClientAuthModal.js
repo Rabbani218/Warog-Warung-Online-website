@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   X, Mail, Lock, LogIn, UserPlus, 
@@ -11,6 +12,7 @@ import {
 import { toast } from "sonner";
 
 export default function ClientAuthModal({ isOpen, onClose }) {
+  const router = useRouter();
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -29,16 +31,17 @@ export default function ClientAuthModal({ isOpen, onClose }) {
           email: form.email.trim().toLowerCase(),
           password: form.password,
           redirect: false,
+          callbackUrl: window.location.href,
         });
 
         if (res?.error) {
           toast.error("Login gagal: Periksa email dan sandi Anda");
         } else {
           toast.success("Selamat Datang Kembali!");
-          setTimeout(() => {
-            onClose();
-            window.location.reload();
-          }, 500);
+          router.refresh();
+          onClose();
+          setForm({ name: "", email: "", password: "" });
+          window.location.reload();
         }
 
       } else {

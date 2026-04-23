@@ -33,10 +33,14 @@ export async function POST(req) {
       return NextResponse.json({ reply: FALLBACK_REPLY });
     }
 
-    const [session, store] = await Promise.all([
-      getServerSession(authOptions),
-      findStore(),
-    ]);
+    const session = await getServerSession(authOptions);
+    let store = null;
+
+    try {
+      store = await findStore();
+    } catch (storeError) {
+      console.warn("[ChatAPI] Store lookup failed, continuing with minimal context:", storeError.message);
+    }
 
     // ── Log user message (asynchronous) ──────────────────────────
     if (store) {
@@ -52,22 +56,33 @@ export async function POST(req) {
         .catch((error) => console.error("[ChatAPI] User chat log failed:", error));
     }
 
-    const menus = store
-      ? await prisma.menu.findMany({
+    let menus = [];
+    let userOrders = [];
+
+    if (store) {
+      try {
+        menus = await prisma.menu.findMany({
           where: { storeId: store.id, isActive: true },
           select: { name: true, price: true, description: true },
           take: 20,
-        })
-      : [];
+        });
+      } catch (menuError) {
+        console.warn("[ChatAPI] Menu lookup failed:", menuError.message);
+      }
+    }
 
-    const userOrders = session?.user?.id
-      ? await prisma.order.findMany({
+    if (session?.user?.id) {
+      try {
+        userOrders = await prisma.order.findMany({
           where: { userId: session.user.id },
           orderBy: { createdAt: "desc" },
           take: 3,
           select: { orderCode: true, status: true, grandTotal: true },
-        })
-      : [];
+        });
+      } catch (orderError) {
+        console.warn("[ChatAPI] User order lookup failed:", orderError.message);
+      }
+    }
 
     const menuContext = menus.length
       ? menus
