@@ -96,7 +96,14 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match("/"));
+        .catch(() => {
+          // Fallback only for HTML documents
+          if (request.headers.get("accept")?.includes("text/html")) {
+            return caches.match("/");
+          }
+          // For other types, just fail or return empty
+          return null;
+        });
     })
   );
 });

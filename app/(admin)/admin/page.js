@@ -125,21 +125,13 @@ export default function AdminLoginPage() {
       const result = await signIn("credentials", {
         email: form.email.trim().toLowerCase(),
         password: form.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: "/admin/dashboard",
       });
 
-      if (!result) {
-        throw new Error("Tidak ada respons dari server autentikasi.");
-      }
-
-      if (result.error) {
-        // NextAuth passes the `throw new Error(msg)` from authorize() here
+      if (result?.error) {
         throw new Error(result.error);
       }
-
-      toast.success("Login berhasil! Mengalihkan ke dashboard…");
-      window.location.href = "/admin/dashboard";
-
     } catch (error) {
       toast.error(error?.message || "Terjadi kesalahan saat autentikasi.");
     } finally {
