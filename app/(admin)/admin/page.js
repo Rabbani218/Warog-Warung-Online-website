@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getProviders, signIn } from "next-auth/react";
+import { getProviders, signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 export default function AdminLoginPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState("login");
@@ -13,6 +14,14 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleEnabled, setGoogleEnabled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  // ── Auto-redirect if already logged in ──────────────────────────────
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role === "ADMIN") {
+      router.replace("/admin/dashboard");
+    }
+  }, [status, session, router]);
+
 
   useEffect(() => {
     setIsMounted(true);

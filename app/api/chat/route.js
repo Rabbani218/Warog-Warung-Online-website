@@ -24,9 +24,13 @@ export async function POST(req) {
       );
     }
 
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    // ── Sanitize API Key ─────────────────────────────────────────
+    const rawApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || "";
+    const apiKey = rawApiKey.replace(/^["']|["']$/g, "").trim();
+
     if (!apiKey) {
-      throw new Error("Gemini API key is missing.");
+      console.error("[ChatAPI] Gemini API key is missing in environment variables.");
+      return NextResponse.json({ reply: FALLBACK_REPLY });
     }
 
     const [session, store] = await Promise.all([
@@ -34,17 +38,18 @@ export async function POST(req) {
       findStore(),
     ]);
 
+    // ── Log user message (asynchronous) ──────────────────────────
     if (store) {
       prisma.chatMessage
         .create({
-        data: {
-          storeId: store.id,
-          userId: session?.user?.id || null,
+          data: {
+            storeId: store.id,
+            userId: session?.user?.id || null,
             message,
             role: "USER",
           },
         })
-        .catch((error) => console.error("User chat log failed:", error));
+        .catch((error) => console.error("[ChatAPI] User chat log failed:", error));
     }
 
     const menus = store
@@ -98,11 +103,36 @@ ${orderContext}
 PESAN USER:
 ${message}`;
 
+    // ── Gemini Integration ────────────────────────────────────────
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const reply = result?.response?.text?.()?.trim() || FALLBACK_REPLY;
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      }
+    });
 
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let reply = "";
+
+    try {
+      reply = response.text().trim();
+    } catch (textError) {
+      console.warn("[ChatAPI] Could not extract text from Gemini response:", textError.message);
+      // Fallback if blocked or empty
+      const candidate = response.candidates?.[0];
+      if (candidate?.finishReason === "SAFETY") {
+        reply = "Maaf, saya tidak bisa menjawab pertanyaan tersebut karena alasan keamanan.";
+      } else {
+        reply = FALLBACK_REPLY;
+      }
+    }
+
+    if (!reply) reply = FALLBACK_REPLY;
+
+    // ── Log AI response (asynchronous) ────────────────────────────
     if (store) {
       prisma.chatMessage
         .create({
@@ -113,12 +143,13 @@ ${message}`;
             role: "AI",
           },
         })
-        .catch((error) => console.error("AI chat log failed:", error));
+        .catch((error) => console.error("[ChatAPI] AI chat log failed:", error));
     }
 
     return NextResponse.json({ reply });
   } catch (error) {
-    console.error("[ChatAPI] Gemini request failed:", error);
+    console.error("[ChatAPI] Critical error:", error.message, error.stack);
     return NextResponse.json({ reply: FALLBACK_REPLY });
   }
 }
+
