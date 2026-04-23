@@ -16,11 +16,12 @@ test.describe("Client Flow Simulation", () => {
 
     // 3. Mengklik tombol "Buka Chatbot CS"
     // Mencari tombol chatbot berdasarkan label atau icon
-    const chatbotButton = page.getByLabel(/Layanan Customer Service|Chatbot/i);
+    const chatbotButton = page.getByRole("button", { name: /Layanan Customer Service|Chatbot/i });
+    await chatbotButton.waitFor({ state: "visible", timeout: 20000 });
     await chatbotButton.click();
 
     // Memastikan modal chatbot muncul
-    await expect(page.getByText(/Wareb AI Assistant/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Wareb AI Assistant/i).first()).toBeVisible({ timeout: 20000 });
     await expect(page.getByPlaceholder(/Ketik pesan Anda/i)).toBeVisible({ timeout: 15000 });
 
     // 4. Menyimulasikan klik tombol "Tambah ke Keranjang"

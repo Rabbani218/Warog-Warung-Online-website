@@ -8,9 +8,11 @@ test.describe("Admin Flow Simulation", () => {
     await page.getByPlaceholder(/Email/i).fill("admin@wareb.com");
     await page.getByPlaceholder(/Password/i).fill("admin123");
 
+    const loginSubmit = page.locator("form button[type='submit']").filter({ hasText: /Masuk ke Dashboard|Login/i });
+
     await Promise.all([
       page.waitForURL(/\/admin\/dashboard/, { timeout: 30000 }),
-      page.getByRole("button", { name: /Masuk ke Dashboard|Login/i }).click(),
+      loginSubmit.first().click(),
     ]);
 
     await page.waitForLoadState("networkidle");

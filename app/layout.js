@@ -24,7 +24,12 @@ export const metadata = {
   description: "Wareb multi-portal ecommerce POS",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico"
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" }
+    ],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg"
   },
   applicationName: "Wareb Platform",
   appleWebApp: {

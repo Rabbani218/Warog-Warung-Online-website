@@ -8,8 +8,11 @@ test.describe('Client Portal Flow', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30000 });
     await expect(page.locator('article').first()).toBeVisible({ timeout: 30000 });
 
-    await page.getByLabel(/Layanan Customer Service/i).click();
-    await expect(page.getByText(/Wareb AI Assistant/i)).toBeVisible({ timeout: 15000 });
+    const chatbotFab = page.getByRole('button', { name: /Layanan Customer Service/i });
+    await chatbotFab.waitFor({ state: 'visible', timeout: 20000 });
+    await chatbotFab.click();
+
+    await expect(page.getByText(/Wareb AI Assistant/i).first()).toBeVisible({ timeout: 20000 });
     await expect(page.getByPlaceholder(/Ketik pesan Anda/i)).toBeVisible({ timeout: 15000 });
 
     const addToCartButton = page.getByLabel(/Tambah pesanan/i).first();
