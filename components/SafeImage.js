@@ -66,7 +66,7 @@ export default function SafeImage({ src, alt, width = 500, height = 500, classNa
             setError(true);
             setIsLoading(false);
           }}
-          unoptimized={true}
+          unoptimized={false}
         />
       )}
     </div>
