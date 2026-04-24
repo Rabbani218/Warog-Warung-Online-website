@@ -10,14 +10,18 @@ Write-Host "Tekan Ctrl+C untuk mematikan otomatisasi ini." -ForegroundColor Yell
 while ($true) {
     $changes = git status --porcelain
     if ($changes) {
-        Write-Host "📦 Perubahan terdeteksi pada $(Get-Date -Format 'HH:mm:ss')" -ForegroundColor Green
+        $currentTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+        Write-Host "📦 Perubahan terdeteksi pada $currentTime" -ForegroundColor Green
+        
+        # Ambil nama file pertama yang berubah untuk pesan commit
+        $firstFile = ($changes[0] -split ' ')[-1]
+        $commitMsg = "Auto-sync: $currentTime ($firstFile)"
+        
         git add .
-        git commit -m "Auto-update: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
-        Write-Host "📤 Mendorong ke GitHub..." -ForegroundColor Blue
+        git commit -m "$commitMsg"
+        Write-Host "📤 Mendorong ke GitHub: $commitMsg" -ForegroundColor Blue
         git push origin main
         Write-Host "✅ Berhasil disinkronkan. Menunggu $interval detik..." -ForegroundColor Gray
-    } else {
-        # Tidak ada perubahan, diam saja
     }
     Start-Sleep -Seconds $interval
 }
