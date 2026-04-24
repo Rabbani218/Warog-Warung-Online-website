@@ -72,7 +72,10 @@ export async function POST(req) {
     if (!message) {
       return NextResponse.json(
         { reply: "Silakan tulis pesan terlebih dahulu, ya." },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: { "Access-Control-Allow-Origin": "*" }
+        }
       );
     }
 
@@ -216,10 +219,16 @@ ${message}`;
         .catch((error) => console.error("[ChatAPI] AI chat log failed:", error));
     }
 
-    return NextResponse.json({ reply });
+    return NextResponse.json(
+      { reply },
+      { headers: { "Access-Control-Allow-Origin": "*" } }
+    );
   } catch (error) {
     console.error("[ChatAPI] Critical error:", error.message, error.stack);
-    return NextResponse.json({ reply: FALLBACK_REPLY });
+    return NextResponse.json(
+      { reply: FALLBACK_REPLY },
+      { headers: { "Access-Control-Allow-Origin": "*" } }
+    );
   }
 }
 
