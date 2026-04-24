@@ -1,15 +1,22 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Admin Flow Simulation", () => {
-  test("Admin can login and navigate through dashboard and products", async ({ page }) => {
+  test("Admin can login and navigate through dashboard and products", async ({ page, baseURL }) => {
     // Catch redirect loops gracefully
+    console.log(`Navigating to admin flow at ${baseURL}/admin...`);
     try {
-      await page.goto("/admin", { waitUntil: "domcontentloaded", timeout: 15000 });
+      await page.goto(`${baseURL}/admin`, { waitUntil: "domcontentloaded", timeout: 15000 });
     } catch (error) {
-      if (page.url().includes('error') || page.url().includes('redirect')) {
-        throw new Error(`Admin page inaccessible: ${page.url()}`);
+      console.log(`Current URL after navigation attempt: ${page.url()}`);
+      if (error.message.includes("NS_ERROR_REDIRECT_LOOP") || error.message.includes("cannot follow more than 20 redirections")) {
+        console.warn("Redirect loop detected - checking if on login page");
+        // Verify we're still on admin-related URL
+        if (!page.url().includes("/admin")) {
+          throw new Error(`Unexpected redirect to: ${page.url()}`);
+        }
+      } else {
+        throw error;
       }
-      if (!page.url().includes("/admin")) throw error;
     }
 
     await page.getByPlaceholder(/Email/i).fill("admin@wareb.com");
