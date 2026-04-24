@@ -125,11 +125,13 @@ export default function AdminLoginPage() {
       const result = await signIn("credentials", {
         email: form.email.trim().toLowerCase(),
         password: form.password,
-        redirect: true,
-        callbackUrl: "/admin/dashboard",
+        redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.ok) {
+        router.push("/admin/dashboard");
+        router.refresh();
+      } else if (result?.error) {
         throw new Error(result.error);
       }
     } catch (error) {

@@ -61,6 +61,13 @@ export default function RootLayout({ children }) {
             <Footer />
           </div>
         </Providers>
+      {/* Hancurkan semua service worker yang terdaftar di browser user */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "if('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }) }"
+        }}
+      />
       </body>
     </html>
   );
