@@ -19,9 +19,9 @@ while ($true) {
         
         git add .
         git commit -m "$commitMsg"
-        Write-Host "📤 Mendorong ke GitHub: $commitMsg" -ForegroundColor Blue
-        git push origin main
-        Write-Host "✅ Berhasil disinkronkan. Menunggu $interval detik..." -ForegroundColor Gray
+        Write-Host "✅ Commit lokal berhasil: $commitMsg" -ForegroundColor Blue
+        Write-Host "ℹ️ Auto-Push dinonaktifkan untuk menghemat kuota Vercel. Lakukan 'git push' manual jika sudah siap." -ForegroundColor Gray
+        Write-Host "Menunggu $interval detik..." -ForegroundColor Gray
     }
     Start-Sleep -Seconds $interval
 }
