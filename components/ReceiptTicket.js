@@ -11,6 +11,9 @@ export default function ReceiptTicket({ order, storeName }) {
 
   if (!order) return null;
 
+  const safeReceiptId = `receipt-${String(order.id || order.orderCode || order.invoiceNumber || "default")}`
+    .replace(/[^a-zA-Z0-9-_]/g, "-");
+
   const invoiceNumber = order.invoiceNumber || order.invoice?.invoiceNumber || order.summary?.transaction_code || order.orderCode || "-";
   const paymentMethod = order.paymentMethod || order.summary?.payment_method || "CASH";
   const paymentStatus = order.paymentStatus || order.summary?.payment_status || order.status || "PENDING";
@@ -36,12 +39,12 @@ export default function ReceiptTicket({ order, storeName }) {
             padding: 0;
           }
 
-          #receipt-area,
-          #receipt-area * {
+          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId},
+          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId} * {
             visibility: visible;
           }
 
-          #receipt-area {
+          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId} {
             position: absolute;
             left: 0;
             top: 0;
@@ -59,7 +62,7 @@ export default function ReceiptTicket({ order, storeName }) {
       `}</style>
 
       <div
-        id="receipt-area"
+        id={safeReceiptId}
         className="receipt-ticket hidden print:block bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
         style={{ width: "80mm" }}
       >

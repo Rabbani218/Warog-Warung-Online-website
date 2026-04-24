@@ -91,6 +91,15 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
     EWALLET: paymentSettings?.ewalletNumber || ""
   };
 
+  const invoiceReceiptId = `receipt-${String(invoice?.id || invoice?.orderCode || invoice?.invoiceNumber || "invoice")}`
+    .replace(/[^a-zA-Z0-9-_]/g, "-");
+
+  function handleInvoicePrint() {
+    document.body.setAttribute("data-print-receipt-id", invoiceReceiptId);
+    window.print();
+    document.body.removeAttribute("data-print-receipt-id");
+  }
+
   return (
     <div className="space-y-6">
       <motion.div 
@@ -262,7 +271,7 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
 
             <button 
               className="w-full bg-white text-emerald-600 font-bold py-3 rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
-              onClick={() => window.print()}
+              onClick={handleInvoicePrint}
             >
               <Receipt size={18} />
               Cetak Struk Thermal

@@ -12,6 +12,58 @@ const FALLBACK_REPLY =
 const BASE_SYSTEM_PROMPT =
   "Kamu adalah asisten AI ramah untuk Warung Digital Wareb. Jawablah dengan singkat, sopan, dan dalam bahasa Indonesia.";
 
+const MODEL_CANDIDATES = [
+  process.env.GOOGLE_GENERATIVE_MODEL,
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-8b"
+].filter(Boolean);
+
+function getGeminiApiKey() {
+  const raw =
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    "";
+
+  return String(raw).replace(/^['\"]|['\"]$/g, "").trim();
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("AI request timeout")), ms);
+    })
+  ]);
+}
+
+function buildLocalAssistantReply({ message, menus, userOrders, store }) {
+  const lower = String(message || "").toLowerCase();
+
+  if (/jam|buka|tutup|operasional/.test(lower)) {
+    return `Jam operasional ${store?.name || "toko"} saat ini: ${store?.operationalHours || "belum diset"}.`;
+  }
+
+  if (/alamat|lokasi|maps|map/.test(lower)) {
+    return `Alamat ${store?.name || "toko"}: ${store?.address || "belum tersedia"}.`;
+  }
+
+  if (/pesanan|order|status/.test(lower) && userOrders.length > 0) {
+    const latest = userOrders[0];
+    return `Pesanan terbaru Anda: ${latest.orderCode} dengan status ${latest.status}.`;
+  }
+
+  if (menus.length > 0) {
+    const topMenus = menus
+      .slice(0, 4)
+      .map((item) => `${item.name} (Rp ${Number(item.price).toLocaleString("id-ID")})`)
+      .join(", ");
+    return `Kami punya beberapa menu favorit: ${topMenus}. Silakan tanya menu tertentu jika ingin rekomendasi lebih detail.`;
+  }
+
+  return FALLBACK_REPLY;
+}
+
 export async function POST(req) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -24,14 +76,7 @@ export async function POST(req) {
       );
     }
 
-    // ── Sanitize API Key ─────────────────────────────────────────
-    const rawApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || "";
-    const apiKey = rawApiKey.replace(/^["']|["']$/g, "").trim();
-
-    if (!apiKey) {
-      console.error("[ChatAPI] Gemini API key is missing in environment variables.");
-      return NextResponse.json({ reply: FALLBACK_REPLY });
-    }
+    const apiKey = getGeminiApiKey();
 
     const session = await getServerSession(authOptions);
     let store = null;
@@ -118,34 +163,44 @@ ${orderContext}
 PESAN USER:
 ${message}`;
 
-    // ── Gemini Integration ────────────────────────────────────────
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        maxOutputTokens: 500,
-        temperature: 0.7,
-      }
-    });
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
     let reply = "";
 
-    try {
-      reply = response.text().trim();
-    } catch (textError) {
-      console.warn("[ChatAPI] Could not extract text from Gemini response:", textError.message);
-      // Fallback if blocked or empty
-      const candidate = response.candidates?.[0];
-      if (candidate?.finishReason === "SAFETY") {
-        reply = "Maaf, saya tidak bisa menjawab pertanyaan tersebut karena alasan keamanan.";
-      } else {
-        reply = FALLBACK_REPLY;
+    if (apiKey) {
+      const genAI = new GoogleGenerativeAI(apiKey);
+
+      for (const modelName of MODEL_CANDIDATES) {
+        try {
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+              maxOutputTokens: 500,
+              temperature: 0.7,
+            }
+          });
+
+          const result = await withTimeout(model.generateContent(prompt), 10000);
+          const response = await result.response;
+
+          try {
+            reply = String(response.text() || "").trim();
+          } catch (textError) {
+            console.warn("[ChatAPI] Could not extract text from Gemini response:", textError.message);
+          }
+
+          if (reply) {
+            break;
+          }
+        } catch (modelError) {
+          console.warn(`[ChatAPI] Model ${modelName} failed:`, modelError.message);
+        }
       }
+    } else {
+      console.warn("[ChatAPI] Gemini API key not configured. Using local assistant fallback.");
     }
 
-    if (!reply) reply = FALLBACK_REPLY;
+    if (!reply) {
+      reply = buildLocalAssistantReply({ message, menus, userOrders, store });
+    }
 
     // ── Log AI response (asynchronous) ────────────────────────────
     if (store) {

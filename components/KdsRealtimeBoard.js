@@ -53,6 +53,7 @@ export default function KdsRealtimeBoard({ initialQueue }) {
 
   useEffect(() => {
     let pollingId;
+    let heartbeatPollingId;
     let source;
 
     const syncQueue = async () => {
@@ -66,6 +67,9 @@ export default function KdsRealtimeBoard({ initialQueue }) {
         source = new EventSource("/api/admin/kot/stream", { withCredentials: true });
         source.addEventListener("connected", () => setStatus("Realtime aktif"));
         source.addEventListener("kot-update", syncQueue);
+        source.addEventListener("heartbeat", () => {
+          setStatus("Realtime aktif");
+        });
         source.onerror = () => {
           setStatus("Polling fallback");
           if (source) {
@@ -78,6 +82,9 @@ export default function KdsRealtimeBoard({ initialQueue }) {
       }
     };
 
+    // Keep periodic reconciliation active even when SSE is connected.
+    heartbeatPollingId = setInterval(syncQueue, 8000);
+    syncQueue();
     startStream();
 
     return () => {
@@ -86,6 +93,9 @@ export default function KdsRealtimeBoard({ initialQueue }) {
       }
       if (pollingId) {
         clearInterval(pollingId);
+      }
+      if (heartbeatPollingId) {
+        clearInterval(heartbeatPollingId);
       }
     };
   }, [applyOptimisticQueue]);
