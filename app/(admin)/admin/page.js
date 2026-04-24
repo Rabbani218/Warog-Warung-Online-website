@@ -132,7 +132,12 @@ export default function AdminLoginPage() {
         router.push("/admin/dashboard");
         router.refresh();
       } else if (result?.error) {
-        throw new Error(result.error);
+        // TANGKAP ERROR DI SINI!
+        if (result.error === "CredentialsSignin") {
+          throw new Error("Email tidak terdaftar atau password salah.");
+        } else {
+          throw new Error(result.error);
+        }
       }
     } catch (error) {
       toast.error(error?.message || "Terjadi kesalahan saat autentikasi.");
