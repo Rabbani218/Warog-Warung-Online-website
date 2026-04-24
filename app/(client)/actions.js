@@ -17,7 +17,7 @@ export async function submitReviewAction(menuId, rating, comment) {
       userId: session.user.id,
       menuId,
       rating: Number(rating),
-      comment: String(comment).trim() || null
+      comment: (typeof comment === "string" ? comment?.trim() : "") || null
     }
   });
 

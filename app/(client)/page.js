@@ -28,7 +28,7 @@ export default async function ClientHomePage({ searchParams }) {
   // The admin can set up a store via /admin → /setup flow instead.
   // Previously: redirect("/setup") here caused a 307 infinite loop.
 
-  const tableNumber = String(searchParams?.table || "").trim();
+  const tableNumber = (typeof searchParams?.table === "string" ? searchParams?.table?.trim() : "");
 
   try {
     const results = await Promise.allSettled([

@@ -67,26 +67,33 @@ export async function POST(request) {
 
     const passwordHash = await hash(password, 10);
 
-    const user = await prisma.$transaction(async (tx) => {
-      const createdUser = await tx.user.create({
-        data: {
-          name,
-          email,
-          passwordHash,
-          // If it's ADMIN, pass it explicitly. Otherwise, the default in schema is CLIENT.
-          ...(role === "ADMIN" ? { role: "ADMIN" } : {})
+    let user;
+    try {
+      user = await prisma.$transaction(async (tx) => {
+        const createdUser = await tx.user.create({
+          data: {
+            name,
+            email,
+            passwordHash,
+            ...(role === "ADMIN" ? { role: "ADMIN" } : {})
+          }
+        });
+
+        if (role === "ADMIN") {
+          await createUniqueStore(tx, createdUser.id, "Warteg Modern Wareb");
         }
+
+        return createdUser;
+      }, {
+        maxWait: 10000,
+        timeout: 15000
       });
-
-      if (role === "ADMIN") {
-        await createUniqueStore(tx, createdUser.id, "Warteg Modern Wareb");
+    } catch (error) {
+      if (error?.code === "P2002") {
+        return Response.json({ error: "Email atau Nama Pengguna sudah terdaftar." }, { status: 400 });
       }
-
-      return createdUser;
-    }, {
-      maxWait: 10000,
-      timeout: 15000
-    });
+      throw error;
+    }
 
     return Response.json({
       id: user.id,

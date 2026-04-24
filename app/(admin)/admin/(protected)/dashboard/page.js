@@ -7,13 +7,9 @@ import { calculateInventoryForecast } from "@/lib/inventory-forecast";
 import ExcelUploader from "@/components/ExcelUploader";
 import QrDownloadCard from "@/components/QrDownloadCard";
 import AdminTopNav from "@/components/AdminTopNav";
-import nextDynamic from "next/dynamic";
-import InlineInventoryManager from "@/components/InlineInventoryManager";
 
-const AdminAnalyticsCharts = nextDynamic(() => import("@/components/AdminAnalyticsCharts"), { 
-  ssr: false,
-  loading: () => <div className="w-full h-[500px] animate-pulse bg-slate-100 rounded-[2.5rem] flex items-center justify-center text-slate-400 font-bold uppercase tracking-widest">Memuat Grafik...</div>
-});
+import InlineInventoryManager from "@/components/InlineInventoryManager";
+import AdminAnalyticsCharts from "@/components/AdminAnalyticsChartsWrapper";
 
 import PrintReceiptWrapper from "@/components/PrintReceiptWrapper";
 import { 
