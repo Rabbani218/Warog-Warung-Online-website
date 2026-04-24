@@ -9,16 +9,19 @@ export default withAuth(
 
     // 1. Jika akses area admin (kecuali halaman login /admin) tapi bukan ADMIN
     const isAdminPath = pathname.startsWith("/admin") && pathname !== "/admin";
+    
+    // Jangan redirect jika kita sudah berada di /admin (Halaman Login)
+    if (pathname === "/admin") {
+      // Jika sudah login dan ADMIN, baru kita arahkan ke dashboard
+      if (isAuth && token?.role === "ADMIN") {
+        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+      }
+      return NextResponse.next();
+    }
 
     if (isAdminPath && isAuth && token?.role !== "ADMIN") {
       // User sudah login tapi bukan admin, kembalikan ke /admin
       return NextResponse.redirect(new URL("/admin", req.url));
-    }
-
-    // LOGIN LOOP FIX
-    // Jika sudah login dan akses /admin (halaman login), redirect ke dashboard
-    if (pathname === "/admin" && isAuth && token?.role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
     // Jika belum login dan akses /admin/dashboard, redirect ke /admin

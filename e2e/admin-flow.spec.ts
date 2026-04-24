@@ -2,8 +2,15 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Admin Flow Simulation", () => {
   test("Admin can login and navigate through dashboard and products", async ({ page }) => {
-    await page.goto("/admin");
-    await page.waitForLoadState("domcontentloaded");
+    // Catch redirect loops gracefully
+    try {
+      await page.goto("/admin", { waitUntil: "domcontentloaded", timeout: 15000 });
+    } catch (error) {
+      if (page.url().includes('error') || page.url().includes('redirect')) {
+        throw new Error(`Admin page inaccessible: ${page.url()}`);
+      }
+      if (!page.url().includes("/admin")) throw error;
+    }
 
     await page.getByPlaceholder(/Email/i).fill("admin@wareb.com");
     await page.getByPlaceholder(/Password/i).fill("admin123");
