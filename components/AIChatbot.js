@@ -23,7 +23,7 @@ export default function AIChatbot() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const message = input.trim();
+    const message = (input || "").trim();
     if (!message || isLoading) return;
 
     const userMessage = {
