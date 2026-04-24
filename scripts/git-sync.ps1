@@ -2,26 +2,21 @@
 # Melakukan loop: Add -> Commit -> Push setiap 5 menit (300 detik)
 # Untuk menghindari spamming build Vercel.
 
-$interval = 300 # Detik (5 menit)
+$interval = 10 # Detik (Mode Google Drive)
 
-Write-Host "🚀 Memulai Git Auto-Sync..." -ForegroundColor Cyan
-Write-Host "Tekan Ctrl+C untuk mematikan otomatisasi ini." -ForegroundColor Yellow
+Write-Host "🚀 Memulai Git-Sync: MODE GOOGLE DRIVE" -ForegroundColor Cyan
+Write-Host "Otomatisasi AKTIF. Setiap perubahan akan di-commit setiap $interval detik." -ForegroundColor Yellow
 
 while ($true) {
     $changes = git status --porcelain
     if ($changes) {
-        $currentTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-        Write-Host "📦 Perubahan terdeteksi pada $currentTime" -ForegroundColor Green
-        
-        # Ambil nama file pertama yang berubah untuk pesan commit
+        $currentTime = Get-Date -Format 'HH:mm:ss'
         $firstFile = ($changes[0] -split ' ')[-1]
-        $commitMsg = "Auto-sync: $currentTime ($firstFile)"
         
         git add .
-        git commit -m "$commitMsg"
-        Write-Host "✅ Commit lokal berhasil: $commitMsg" -ForegroundColor Blue
-        Write-Host "ℹ️ Auto-Push dinonaktifkan untuk menghemat kuota Vercel. Lakukan 'git push' manual jika sudah siap." -ForegroundColor Gray
-        Write-Host "Menunggu $interval detik..." -ForegroundColor Gray
+        git commit -m "Drive-sync: $currentTime ($firstFile)" --quiet
+        
+        Write-Host "☁️ Auto-commit berhasil pada $currentTime ($firstFile)" -ForegroundColor Green
     }
     Start-Sleep -Seconds $interval
 }
