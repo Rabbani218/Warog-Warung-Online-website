@@ -4,11 +4,15 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
-    const { token } = req.nextauth;
+    const token = req.nextauth?.token;
     const isAuth = !!token;
 
-    // 1. Jika akses area admin (/admin/...) tapi bukan ADMIN
-    if (pathname.startsWith("/admin/") && token?.role !== "ADMIN") {
+    // 1. Jika akses area admin (kecuali halaman login /admin) tapi bukan ADMIN
+    const isAdminPath = pathname.startsWith("/admin") && pathname !== "/admin";
+    
+    if (isAdminPath && isAuth && token?.role !== "ADMIN") {
+      // User sudah login tapi bukan admin, kembalikan ke /admin
+      // Di /admin nanti akan muncul toast error lewat AdminLoginPage
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
@@ -23,26 +27,27 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        const pathname = req.nextUrl.pathname;
+        const { pathname } = req.nextUrl;
         
-        // Only require auth for these specific paths
-        if (
-          (pathname.startsWith("/admin") && pathname !== "/admin") || 
-          pathname.startsWith("/setup")
-        ) {
+        // Halaman login admin harus publik
+        if (pathname === "/admin") return true;
+
+        // Path /admin/... dan /setup membutuhkan login
+        if (pathname.startsWith("/admin") || pathname.startsWith("/setup")) {
           return !!token;
         }
         
-        // Public by default
+        // Lainnya publik
         return true;
       },
     },
+    secret: process.env.NEXTAUTH_SECRET,
   }
 );
 
 export const config = {
   matcher: [
-    "/admin/:path+",
+    "/admin/:path*",
     "/setup/:path*"
   ],
 };
