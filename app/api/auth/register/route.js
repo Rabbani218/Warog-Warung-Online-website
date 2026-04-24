@@ -98,9 +98,9 @@ export async function POST(request) {
     console.error("Register route failed:", error);
 
     if (error?.code === "P2002") {
-      return Response.json({ message: "Data unik bentrok, silakan ulangi registrasi." }, { status: 409 });
+      return Response.json({ error: "Email atau Nama Pengguna sudah terdaftar." }, { status: 400 });
     }
 
-    return Response.json({ message: error?.message || "Terjadi kesalahan saat registrasi." }, { status: 500 });
+    return Response.json({ error: error?.message || "Terjadi kesalahan saat registrasi." }, { status: 500 });
   }
 }
