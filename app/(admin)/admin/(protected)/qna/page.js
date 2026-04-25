@@ -103,40 +103,40 @@ export default async function AdminQnaInboxPage({ searchParams }) {
       </div>
 
       {/* ▸ Task 4: Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-12">
-          <Link
-            href={`?page=${currentPage - 1}`}
-            className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all ${currentPage <= 1 ? "pointer-events-none opacity-50" : ""}`}
+      <div className="flex justify-center items-center gap-3 mt-12 pb-10">
+        {/* Tombol Sebelumnya */}
+        {currentPage === 1 ? (
+          <span className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed font-bold text-sm">
+            Sebelumnya
+          </span>
+        ) : (
+          <Link 
+            href={`?page=${currentPage - 1}`} 
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 transition-all font-bold text-sm"
           >
-            <ChevronLeft size={20} /> Sebelumnya
+            Sebelumnya
           </Link>
+        )}
 
-          <div className="flex gap-2">
-            {[...Array(totalPages)].map((_, i) => {
-              const p = i + 1;
-              // Show limited page numbers if there are too many
-              if (totalPages > 5 && Math.abs(p - currentPage) > 2) return null;
-              return (
-                <Link
-                  key={p}
-                  href={`?page=${p}`}
-                  className={`w-12 h-12 flex items-center justify-center rounded-2xl font-bold transition-all ${currentPage === p ? "bg-[#FF6B6B] text-white shadow-lg shadow-rose-200" : "bg-white border border-slate-100 text-slate-400 hover:bg-slate-50"}`}
-                >
-                  {p}
-                </Link>
-              );
-            })}
-          </div>
-
-          <Link
-            href={`?page=${currentPage + 1}`}
-            className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all ${currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}`}
-          >
-            Selanjutnya <ChevronRight size={20} />
-          </Link>
+        {/* Indikator Halaman */}
+        <div className="px-4 py-2 rounded-lg bg-rose-50 text-rose-600 font-bold text-sm border border-rose-100">
+          Halaman {currentPage} dari {totalPages || 1}
         </div>
-      )}
+
+        {/* Tombol Selanjutnya */}
+        {currentPage >= totalPages ? (
+          <span className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-400 cursor-not-allowed font-bold text-sm">
+            Selanjutnya
+          </span>
+        ) : (
+          <Link 
+            href={`?page=${currentPage + 1}`} 
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 transition-all font-bold text-sm"
+          >
+            Selanjutnya
+          </Link>
+        )}
+      </div>
     </main>
   );
 }

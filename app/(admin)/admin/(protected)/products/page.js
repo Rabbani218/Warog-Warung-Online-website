@@ -6,6 +6,7 @@ import ProductCrud from "@/components/ProductCrud";
 import BannerCrud from "@/components/BannerCrud";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ProductsPage() {
   const session = await getServerSession(authOptions);

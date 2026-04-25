@@ -49,7 +49,7 @@ export default function SafeImage({ src, alt, width = 500, height = 500, classNa
           alt={alt}
           width={typeof width === 'number' ? width : 500}
           height={typeof height === 'number' ? height : 500}
-          className={`w-full h-full object-cover transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
+          className={`w-full h-full object-cover object-center transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
           onLoadingComplete={() => setIsLoading(false)}
           onError={() => {
             setError(true);
@@ -63,7 +63,7 @@ export default function SafeImage({ src, alt, width = 500, height = 500, classNa
           alt={alt}
           width={width}
           height={height}
-          className={`w-full h-full object-cover transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
+          className={`w-full h-full object-cover object-center transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"}`}
           onLoadingComplete={() => setIsLoading(false)}
           onError={() => {
             setError(true);

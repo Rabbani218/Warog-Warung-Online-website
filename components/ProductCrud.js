@@ -102,14 +102,14 @@ export default function ProductCrud() {
                   key={product.id} 
                   className={`group bg-white/70 backdrop-blur-sm border border-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-rose-100/50 transition-all duration-500 flex flex-col ${!product.isAvailable ? 'opacity-70' : ''}`}
                 >
-                  <div className="aspect-[4/3] w-full relative overflow-hidden bg-slate-50">
+                  <div className="relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl bg-gray-100">
                     <SafeImage 
                       src={product.imageUrl} 
                       alt={product.name} 
                       width={500}
                       height={500}
                       type="menu"
-                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
+                      className="w-full h-full object-cover object-center transition-transform group-hover:scale-110 duration-700" 
                     />
                     
                     <div className="absolute top-4 left-4 z-10">

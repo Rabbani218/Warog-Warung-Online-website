@@ -12,6 +12,8 @@ async function ensureAdmin() {
   return session;
 }
 
+import { revalidatePath } from "next/cache";
+
 export async function PUT(request, { params }) {
   const session = await ensureAdmin();
   if (!session) {
@@ -45,6 +47,7 @@ export async function PUT(request, { params }) {
     });
   }
 
+  revalidatePath("/admin/products");
   return Response.json(updated);
 }
 
@@ -55,5 +58,7 @@ export async function DELETE(_request, { params }) {
   }
 
   await prisma.menu.delete({ where: { id: params.id } });
+  
+  revalidatePath("/admin/products");
   return Response.json({ success: true });
 }

@@ -171,11 +171,11 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
                   whileHover={{ y: -6 }}
                   className="group bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
                 >
-                  <Link href={`/product/${menu.slug}`} className="relative block aspect-[4/3] overflow-hidden">
+                  <Link href={`/product/${menu.slug}`} className="relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl bg-gray-100 block">
                     <SafeImage 
                       src={menu.imageUrl} 
                       alt={menu.name} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
                       width={600} 
                       height={400} 
                       type="menu"

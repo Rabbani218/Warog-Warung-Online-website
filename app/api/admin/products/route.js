@@ -35,6 +35,8 @@ export async function GET() {
   return Response.json(products);
 }
 
+import { revalidatePath } from "next/cache";
+
 export async function POST(request) {
   try {
     const session = await ensureAdmin();
@@ -66,6 +68,9 @@ export async function POST(request) {
         }
       }
     });
+
+    // ▸ Task 2: Revalidate Inventory Cache
+    revalidatePath("/admin/products");
 
     return Response.json(menu, { status: 201 });
   } catch (error) {
