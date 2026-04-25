@@ -30,42 +30,11 @@ export default function ReceiptTicket({ order, storeName }) {
   });
 
   return (
-    <>
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden;
-            margin: 0;
-            padding: 0;
-          }
-
-          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId},
-          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId} * {
-            visibility: visible;
-          }
-
-          body[data-print-receipt-id='${safeReceiptId}'] #${safeReceiptId} {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 80mm !important;
-            display: block !important;
-            background: white !important;
-            color: black !important;
-          }
-
-          @page {
-            margin: 0;
-            size: auto;
-          }
-        }
-      `}</style>
-
-      <div
-        id={safeReceiptId}
-        className="receipt-ticket hidden print:block bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
-        style={{ width: "80mm" }}
-      >
+    <div
+      id="print-area"
+      className="receipt-ticket hidden print:block bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
+      style={{ width: "80mm" }}
+    >
         <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
           <h2 className="text-lg font-bold uppercase">{storeName || "WAREB PLATFORM"}</h2>
           <p className="text-xs">Struk Pesanan Digital</p>
@@ -147,7 +116,6 @@ export default function ReceiptTicket({ order, storeName }) {
           <p>Silakan berkunjung kembali.</p>
           <p className="mt-2 text-[10px] opacity-50">Powered by Wareb Platform</p>
         </div>
-      </div>
-    </>
+    </div>
   );
 }

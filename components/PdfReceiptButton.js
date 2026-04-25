@@ -55,7 +55,7 @@ export default function PdfReceiptButton({ order }) {
   }
 
   return (
-    <button type="button" className="btn" onClick={downloadPdf} style={{ background: "#1d4ed8" }}>
+    <button type="button" className="btn no-print" onClick={downloadPdf} style={{ background: "#1d4ed8" }}>
       Download PDF Struk
     </button>
   );

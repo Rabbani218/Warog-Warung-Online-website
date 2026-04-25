@@ -10,11 +10,8 @@ export default function PrintReceiptWrapper({ order, storeName }) {
 
   const handlePrint = () => {
     setIsPrinting(true);
-    document.body.setAttribute("data-print-receipt-id", safeReceiptId);
-    // Give state time to update if needed, though hidden print works fine
     setTimeout(() => {
       window.print();
-      document.body.removeAttribute("data-print-receipt-id");
       setIsPrinting(false);
     }, 50);
   };
@@ -23,7 +20,7 @@ export default function PrintReceiptWrapper({ order, storeName }) {
     <>
       <button 
         onClick={handlePrint}
-        className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition-colors"
+        className="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition-colors"
         title="Cetak Struk Thermal"
       >
         🖨️ Print
