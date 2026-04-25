@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (status === "authenticated") {
       if (session?.user?.role === "ADMIN") {
-        window.location.href = "/admin/dashboard";
+        router.replace("/admin/dashboard");
       } else {
         toast.error("Akun Anda terdaftar sebagai pelanggan. Silakan gunakan akun admin.");
       }
