@@ -7,11 +7,14 @@ export default withAuth(
     const token = req.nextauth?.token;
     const isAuth = !!token;
 
+    // Normalisasi pathname untuk menangani trailing slashes secara konsisten
+    const path = pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
+
     // 1. Jika akses area admin (kecuali halaman login /admin) tapi bukan ADMIN
-    const isAdminPath = pathname.startsWith("/admin") && pathname !== "/admin";
+    const isAdminPath = path.startsWith("/admin") && path !== "/admin";
     
     // Jangan redirect jika kita sudah berada di /admin (Halaman Login)
-    if (pathname === "/admin") {
+    if (path === "/admin") {
       // Jika sudah login dan ADMIN, baru kita arahkan ke dashboard
       if (isAuth && token?.role === "ADMIN") {
         return NextResponse.redirect(new URL("/admin/dashboard", req.url));
@@ -25,12 +28,12 @@ export default withAuth(
     }
 
     // Jika belum login dan akses /admin/dashboard, redirect ke /admin
-    if (pathname.startsWith("/admin/dashboard") && !isAuth) {
+    if (path.startsWith("/admin/dashboard") && !isAuth) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
     // 2. Jika sudah login & punya store, tapi akses /setup
-    if (pathname.startsWith("/setup") && isAuth && token?.storeId) {
+    if (path.startsWith("/setup") && isAuth && token?.storeId) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
@@ -41,12 +44,13 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
+        const path = pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
         
         // Halaman login admin harus publik
-        if (pathname === "/admin") return true;
+        if (path === "/admin") return true;
 
         // Path /admin/... dan /setup membutuhkan login
-        if (pathname.startsWith("/admin") || pathname.startsWith("/setup")) {
+        if (path.startsWith("/admin") || path.startsWith("/setup")) {
           return !!token;
         }
         
@@ -54,13 +58,20 @@ export default withAuth(
         return true;
       },
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    pages: {
+      signIn: "/admin",
+      error: "/admin",
+    },
+    // Pastikan secret sama dengan yang ada di lib/auth.js untuk menghindari kegagalan dekripsi token
+    secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev_only",
   }
 );
 
 export const config = {
   matcher: [
+    "/admin",
     "/admin/:path*",
+    "/setup",
     "/setup/:path*"
   ],
 };
