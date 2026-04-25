@@ -1,11 +1,11 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import ProductCrud from "@/components/ProductCrud";
 import BannerCrud from "@/components/BannerCrud";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function ProductsPage() {
   const session = await getServerSession(authOptions);

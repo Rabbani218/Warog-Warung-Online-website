@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import SafeImage from "@/components/SafeImage";
 import { Search, Plus, Trash2, Edit3, Clock, Utensils, Loader2, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
@@ -103,13 +104,12 @@ export default function ProductCrud() {
                   className={`group bg-white/70 backdrop-blur-sm border border-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-rose-100/50 transition-all duration-500 flex flex-col ${!product.isAvailable ? 'opacity-70' : ''}`}
                 >
                   <div className="relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl bg-gray-100">
-                    <SafeImage 
-                      src={product.imageUrl} 
-                      alt={product.name} 
-                      width={500}
-                      height={500}
-                      type="menu"
-                      className="w-full h-full object-cover object-center transition-transform group-hover:scale-110 duration-700" 
+                    <Image
+                      src={product.imageUrl || "/placeholder-image.png"}
+                      alt={product.name || "Menu Warung"}
+                      fill
+                      className="object-cover object-center transition-transform group-hover:scale-110 duration-700"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     
                     <div className="absolute top-4 left-4 z-10">

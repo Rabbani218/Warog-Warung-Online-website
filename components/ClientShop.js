@@ -172,13 +172,12 @@ export default function ClientShop({ store, menus, banners, tableNumber, payment
                   className="group bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
                 >
                   <Link href={`/product/${menu.slug}`} className="relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl bg-gray-100 block">
-                    <SafeImage 
-                      src={menu.imageUrl} 
-                      alt={menu.name} 
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" 
-                      width={600} 
-                      height={400} 
-                      type="menu"
+                    <Image
+                      src={menu.imageUrl || "/placeholder-image.png"}
+                      alt={menu.name || "Menu Warung"}
+                      fill
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-bold text-[#FF6B6B] shadow-sm uppercase tracking-wider">
                       {menu.category}
