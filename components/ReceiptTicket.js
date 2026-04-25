@@ -32,7 +32,7 @@ export default function ReceiptTicket({ order, storeName }) {
   return (
     <div
       id="print-area"
-      className="receipt-ticket hidden print:block bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
+      className="receipt-ticket hidden print:block print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:w-full print:h-full print:overflow-visible bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
       style={{ width: "80mm" }}
     >
         <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">

@@ -52,6 +52,15 @@ export async function upsertProductAction(data) {
     return { success: true };
   } catch (error) {
     console.error("Upsert Product Error:", error);
+
+    // ▸ Task 1: Handle Unique Slug Error (P2002)
+    if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
+      return { 
+        success: false, 
+        message: "Nama atau Slug ini sudah digunakan. Silakan gunakan nama lain." 
+      };
+    }
+
     return { success: false, message: error.message };
   }
 }

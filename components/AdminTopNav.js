@@ -18,7 +18,7 @@ export default function AdminTopNav({ currentPath = "" }) {
   return (
     <>
       {/* Floating Desktop Navigation */}
-      <nav className="hidden md:flex items-center justify-center pt-2">
+      <nav className="hidden md:flex items-center justify-center pt-2 print:hidden">
         <div className="bg-white/40 backdrop-blur-xl border border-white/40 p-2 rounded-[2rem] shadow-2xl shadow-slate-200/50 flex items-center gap-1">
           {links.map((item) => {
             const Icon = item.icon;
@@ -63,7 +63,7 @@ export default function AdminTopNav({ currentPath = "" }) {
       </nav>
 
       {/* Modern Mobile Bottom Navigation */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-[400px] md:hidden">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-[400px] md:hidden print:hidden">
         <div className="bg-white/80 backdrop-blur-2xl border border-white/50 px-4 py-3 rounded-[2.5rem] flex justify-around items-center shadow-2xl shadow-slate-300">
           {links.map((item) => {
             const Icon = item.icon;

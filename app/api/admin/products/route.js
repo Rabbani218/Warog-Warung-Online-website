@@ -70,6 +70,15 @@ export async function POST(request) {
     return Response.json(menu, { status: 201 });
   } catch (error) {
     console.error("[API Products POST] Error:", error);
+    
+    // ▸ Task 1: Handle Unique Slug Error (P2002)
+    if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
+      return Response.json(
+        { message: "Nama atau Slug ini sudah digunakan. Silakan gunakan nama lain." }, 
+        { status: 400 }
+      );
+    }
+
     return Response.json(
       { message: error.message || "Gagal menyimpan produk." }, 
       { status: 500 }

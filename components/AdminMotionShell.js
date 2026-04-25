@@ -17,7 +17,7 @@ export default function AdminMotionShell({ children }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#fafafa] text-slate-900 font-sans selection:bg-rose-100 selection:text-rose-900">
       {/* Dynamic Rainbow Mesh Background */}
-      <div className="fixed inset-0 z-0 bg-[#fafafa]">
+      <div className="fixed inset-0 z-0 bg-[#fafafa] print:hidden">
         {/* Layer 1: Base Gradient */}
         <div className="absolute inset-0 bg-gradient-to-tr from-rose-50/50 via-white to-blue-50/50" />
         
@@ -50,7 +50,7 @@ export default function AdminMotionShell({ children }) {
 
       {/* Subtle Noise Overlay for Texture */}
       <div 
-        className="fixed inset-0 z-[1] opacity-[0.03] mix-blend-overlay pointer-events-none"
+        className="fixed inset-0 z-[1] opacity-[0.03] mix-blend-overlay pointer-events-none print:hidden"
         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }}
       />
 
