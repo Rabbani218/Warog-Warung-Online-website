@@ -330,3 +330,13 @@ model ChatMessage {
 
   @@index([storeId, createdAt])
 }
+
+model ChatLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  userMessage  String   @db.Text
+  botReply     String   @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}

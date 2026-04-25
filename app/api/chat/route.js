@@ -219,6 +219,15 @@ ${message}`;
         .catch((error) => console.error("[ChatAPI] AI chat log failed:", error));
     }
 
+    // ▸ SAVE TO CHATLOG (Task 2: Central Inbox QnA)
+    prisma.chatLog.create({
+      data: {
+        userId: session?.user?.id || null,
+        userMessage: message,
+        botReply: reply
+      }
+    }).catch(err => console.error("[ChatAPI] ChatLog save failed:", err));
+
     return NextResponse.json(
       { reply },
       { headers: { "Access-Control-Allow-Origin": "*" } }

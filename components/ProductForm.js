@@ -42,16 +42,27 @@ export default function ProductForm({ initialData = null }) {
     setLoading(true);
 
     try {
-      const result = await upsertProductAction(form);
+      // Data Sanitization
+      const parsedPrice = parseInt(form.price, 10);
+      if (isNaN(parsedPrice)) throw new Error("Harga harus berupa angka valid.");
+      
+      if (!form.category) throw new Error("Kategori tidak boleh kosong.");
+
+      const payload = {
+        ...form,
+        price: parsedPrice
+      };
+
+      const result = await upsertProductAction(payload);
       if (result.success) {
         toast.success(initialData ? "Produk diperbarui!" : "Produk berhasil dibuat!");
         router.push("/admin/products");
         router.refresh();
       } else {
-        toast.error(result.message || "Gagal menyimpan produk.");
+        throw new Error(result.message || "Gagal menyimpan produk.");
       }
     } catch (error) {
-      toast.error("Terjadi kesalahan sistem.");
+      toast.error(error.message || "Terjadi kesalahan sistem.");
     } finally {
       setLoading(false);
     }
@@ -75,8 +86,8 @@ export default function ProductForm({ initialData = null }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full max-w-7xl mx-auto">
+        <div className="lg:col-span-2 space-y-6">
           {/* Section: Informasi Dasar */}
           <section className="glass-panel p-6 md:p-8 space-y-6">
             <div className="flex items-center gap-2 text-[#FF6B6B] border-b border-slate-100 pb-4 mb-6">
@@ -204,7 +215,7 @@ export default function ProductForm({ initialData = null }) {
           </section>
         </div>
 
-        <div className="space-y-8">
+        <div className="lg:col-span-1 space-y-6">
           {/* Section: Media */}
           <section className="glass-panel p-6 md:p-8 space-y-6 sticky top-8">
             <div className="flex items-center gap-2 text-[#FF6B6B] border-b border-slate-100 pb-4 mb-6">
@@ -271,12 +282,8 @@ export default function ProductForm({ initialData = null }) {
       </div>
 
       {/* Sticky Bottom Bar */}
-      <motion.div 
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-4xl z-50"
-      >
-        <div className="glass-panel px-6 py-4 flex items-center justify-between gap-4 shadow-2xl border-t border-white/50">
+      <div className="sticky bottom-0 z-50 bg-white/80 backdrop-blur-md p-4 border-t flex justify-end gap-4 w-full mt-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-4">
           <button 
             type="button"
             onClick={() => router.back()}
@@ -288,13 +295,13 @@ export default function ProductForm({ initialData = null }) {
           <button 
             type="submit"
             disabled={loading}
-            className="flex-1 md:flex-none px-10 py-3 bg-[#FF6B6B] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#ff5252] transition-all shadow-xl shadow-rose-200 disabled:opacity-50"
+            className="px-10 py-3 bg-[#FF6B6B] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#ff5252] transition-all shadow-xl shadow-rose-200 disabled:opacity-50"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
             {initialData ? "Simpan Perubahan" : "Simpan Produk"}
           </button>
         </div>
-      </motion.div>
+      </div>
     </form>
   );
 }

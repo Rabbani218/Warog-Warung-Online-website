@@ -36,31 +36,43 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const session = await ensureAdmin();
-  if (!session) {
-    return Response.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const body = await request.json();
-  const store = await getDefaultStore();
-
-  const menu = await prisma.menu.create({
-    data: {
-      storeId: store.id,
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
-      imageUrl: body.imageUrl,
-      price: Number(body.price || 0),
-      isActive: body.isActive !== false,
-      recipes: {
-        create: (body.recipes || []).map((recipe) => ({
-          ingredientId: recipe.ingredientId,
-          qtyNeeded: Number(recipe.qtyNeeded || 0)
-        }))
-      }
+  try {
+    const session = await ensureAdmin();
+    if (!session) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
-  });
 
-  return Response.json(menu, { status: 201 });
+    const body = await request.json();
+    const store = await getDefaultStore();
+
+    if (!body.name || !body.slug) {
+      return Response.json({ message: "Nama dan Slug wajib diisi." }, { status: 400 });
+    }
+
+    const menu = await prisma.menu.create({
+      data: {
+        storeId: store.id,
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        imageUrl: body.imageUrl,
+        price: Number(body.price || 0),
+        isActive: body.isActive !== false,
+        recipes: {
+          create: (body.recipes || []).map((recipe) => ({
+            ingredientId: recipe.ingredientId,
+            qtyNeeded: Number(recipe.qtyNeeded || 0)
+          }))
+        }
+      }
+    });
+
+    return Response.json(menu, { status: 201 });
+  } catch (error) {
+    console.error("[API Products POST] Error:", error);
+    return Response.json(
+      { message: error.message || "Gagal menyimpan produk." }, 
+      { status: 500 }
+    );
+  }
 }
