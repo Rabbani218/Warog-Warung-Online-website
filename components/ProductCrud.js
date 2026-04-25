@@ -108,7 +108,7 @@ export default function ProductCrud() {
                       src={product.imageUrl || "/placeholder-image.png"}
                       alt={product.name || "Menu Warung"}
                       fill
-                      className="object-cover object-center transition-transform group-hover:scale-110 duration-700"
+                      className="object-contain object-center w-full h-full transition-transform group-hover:scale-110 duration-700"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     
