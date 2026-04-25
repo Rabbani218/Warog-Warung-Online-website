@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import AdminTopNav from "@/components/AdminTopNav";
 import ProductCrud from "@/components/ProductCrud";
 import BannerCrud from "@/components/BannerCrud";
 
@@ -25,7 +24,6 @@ export default async function ProductsPage() {
               Kelola Produk & Banner
             </h1>
           </div>
-          <AdminTopNav currentPath="/admin/products" />
         </header>
 
         <div className="flex flex-col gap-12">

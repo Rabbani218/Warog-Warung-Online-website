@@ -52,12 +52,12 @@ export default async function ProductDetailPage({ params }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
               {/* Left Column: Product Image */}
-              <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-white shadow-2xl shadow-slate-200 group border border-slate-100">
+              <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden bg-white shadow-2xl shadow-slate-200 group border border-slate-100">
                 <SafeImage 
                   src={product.imageUrl} 
                   alt={product.name} 
                   fill 
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                  className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-110"
                 />
                 <div className="absolute top-8 left-8 flex flex-col gap-3">
                   <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg text-[10px] font-black uppercase tracking-widest text-slate-900 border border-white/20">

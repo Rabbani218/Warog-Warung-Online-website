@@ -56,8 +56,8 @@ export default function ProductForm({ initialData = null }) {
       const result = await upsertProductAction(payload);
       if (result.success) {
         toast.success(initialData ? "Produk diperbarui!" : "Produk berhasil dibuat!");
-        router.push("/admin/products");
         router.refresh();
+        router.push("/admin/products");
       } else {
         throw new Error(result.message || "Gagal menyimpan produk.");
       }

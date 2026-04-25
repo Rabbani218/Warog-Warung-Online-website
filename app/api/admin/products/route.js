@@ -79,7 +79,7 @@ export async function POST(request) {
     // ▸ Task 1: Handle Unique Slug Error (P2002)
     if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
       return Response.json(
-        { message: "Nama atau Slug ini sudah digunakan. Silakan gunakan nama lain." }, 
+        { message: "Nama produk sudah ada, gunakan nama lain." }, 
         { status: 400 }
       );
     }
