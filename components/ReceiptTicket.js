@@ -14,16 +14,16 @@ export default function ReceiptTicket({ order, storeName }) {
   const safeReceiptId = `receipt-${String(order.id || order.orderCode || order.invoiceNumber || "default")}`
     .replace(/[^a-zA-Z0-9-_]/g, "-");
 
-  const invoiceNumber = order.invoiceNumber || order.invoice?.invoiceNumber || order.summary?.transaction_code || order.orderCode || "-";
-  const paymentMethod = order.paymentMethod || order.summary?.payment_method || "CASH";
-  const paymentStatus = order.paymentStatus || order.summary?.payment_status || order.status || "PENDING";
-  const orderStatus = order.status || order.summary?.order_status || "PENDING";
-  const tableNumber = order.tableNumber || order.summary?.table_number || "-";
-  const subTotal = Number(order.subTotal ?? order.summary?.sub_total ?? 0);
-  const taxAmount = Number(order.taxAmount ?? order.summary?.ppn_amount ?? 0);
-  const grandTotal = Number(order.grandTotal ?? order.summary?.grand_total ?? 0);
-  const createdAt = order.createdAt || order.summary?.created_at || Date.now();
-  const customerName = order.customerName || order.userName || order.user?.name || order.summary?.customer_name || "-";
+  const invoiceNumber = order?.invoiceNumber || order?.invoice?.invoiceNumber || order?.summary?.transaction_code || order?.orderCode || "-";
+  const paymentMethod = order?.paymentMethod || order?.summary?.payment_method || "Tunai";
+  const paymentStatus = order?.paymentStatus || order?.summary?.payment_status || order?.status || "PENDING";
+  const orderStatus = order?.status || order?.summary?.order_status || "PENDING";
+  const tableNumber = order?.tableNumber || order?.summary?.table_number || "-";
+  const subTotal = Number(order?.subTotal ?? order?.summary?.sub_total ?? 0);
+  const taxAmount = Number(order?.taxAmount ?? order?.summary?.ppn_amount ?? 0);
+  const grandTotal = Number(order?.grandTotal ?? order?.summary?.grand_total ?? 0);
+  const createdAt = order?.createdAt || order?.summary?.created_at || Date.now();
+  const customerName = order?.customerName || order?.user?.name || order?.userName || order?.summary?.customer_name || "Pelanggan";
 
   const dateStr = new Date(createdAt).toLocaleString("id-ID", {
     dateStyle: "medium",
@@ -32,8 +32,8 @@ export default function ReceiptTicket({ order, storeName }) {
 
   return (
     <div
-      id="print-area"
-      className="receipt-ticket hidden print:block print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:w-full print:h-full print:overflow-visible bg-white text-black font-mono text-[12px] leading-tight z-[9999]"
+      id="printable-receipt"
+      className="print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:w-full print:h-full print:overflow-visible p-8 bg-white text-black font-mono text-[12px] leading-tight"
       style={{ width: "80mm" }}
     >
         <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
@@ -82,7 +82,7 @@ export default function ReceiptTicket({ order, storeName }) {
 
         <div className="space-y-2 mb-2">
           {receiptItems.map((item, idx) => {
-            const itemName = item.menu?.name || item.menuName || item.name || `Item ${idx + 1}`;
+            const itemName = item.menu?.name || item.product?.name || item.menuName || item.name || `Item ${idx + 1}`;
             const quantity = Number(item.quantity || item.qty || 0);
             const unitPrice = Number(item.price || item.unitPrice || 0);
             const lineTotal = Number(item.lineTotal || unitPrice * quantity || 0);

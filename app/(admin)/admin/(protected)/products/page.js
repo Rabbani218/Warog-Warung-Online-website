@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import ProductCrud from "@/components/ProductCrud";
 import BannerCrud from "@/components/BannerCrud";
+import AdminHeader from "@/components/AdminHeader";
 
 export default async function ProductsPage() {
   const session = await getServerSession(authOptions);
@@ -17,14 +18,12 @@ export default async function ProductsPage() {
   return (
     <main className="w-full min-h-screen">
       <div className="w-full space-y-8">
-        <header className="mb-8">
-          <div className="mb-4">
-            <span className="badge">Product & Ads</span>
-            <h1 className="retro-heading mt-2 text-3xl font-bold">
-              Kelola Produk & Banner
-            </h1>
-          </div>
-        </header>
+        <AdminHeader 
+          badge="Product & Ads"
+          title={<>Kelola <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Produk & Banner</span></>}
+          description="Atur katalog produk warung Anda dan kelola banner promosi untuk menarik pelanggan."
+          badgeColor="indigo"
+        />
 
         <div className="flex flex-col gap-12">
           <ProductCrud />

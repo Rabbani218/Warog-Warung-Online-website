@@ -593,31 +593,24 @@ td {
 
 /* Print Styles for Thermal Receipt */
 @media print {
-  body, html {
-    overflow: visible !important;
-    height: auto !important;
-    background-color: white !important;
+  /* Sembunyikan semua elemen kecuali area resi */
+  body > *:not(#printable-receipt) {
+    display: none !important;
   }
-  /* Sembunyikan semua elemen secara default saat print */
-  body * {
-    visibility: hidden;
-  }
-  /* Tampilkan hanya area cetak dan anak-anaknya */
-  #print-area, #print-area * {
-    visibility: visible;
-  }
-  /* Posisikan area cetak di sudut kiri atas kertas */
-  #print-area {
+  #printable-receipt {
+    display: block !important;
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 2rem;
   }
-  /* Sembunyikan elemen UI di dalam area cetak seperti tombol Tutup/Print */
-  .no-print {
-    display: none !important;
+  /* Pastikan teks berwarna hitam pekat */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color: black !important;
+    text-shadow: none !important;
   }
 }
 

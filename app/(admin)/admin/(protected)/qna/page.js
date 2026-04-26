@@ -6,6 +6,9 @@ import { MessageSquare, User, Bot, Clock, ChevronLeft, ChevronRight } from "luci
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import AdminHeader from "@/components/AdminHeader";
 
 export default async function AdminQnaInboxPage({ searchParams }) {
   const session = await getServerSession(authOptions);
@@ -32,13 +35,12 @@ export default async function AdminQnaInboxPage({ searchParams }) {
 
   return (
     <main className="w-full max-w-6xl mx-auto space-y-8 pb-20">
-      <header className="mb-10">
-        <span className="badge mb-2">Customer Interaction</span>
-        <h1 className="retro-heading text-3xl font-bold flex items-center gap-3">
-          <MessageSquare className="text-[#FF6B6B]" size={32} /> Central Inbox QnA
-        </h1>
-        <p className="text-slate-500 mt-2">Riwayat interaksi pelanggan dengan Chatbot AI.</p>
-      </header>
+      <AdminHeader 
+        badge="Customer Interaction"
+        title={<>Central <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Inbox QnA</span></>}
+        description="Riwayat interaksi pelanggan dengan Chatbot AI. Pantau semua pertanyaan masuk dan respon yang diberikan oleh asisten pintar."
+        badgeColor="rose"
+      />
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">

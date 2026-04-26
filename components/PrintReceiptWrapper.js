@@ -20,7 +20,7 @@ export default function PrintReceiptWrapper({ order, storeName }) {
     <>
       <button 
         onClick={handlePrint}
-        className="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition-colors"
+        className="no-print print:hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition-colors"
         title="Cetak Struk Thermal"
       >
         🖨️ Print
