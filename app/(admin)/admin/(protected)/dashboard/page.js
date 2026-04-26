@@ -6,7 +6,7 @@ import { getDefaultStore } from "@/lib/store";
 import { calculateInventoryForecast } from "@/lib/inventory-forecast";
 import ExcelUploader from "@/components/ExcelUploader";
 import QrDownloadCard from "@/components/QrDownloadCard";
-import AdminTopNav from "@/components/AdminTopNav";
+import AdminHeader from "@/components/AdminHeader";
 
 import InlineInventoryManager from "@/components/InlineInventoryManager";
 import AdminAnalyticsCharts from "@/components/AdminAnalyticsChartsWrapper";
@@ -152,16 +152,12 @@ export default async function AdminDashboardPage() {
     <main className="admin-shell py-8 px-4 sm:px-6 lg:px-8 max-w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
-          <div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-rose-50 text-rose-500 uppercase tracking-widest mb-3 border border-rose-100">
-              Operational Hub
-            </span>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
-            <p className="text-slate-500 font-medium mt-1">Pantau performa harian dan manajemen stok {store.name}.</p>
-          </div>
-          <AdminTopNav currentPath="/admin/dashboard" />
-        </header>
+        <AdminHeader 
+          badge="Operational Hub"
+          title={<>Dashboard <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Overview</span></>}
+          description={<>Pantau performa harian, statistik penjualan, dan manajemen stok <span className="text-rose-500 font-bold">{store.name}</span> secara real-time.</>}
+          badgeColor="rose"
+        />
 
         {/* Stats Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">

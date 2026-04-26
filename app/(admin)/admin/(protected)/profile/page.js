@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
-import AdminTopNav from "@/components/AdminTopNav";
+import AdminHeader from "@/components/AdminHeader";
 import StoreSettingsForm from "@/components/StoreSettingsForm";
 
 export const dynamic = "force-dynamic";
@@ -31,15 +31,12 @@ export default async function ProfilePage() {
   return (
     <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
       <div className="w-full max-w-7xl mx-auto">
-        <header style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            <span className="badge">Business Settings</span>
-            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
-              Pengaturan Toko
-            </h1>
-          </div>
-          <AdminTopNav currentPath="/admin/profile" />
-        </header>
+        <AdminHeader 
+          badge="Business Settings"
+          title={<>Pengaturan <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Toko</span></>}
+          description="Kelola informasi dasar toko Anda, bio, alamat, dan nomor WhatsApp untuk mempermudah komunikasi pelanggan."
+          badgeColor="indigo"
+        />
 
         <div style={{ maxWidth: "880px", margin: "0 auto" }}>
           <StoreSettingsForm

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
-import AdminTopNav from "@/components/AdminTopNav";
+import AdminHeader from "@/components/AdminHeader";
 import KdsRealtimeBoard from "@/components/KdsRealtimeBoard";
 
 export const dynamic = "force-dynamic";
@@ -42,15 +42,12 @@ export default async function KdsPage() {
   return (
     <main className="admin-shell" style={{ padding: "2rem 1rem" }}>
       <div className="w-full max-w-7xl mx-auto">
-        <header style={{ marginBottom: "2rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            <span className="badge">KDS System</span>
-            <h1 className="retro-heading" style={{ margin: "0.5rem 0 0", fontSize: "1.8rem" }}>
-              Kitchen Queue Live
-            </h1>
-          </div>
-          <AdminTopNav currentPath="/admin/kds" />
-        </header>
+        <AdminHeader 
+          badge="KDS System"
+          title={<>Kitchen Queue <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Live</span></>}
+          description="Monitor pesanan yang masuk dan sedang diproses secara real-time untuk efisiensi operasional dapur."
+          badgeColor="emerald"
+        />
 
         <KdsRealtimeBoard initialQueue={queue} />
       </div>

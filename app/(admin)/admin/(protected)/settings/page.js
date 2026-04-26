@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import AdminTopNav from "@/components/AdminTopNav";
+import AdminHeader from "@/components/AdminHeader";
 import PaymentSettingsForm from "@/components/PaymentSettingsForm";
 import { prisma } from "@/lib/prisma";
 import { getDefaultStore } from "@/lib/store";
@@ -25,15 +25,12 @@ export default async function SettingsPage() {
   return (
     <main className="w-full min-h-screen">
       <div className="w-full space-y-8">
-        <header className="mb-8">
-          <div className="mb-4">
-            <span className="badge">Payment & Settings</span>
-            <h1 className="retro-heading mt-2 text-3xl font-bold">
-              Pengaturan Sistem
-            </h1>
-          </div>
-          <AdminTopNav currentPath="/admin/settings" />
-        </header>
+        <AdminHeader 
+          badge="Payment & Settings"
+          title={<>Pengaturan <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Sistem</span></>}
+          description="Konfigurasi metode pembayaran, QRIS, dan pengaturan operasional lainnya untuk toko Anda."
+          badgeColor="amber"
+        />
 
         <div className="w-full max-w-6xl mx-auto">
           <PaymentSettingsForm

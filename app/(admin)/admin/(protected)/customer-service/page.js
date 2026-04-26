@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { MessageSquare, User, Clock, Bot } from "lucide-react";
-import AdminTopNav from "@/components/AdminTopNav";
+import AdminHeader from "@/components/AdminHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -21,13 +21,12 @@ export default async function CustomerServicePage() {
 
   return (
     <main className="w-full min-h-screen">
-      <header className="mb-8">
-        <div className="mb-4">
-          <span className="badge">Monitoring</span>
-          <h1 className="retro-heading mt-2 text-3xl font-bold">Customer Service Chat</h1>
-        </div>
-        <AdminTopNav currentPath="/admin/customer-service" />
-      </header>
+      <AdminHeader 
+        badge="Monitoring"
+        title={<>Customer Service <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">Chat</span></>}
+        description="Pantau interaksi pelanggan dengan AI Assistant secara real-time untuk memastikan layanan terbaik."
+        badgeColor="rose"
+      />
 
       <section className="glass-panel p-6 md:p-10">
         <div className="flex items-center gap-3 mb-8 pb-4 border-b border-slate-100">
