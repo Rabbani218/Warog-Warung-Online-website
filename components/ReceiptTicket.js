@@ -23,6 +23,7 @@ export default function ReceiptTicket({ order, storeName }) {
   const taxAmount = Number(order.taxAmount ?? order.summary?.ppn_amount ?? 0);
   const grandTotal = Number(order.grandTotal ?? order.summary?.grand_total ?? 0);
   const createdAt = order.createdAt || order.summary?.created_at || Date.now();
+  const customerName = order.customerName || order.userName || order.user?.name || order.summary?.customer_name || "-";
 
   const dateStr = new Date(createdAt).toLocaleString("id-ID", {
     dateStyle: "medium",
@@ -69,6 +70,12 @@ export default function ReceiptTicket({ order, storeName }) {
             <span>Waktu:</span>
             <span className="text-right">{dateStr}</span>
           </div>
+          {customerName !== "-" && (
+            <div className="flex justify-between gap-2">
+              <span>Pelanggan:</span>
+              <span className="font-bold text-right">{customerName}</span>
+            </div>
+          )}
         </div>
 
         <div className="border-b border-dashed border-gray-400 mb-2" />

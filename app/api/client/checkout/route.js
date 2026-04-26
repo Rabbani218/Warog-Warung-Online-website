@@ -186,6 +186,7 @@ export async function POST(request) {
         grandTotal,
         kotId: ticket.id,
         invoiceUrl: `/invoice/${order.id}`,
+        customerName: body.customerName || null,
         details: order.details.map((detail) => ({
           id: detail.id,
           menuId: detail.menuId,
