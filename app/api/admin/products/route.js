@@ -22,7 +22,6 @@ export async function GET() {
 
   const store = await getDefaultStore();
   const products = await prisma.menu.findMany({
-    where: { storeId: store.id },
     include: {
       recipes: {
         include: {
@@ -50,18 +49,11 @@ export async function POST(request) {
       return Response.json({ message: "Nama dan Slug wajib diisi." }, { status: 400 });
     }
 
-    // Generate unique slug if duplicate
-    let finalSlug = body.slug;
-    try {
-      const existingMenu = await prisma.menu.findUnique({
-        where: { slug: finalSlug }
-      });
-      if (existingMenu) {
-        finalSlug = body.slug + '-' + Date.now().toString().slice(-4);
-      }
-    } catch (checkError) {
-      console.warn("[API Products] Slug check failed, proceeding with original slug:", checkError.message);
-    }
+    // Ambil base slug dari request
+    const baseSlug = body.slug || body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    // Tambahkan 4 digit acak dari timestamp agar pasti unik
+    const uniqueSlug = `${baseSlug}-${Date.now().toString().slice(-4)}`;
 
     // Parse price as integer
     const parsedPrice = parseInt(body.price, 10);
@@ -73,7 +65,7 @@ export async function POST(request) {
       data: {
         storeId: store.id,
         name: body.name,
-        slug: finalSlug,
+        slug: uniqueSlug,
         description: body.description,
         imageUrl: body.imageUrl,
         price: parsedPrice,
@@ -95,36 +87,10 @@ export async function POST(request) {
   } catch (error) {
     console.error("[API Products POST] Error:", error);
     
-    // Handle Unique Slug Error (P2002) - auto-retry with unique slug
-    if (error.code === 'P2002' && error.meta?.target?.includes('slug')) {
-      const uniqueSlug = body.slug + '-' + Date.now().toString().slice(-4);
-      try {
-        const parsedPrice = parseInt(body.price, 10);
-        const retryMenu = await prisma.menu.create({
-          data: {
-            storeId: store.id,
-            name: body.name,
-            slug: uniqueSlug,
-            description: body.description,
-            imageUrl: body.imageUrl,
-            price: isNaN(parsedPrice) ? 0 : parsedPrice,
-            isActive: body.isActive !== false
-          }
-        });
-        revalidatePath("/admin/products");
-        revalidatePath("/admin/dashboard");
-        return Response.json(retryMenu, { status: 201 });
-      } catch (retryError) {
-        return Response.json(
-          { message: "Gagal membuat produk setelah mencoba slug alternatif." }, 
-          { status: 500 }
-        );
-      }
-    }
-
     return Response.json(
       { message: error.message || "Gagal menyimpan produk." }, 
       { status: 500 }
     );
   }
 }
+

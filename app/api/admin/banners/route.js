@@ -22,7 +22,6 @@ export async function GET() {
 
   const store = await getDefaultStore();
   const banners = await prisma.banner.findMany({
-    where: { storeId: store.id },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }]
   });
 

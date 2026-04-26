@@ -33,22 +33,18 @@ export default async function ClientHomePage({ searchParams }) {
   try {
     const results = await Promise.allSettled([
       prisma.menu.findMany({
-        where: { storeId: store?.id, isActive: true },
+        where: { isAvailable: true },
         orderBy: { createdAt: "desc" }
       }),
       prisma.banner.findMany({
-        where: { storeId: store?.id, isActive: true },
+        where: { isActive: true },
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }]
       }),
-      prisma.paymentSettings.findUnique({
-        where: { storeId: store?.id }
-      }),
+      prisma.paymentSettings.findFirst(),
       prisma.employee.findMany({
-        where: { storeId: store?.id },
         orderBy: { createdAt: "asc" }
       }),
       prisma.review.findMany({
-        where: { menu: { storeId: store?.id } },
         include: { user: { select: { name: true, avatar: true } } },
         orderBy: { createdAt: "desc" }
       })
