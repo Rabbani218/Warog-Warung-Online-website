@@ -33,7 +33,7 @@ export default function ReceiptTicket({ order, storeName }) {
   return (
     <div
       id="printable-receipt"
-      className="print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:w-full print:h-full print:overflow-visible p-8 bg-white text-black font-mono text-[12px] leading-tight"
+      className="p-8 bg-white text-black font-mono text-[12px] leading-tight"
       style={{ width: "80mm" }}
     >
         <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">

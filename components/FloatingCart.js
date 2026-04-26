@@ -270,7 +270,7 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
             </div>
 
             <button 
-              className="w-full bg-white text-emerald-600 font-bold py-3 rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-white text-emerald-600 font-bold py-3 rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 no-print"
               onClick={handleInvoicePrint}
             >
               <Receipt size={18} />

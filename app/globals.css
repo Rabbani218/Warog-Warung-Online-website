@@ -591,26 +591,42 @@ td {
   }
 }
 
-/* Print Styles for Thermal Receipt */
+/* Absolute Visibility Override for Printing Receipt */
 @media print {
-  /* Sembunyikan semua elemen kecuali area resi */
-  body > *:not(#printable-receipt) {
-    display: none !important;
+  /* 1. Ubah background kertas jadi putih murni, matikan gradien */
+  html, body, main {
+    background: white !important;
+    background-image: none !important;
+    height: auto !important;
+    overflow: visible !important;
   }
+
+  /* 2. Sembunyikan SEMUA elemen di website secara default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 3. Nyalakan KEMBALI khusus untuk resi dan isi di dalamnya */
+  #printable-receipt, #printable-receipt * {
+    visibility: visible;
+  }
+
+  /* 4. Tarik paksa resi ke sudut kiri atas kertas */
   #printable-receipt {
-    display: block !important;
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
+    max-width: 100%;
     margin: 0;
-    padding: 2rem;
-  }
-  /* Pastikan teks berwarna hitam pekat */
-  * {
-    -webkit-print-color-adjust: exact !important;
+    padding: 20px;
+    background-color: white !important;
     color: black !important;
-    text-shadow: none !important;
+  }
+
+  /* 5. Sembunyikan elemen yang tidak perlu dicetak */
+  .no-print {
+    display: none !important;
   }
 }
 
