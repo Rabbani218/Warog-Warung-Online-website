@@ -141,11 +141,11 @@ export default function AdForm({ initialData = null }) {
             </div>
 
             <div className="space-y-6">
-              <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200">
+              <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center shadow-inner">
                 <SafeImage 
                   src={form.imageUrl} 
                   alt="Banner Preview" 
-                  className="w-full h-full object-cover"
+                  className="object-contain w-full h-full p-2"
                   type="ads"
                 />
               </div>

@@ -224,11 +224,11 @@ export default function ProductForm({ initialData = null }) {
             </div>
 
             <div className="space-y-6">
-              <div className="aspect-square rounded-3xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200">
-                <SafeImage 
-                  src={form.imageUrl} 
-                  alt={form.name || "Preview"} 
-                  className="w-full h-full object-cover"
+<div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center shadow-inner">
+              <SafeImage 
+                src={form.imageUrl} 
+                alt={form.name || "Preview"} 
+                className="object-contain w-full h-full p-2"
                 />
               </div>
 

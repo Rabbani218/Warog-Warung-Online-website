@@ -1,5 +1,7 @@
 "use server";
 
+export const maxDuration = 60;
+
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -24,10 +26,10 @@ export async function upsertProductAction(data) {
     const storeId = await getAdminStoreId();
     const { id, name, slug, description, imageUrl, price, category, preparationTime, isAvailable, isActive } = data;
 
+    // Build payload - exclude slug on update if name hasn't changed to avoid unique constraint error
     const payload = {
       storeId,
       name,
-      slug,
       description,
       imageUrl,
       price: parseFloat(price),
@@ -37,7 +39,17 @@ export async function upsertProductAction(data) {
       isActive: isActive !== undefined ? isActive : true,
     };
 
+    // Only update slug for new products or when name changes
+    if (!id) {
+      payload.slug = slug;
+    }
+
     if (id) {
+      // For updates, only include slug if it was explicitly changed
+      const existing = await prisma.menu.findUnique({ where: { id } });
+      if (existing && existing.name !== name) {
+        payload.slug = slug;
+      }
       await prisma.menu.update({
         where: { id },
         data: payload
