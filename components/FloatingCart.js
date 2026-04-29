@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, CreditCard, Trash2, Plus, Minus, Receipt, CheckCircle2, ChevronRight } from "lucide-react";
 import { enqueueCheckout, flushCheckoutQueue, getQueueItems } from "@/lib/offline-queue";
-import ReceiptTicket from "@/components/ReceiptTicket";
+import ReceiptTicketPortal from "@/components/ReceiptTicketPortal";
 
 export default function FloatingCart({ cart, setCart, paymentSettings }) {
   const [tableNumber, setTableNumber] = useState("");
@@ -276,7 +276,7 @@ export default function FloatingCart({ cart, setCart, paymentSettings }) {
               <Receipt size={18} />
               Cetak Struk Thermal
             </button>
-            <ReceiptTicket order={invoice} storeName="WAREB PLATFORM" />
+            <ReceiptTicketPortal order={invoice} storeName="WAREB PLATFORM" />
           </motion.div>
         )}
       </AnimatePresence>

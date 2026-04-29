@@ -37,7 +37,7 @@ test.describe('Admin Portal Flow', () => {
 
     await Promise.all([
       page.waitForURL(/\/admin\/dashboard/, { timeout: 30000 }),
-      page.getByRole('button', { name: /Masuk ke Dashboard|Login/i }).first().click(),
+      page.getByRole('button', { name: /Masuk ke Dashboard/i }).click(),
     ]);
 
     await page.waitForLoadState('networkidle');

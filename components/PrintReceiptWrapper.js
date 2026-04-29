@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ReceiptTicket from "./ReceiptTicket";
+import ReceiptTicketPortal from "./ReceiptTicketPortal";
 
 export default function PrintReceiptWrapper({ order, storeName }) {
   const [isPrinting, setIsPrinting] = useState(false);
@@ -26,7 +26,7 @@ export default function PrintReceiptWrapper({ order, storeName }) {
         🖨️ Print
       </button>
       {/* Hidden receipt ticket that will be shown by CSS @media print */}
-      <ReceiptTicket order={order} storeName={storeName} />
+      <ReceiptTicketPortal order={order} storeName={storeName} />
     </>
   );
 }
