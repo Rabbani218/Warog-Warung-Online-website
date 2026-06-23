@@ -1,25 +1,27 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import ReceiptTicket from "./ReceiptTicket";
 
+/**
+ * ReceiptTicketPortal — renders ReceiptTicket directly as a child of document.body
+ * using React Portal. This completely bypasses any parent containers with
+ * overflow:hidden, position:relative, or CSS transforms (from Framer Motion)
+ * that would clip or misplace the receipt in the print view.
+ */
 export default function ReceiptTicketPortal({ order, storeName }) {
-  const containerRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Create a container div for the portal
-    const el = document.createElement("div");
-    document.body.appendChild(el);
-    containerRef.current = el;
-    return () => {
-      document.body.removeChild(el);
-    };
+    setMounted(true);
+    return () => setMounted(false);
   }, []);
 
-  // Only render the receipt in the portal
-  if (!containerRef.current) return null;
+  // Only render on client after mount — avoids SSR hydration mismatch
+  if (!mounted || !order) return null;
+
   return createPortal(
-    <ReceiptTicket order={order} storeName={storeName} />, 
-    containerRef.current
+    <ReceiptTicket order={order} storeName={storeName} />,
+    document.body
   );
 }

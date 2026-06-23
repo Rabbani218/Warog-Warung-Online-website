@@ -34,7 +34,15 @@ export default function ReceiptTicket({ order, storeName }) {
     <div
       id="printable-receipt"
       className="p-8 bg-white text-black font-mono text-[12px] leading-tight"
-      style={{ width: "80mm" }}
+      style={{
+        width: "80mm",
+        // Sembunyikan off-screen di tampilan normal — print CSS akan override ini
+        position: "fixed",
+        left: "-9999px",
+        top: "-9999px",
+        zIndex: -1,
+        pointerEvents: "none",
+      }}
     >
         <div className="text-center border-b border-dashed border-gray-400 pb-2 mb-2">
           <h2 className="text-lg font-bold uppercase">{storeName || "WAREB PLATFORM"}</h2>
