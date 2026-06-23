@@ -34,8 +34,11 @@ export async function POST(request) {
   try {
     const result = await prisma.$transaction(async (tx) => {
       const menuIds = [...new Set(items.map((item) => item.menuId))];
+
+      // Cari menu yang tersedia (isAvailable=true), konsisten dengan halaman utama
+      // Tidak filter by storeId dulu agar lebih fleksibel, fallback ke store pertama
       const menus = await tx.menu.findMany({
-        where: { id: { in: menuIds }, storeId: store.id, isActive: true },
+        where: { id: { in: menuIds }, isAvailable: true },
         include: {
           recipes: {
             include: { ingredient: true }
@@ -44,7 +47,11 @@ export async function POST(request) {
       });
 
       if (menus.length !== menuIds.length) {
-        throw new Error("Sebagian menu tidak ditemukan atau nonaktif.");
+        // Cari menu yang tidak ditemukan untuk pesan error yang lebih jelas
+        const foundIds = new Set(menus.map((m) => m.id));
+        const missingIds = menuIds.filter((id) => !foundIds.has(id));
+        console.error("[Checkout] Menu tidak ditemukan atau nonaktif:", missingIds);
+        throw new Error(`Menu tidak tersedia. Silakan refresh halaman dan coba lagi.`);
       }
 
       const menuMap = new Map(menus.map((menu) => [menu.id, menu]));

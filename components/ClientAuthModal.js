@@ -32,20 +32,24 @@ export default function ClientAuthModal({ isOpen, onClose }) {
           email: form.email.trim().toLowerCase(),
           password: form.password,
           redirect: false,
-          callbackUrl: window.location.href,
         });
 
         if (res?.error) {
           toast.error("Login gagal: Periksa email dan sandi Anda");
+          setLoading(false);
         } else {
           toast.success("Selamat Datang Kembali!");
-          router.refresh();
           onClose();
           setForm({ name: "", email: "", password: "" });
-          window.location.reload();
+          // Tunggu sebentar agar cookie session dari NextAuth benar-benar tersimpan
+          // sebelum reload halaman
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         }
 
       } else {
+        // REGISTER FLOW
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,15 +63,37 @@ export default function ClientAuthModal({ isOpen, onClose }) {
         
         const data = await res.json();
         if (res.ok) {
-          toast.success("Akun berhasil dibuat! Silakan masuk.");
-          setMode("login");
+          toast.success("Akun berhasil dibuat! Sedang masuk...");
+          
+          // Auto-login setelah register berhasil — user tidak perlu login manual
+          const loginRes = await signIn("credentials", {
+            email: form.email.trim().toLowerCase(),
+            password: form.password,
+            redirect: false,
+          });
+
+          if (loginRes?.error) {
+            // Jika auto-login gagal, fallback ke mode login manual
+            toast.info("Silakan masuk dengan akun baru Anda.");
+            setMode("login");
+            setForm({ ...form, password: "" });
+            setLoading(false);
+          } else {
+            toast.success("Berhasil masuk!");
+            onClose();
+            setForm({ name: "", email: "", password: "" });
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          }
         } else {
           toast.error(data.message || data.error || "Gagal mendaftar.");
+          setLoading(false);
         }
       }
     } catch (err) {
+      console.error("[ClientAuthModal] Error:", err);
       toast.error("Terjadi kesalahan sistem.");
-    } finally {
       setLoading(false);
     }
   };
@@ -204,6 +230,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
                     value={form.password}
                     onChange={(e) => setForm({...form, password: e.target.value})}
                     required
+                    minLength={8}
                   />
                 </div>
               </div>
@@ -211,10 +238,22 @@ export default function ClientAuthModal({ isOpen, onClose }) {
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-4.5 bg-[#FF6B6B] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-[#ff5252] transition-all shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50"
+                className="w-full py-4 bg-[#FF6B6B] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-[#ff5252] transition-all shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Memproses..." : (mode === "login" ? "MASUK SEKARANG" : "DAFTAR AKUN")}
-                {!loading && <ArrowRight size={18} />}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    Memproses...
+                  </span>
+                ) : (
+                  <>
+                    {mode === "login" ? "MASUK SEKARANG" : "DAFTAR AKUN"}
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </form>
 
@@ -227,6 +266,7 @@ export default function ClientAuthModal({ isOpen, onClose }) {
 
             {/* Google Login */}
             <button 
+              type="button"
               onClick={() => signIn("google")}
               className="w-full py-4 px-6 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 font-bold text-slate-600 hover:bg-slate-50 hover:border-rose-100 transition-all active:scale-95"
             >
